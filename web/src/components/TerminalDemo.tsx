@@ -82,7 +82,7 @@ export default function TerminalDemo() {
 
   return (
     <div
-      className="bg-[rgba(14,12,19,0.86)] border border-line rounded-[14px] overflow-hidden shadow-[0_30px_80px_rgba(0,0,0,0.5)] backdrop-blur-[8px]"
+      className="w-full bg-[rgba(14,12,19,0.86)] border border-line rounded-[14px] overflow-hidden shadow-[0_30px_80px_rgba(0,0,0,0.5)] backdrop-blur-[8px]"
       role="img"
       aria-label="Terminal demo: autocurl index.js generates index.autocurl, then autocurl index.autocurl opens a request picker."
     >
@@ -94,7 +94,7 @@ export default function TerminalDemo() {
       <pre
         ref={preRef}
         id="t"
-        className="font-mono text-[14px] leading-[1.7] p-5 whitespace-pre-wrap min-h-[330px] text-bone font-normal"
+        className="font-mono text-[12.5px] sm:text-[14px] leading-[1.65] sm:leading-[1.7] p-3.5 sm:p-5 whitespace-pre-wrap break-all sm:break-normal min-h-[290px] sm:min-h-[330px] text-bone font-normal overflow-x-auto"
       ></pre>
     </div>
   );

@@ -152,7 +152,7 @@
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  padding: 32px;
+  padding: 20px;
   border-radius: 22px;
   display: flex;
   flex-direction: column;
@@ -225,9 +225,15 @@
   transform: rotate(-1.5deg);
 }
 
-@media (max-width: 860px) {
+@media (min-width: 640px) {
   .cell {
     padding: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .cell {
+    padding: 32px;
   }
 }
 
