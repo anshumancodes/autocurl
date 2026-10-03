@@ -82,16 +82,20 @@ export default function TerminalDemo() {
 
   return (
     <div
-      className="term"
+      className="bg-[rgba(14,12,19,0.86)] border border-line rounded-[14px] overflow-hidden shadow-[0_30px_80px_rgba(0,0,0,0.5)] backdrop-blur-[8px]"
       role="img"
       aria-label="Terminal demo: autocurl index.js generates index.autocurl, then autocurl index.autocurl opens a request picker."
     >
-      <div className="bar">
-        <i></i>
-        <i></i>
-        <i></i>
+      <div className="flex gap-1.75 px-3.5 py-3 border-b border-line">
+        <i className="w-2.75 h-2.75 rounded-full bg-line not-italic block" />
+        <i className="w-2.75 h-2.75 rounded-full bg-line not-italic block" />
+        <i className="w-2.75 h-2.75 rounded-full bg-line not-italic block" />
       </div>
-      <pre ref={preRef} id="t"></pre>
+      <pre
+        ref={preRef}
+        id="t"
+        className="font-mono text-[14px] leading-[1.7] p-5 whitespace-pre-wrap min-h-[330px] text-bone font-normal"
+      ></pre>
     </div>
   );
 }
