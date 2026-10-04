@@ -24,7 +24,7 @@ export default function Navbar() {
   const closeMenu = () => setIsMobileMenuOpen(false);
 
   return (
-    <header className="max-w-[1120px] w-full mx-auto px-6 relative z-50">
+    <header className="max-w-280 w-full mx-auto px-6 relative z-50">
       <nav className="flex justify-between items-center py-5 sm:py-5.5">
         <Link
           className="font-extrabold text-[22px] tracking-[-0.02em] no-underline"

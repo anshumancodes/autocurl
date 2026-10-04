@@ -4,7 +4,7 @@ import { siteConfig } from "@/lib/siteConfig";
 export default function Footer() {
   return (
     <footer className="py-12 sm:py-16 text-[14px] text-mute bg-[rgba(21,19,27,0.92)] border-t border-line mt-auto">
-      <div className="max-w-[1120px] mx-auto px-6">
+      <div className="max-w-280 mx-auto px-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
           {/* Column 1: Brand & Philosophy */}
           <div>

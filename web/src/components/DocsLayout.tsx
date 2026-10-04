@@ -48,12 +48,12 @@ export default function DocsLayout({
       <div className="bg" aria-hidden="true"></div>
       <Navbar />
 
-      <div className="max-w-[1120px] mx-auto px-6 py-8 sm:py-12">
+      <div className="max-w-280 mx-auto px-6 py-8 sm:py-12">
         <Breadcrumbs items={breadcrumbs} />
 
         <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-10 items-start">
           {/* Docs Sidebar */}
-          <aside className="hidden lg:block sticky top-8 bg-[rgba(21,19,27,0.7)] border border-line rounded-2xl p-5 backdrop-blur-[8px]">
+          <aside className="hidden lg:block sticky top-8 bg-[rgba(21,19,27,0.7)] border border-line rounded-2xl p-5 backdrop-blur-sm">
             <nav aria-label="Documentation Sidebar">
               {docsNav.map((section, idx) => (
                 <div key={idx} className={idx > 0 ? "mt-6" : ""}>
