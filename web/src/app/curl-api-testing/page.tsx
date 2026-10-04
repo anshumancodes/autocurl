@@ -165,7 +165,7 @@ export default function CurlApiTestingPage() {
                   fire the request, and inspect the response output right in your
                   terminal without leaving your IDE.
                 </p>
-                <div className="bg-[#15131b] border border-line rounded-lg p-3 font-mono text-[13px] text-sun">
+                <div className="bg-ink border border-line rounded-lg p-3 font-mono text-[13px] text-sun">
                   $ autocurl endpoints.acr
                 </div>
               </div>
@@ -179,7 +179,7 @@ export default function CurlApiTestingPage() {
                   pre-commit hooks using the <code className="text-sun">--run</code>{" "}
                   flag:
                 </p>
-                <div className="bg-[#15131b] border border-line rounded-lg p-3 font-mono text-[13px] text-sun">
+                <div className="bg-ink border border-line rounded-lg p-3 font-mono text-[13px] text-sun">
                   $ autocurl --run &quot;Health Ping&quot; endpoints.acr
                 </div>
               </div>
