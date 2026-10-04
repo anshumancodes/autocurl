@@ -81,7 +81,7 @@ export default async function Image() {
               margin: 0,
             }}
           >
-            Define requests in JS → Generate clean .acr curl files → Interactive
+            Define requests in controller → Generate clean .autocurl  files → Interactive
             terminal picker.
           </p>
         </div>
