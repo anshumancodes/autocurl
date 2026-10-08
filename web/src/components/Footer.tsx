@@ -16,11 +16,9 @@ export default function Footer() {
             </Link>
             <p className="text-[13.5px] leading-relaxed text-mute mb-4">
               A fast, local-first CLI tool for generating and running curl
-              requests from clean, human-readable <code className="text-sun">.acr</code> files.
+              requests from clean, human-readable <code className="text-sun">.autocurl</code> files.
             </p>
-            <div className="font-mono text-[12.5px] text-mute">
-              <span>Licensed under MIT</span>
-            </div>
+            
           </div>
 
           {/* Column 2: Documentation */}
@@ -63,10 +61,10 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/docs/acr-format"
+                  href="/docs/autocurl-format"
                   className="hover:text-bone transition-colors no-underline"
                 >
-                  .acr File Format Spec
+                  .autocurl File Format Spec
                 </Link>
               </li>
               <li>
@@ -123,7 +121,7 @@ export default function Footer() {
                   href="/#how"
                   className="hover:text-bone transition-colors no-underline"
                 >
-                  The index.js → index.acr Workflow
+                  The index.js → index.autocurl Workflow
                 </Link>
               </li>
               <li>
