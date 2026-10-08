@@ -128,7 +128,7 @@ export default function Home() {
       </div>
 
       <Link
-        href="/docs/autocurl-format"
+        href="/docs/using-autocurl"
         className="hidden md:inline-flex items-center gap-1.5 font-mono text-[12px] text-mute hover:text-sun transition-colors"
       >
         .autocurl specification
@@ -211,7 +211,7 @@ export default function Home() {
 
     <div className="mt-14 pt-6 border-t border-line md:hidden">
       <Link
-        href="/docs/autocurl-format"
+        href="/docs/using-autocurl"
         className="inline-flex items-center gap-1.5 font-mono text-[12px] text-mute hover:text-sun transition-colors"
       >
         .autocurl specification
@@ -418,7 +418,7 @@ export default function Home() {
 
             <div className="mt-8 flex justify-center gap-4 text-[14px]">
               <Link
-                href="/docs/installation"
+                href="/docs/getting-started"
                 className="text-mute hover:text-bone underline transition-colors"
               >
                 Other install methods
