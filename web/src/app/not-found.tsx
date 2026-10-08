@@ -26,14 +26,14 @@ export default function NotFound() {
             Command Not Found
           </h1>
           <p className="text-mute text-[16px] sm:text-[18px] mb-8">
-            The page you are looking for does not exist or has been moved. Pick a
-            destination below to get back on track.
+            The page you are looking for does not exist or has been moved. Pick
+            a destination below to get back on track.
           </p>
 
           <div className="bg-[#0e0c13] border border-line rounded-[12px] p-5 font-mono text-[13.5px] text-left mb-8 overflow-x-auto">
             <span className="text-sun">$</span> autocurl --find-page
             <div className="text-mute mt-1">
-              autocurl: page not found in index.acr
+              autocurl: page not found in index.autocurl
             </div>
             <div className="text-sky mt-1">
               Available routes: /, /docs, /docs/getting-started, /docs/commands
