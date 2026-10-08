@@ -1,14 +1,8 @@
 {
-  "title": "autocurl Docs",
+  "title": "autocurl",
   "pages": [
     "index",
-    "---Getting Started---",
     "getting-started",
-    "installation",
-    "---Core Concepts---",
-    "usage",
-    "autocurl-format",
-    "commands",
-    "examples"
+    "using-autocurl"
   ]
 }
