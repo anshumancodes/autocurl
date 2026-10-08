@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, JetBrains_Mono } from "next/font/google";
+import { RootProvider } from "fumadocs-ui/provider/next";
 import { siteConfig } from "@/lib/siteConfig";
 import "./globals.css";
 
@@ -132,7 +133,9 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareAppSchema) }}
         />
       </head>
-      <body className="min-h-screen flex flex-col antialiased">{children}</body>
+      <body className="min-h-screen flex flex-col antialiased">
+        <RootProvider>{children}</RootProvider>
+      </body>
     </html>
   );
 }
