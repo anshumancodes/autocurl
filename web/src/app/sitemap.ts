@@ -37,7 +37,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/docs/acr-format`,
+      url: `${baseUrl}/docs/autocurl-format`,
       lastModified,
       changeFrequency: "monthly",
       priority: 0.8,
@@ -66,6 +66,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly",
       priority: 0.85,
     },
-    
   ];
 }
