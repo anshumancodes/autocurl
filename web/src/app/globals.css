@@ -40,6 +40,11 @@
     color: var(--bone);
     background: var(--ink);
   }
+
+  body:has(#nd-docs-layout) {
+    color: var(--color-fd-foreground);
+    background-color: var(--color-fd-background);
+  }
 }
 
 .bg {
