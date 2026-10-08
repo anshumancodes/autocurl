@@ -1,0 +1,105 @@
+---
+title: "Getting Started with autocurl - 2-Minute Quickstart Guide"
+description: "Learn how to install autocurl, define your API requests in JavaScript, compile to .acr format, and execute requests directly from your terminal."
+---
+
+This guide walks you through setting up autocurl, defining your first request collection in JavaScript, generating human-readable curl commands, and executing requests interactively.
+
+## Step 1: Install autocurl
+
+If you are on macOS or Linux with Homebrew installed, run:
+
+```bash
+brew install autocurl
+```
+
+For Linux binaries, Windows, or curl installation scripts, see the [full installation guide](/docs/installation).
+
+## Step 2: Define your API requests in JavaScript
+
+Create a file named `requests.js` (or `index.js`) in your project root. Export an array of request objects:
+
+```js
+// requests.js
+export default [
+  {
+    name: "Health Check",
+    method: "GET",
+    url: "https://api.github.com/zen"
+  },
+  {
+    name: "Fetch User Profile",
+    method: "GET",
+    url: "https://api.github.com/users/octocat",
+    headers: {
+      "Accept": "application/vnd.github.v3+json",
+      "User-Agent": "autocurl-client"
+    }
+  },
+  {
+    name: "Create Test Issue",
+    method: "POST",
+    url: "https://httpbin.org/post",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: {
+      title: "Found a bug in API",
+      severity: "medium"
+    }
+  }
+];
+```
+
+## Step 3: Compile to plain .acr curl file
+
+Run the generator command against your JavaScript file:
+
+```bash
+autocurl requests.js
+```
+
+autocurl reads the definitions and creates `requests.acr`:
+
+```bash
+# Health Check
+curl -X GET \
+  "https://api.github.com/zen"
+
+# Fetch User Profile
+curl -X GET \
+  "https://api.github.com/users/octocat" \
+  -H "Accept: application/vnd.github.v3+json" \
+  -H "User-Agent: autocurl-client"
+
+# Create Test Issue
+curl -X POST \
+  "https://httpbin.org/post" \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Found a bug in API","severity":"medium"}'
+```
+
+## Step 4: Pick and execute interactively
+
+Now pass the generated `.acr` file to autocurl:
+
+```bash
+autocurl requests.acr
+```
+
+autocurl opens an interactive prompt in your terminal:
+
+```
+? Select a request to run:
+  ❯ Health Check
+    Fetch User Profile
+    Create Test Issue
+
+(Press ↑/↓ to move, Enter to execute, Ctrl+C to exit)
+```
+
+Select an item and press `Enter`. autocurl invokes standard cURL and displays the response status, headers, and response body directly in stdout.
+
+---
+
+**Next:** [Explore CLI Usage & Keyboard Navigation →](/docs/usage) | [Learn about .acr syntax](/docs/acr-format)

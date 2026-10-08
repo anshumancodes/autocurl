@@ -1,0 +1,78 @@
+---
+title: "CLI Usage & Terminal Picker - autocurl Guide"
+description: "Learn how to use the autocurl CLI, operate the interactive terminal request selector, fuzzy search requests, and run requests in dry-run mode."
+---
+
+autocurl adapts to the file format you provide: give it a JavaScript definition file to compile curl commands, or give it an `.acr` file to launch the interactive request picker.
+
+## The Two Execution Modes
+
+### Mode 1: Generator — Compiling JavaScript to Curl
+Reads an array of request objects from your JavaScript file and writes the compiled curl commands to a matching `.acr` file.
+
+```bash
+autocurl index.js
+```
+
+### Mode 2: Runner — Interactive Terminal Selector
+Parses an existing `.acr` file, displays every request in an interactive terminal menu, and executes the one you choose.
+
+```bash
+autocurl index.acr
+```
+
+## Terminal Picker Controls
+
+When running in interactive mode, use the following standard terminal keyboard navigation:
+
+| Key / Action | Function |
+|---|---|
+| `↑` / `k` | Move selection up |
+| `↓` / `j` | Move selection down |
+| `Enter` | Execute highlighted request via cURL |
+| `[Type text]` | Fuzzy filter requests by title or endpoint name |
+| `Esc` / `Ctrl+C` | Exit picker without running requests |
+
+## Direct Execution (Bypassing the Selector)
+
+For scripts, shell aliases, or CI/CD pipelines, you can run a specific request directly by name using the `-r` or `--run` flag:
+
+```bash
+autocurl --run "List users" index.acr
+```
+
+## Dry Run Mode (Inspect Without Executing)
+
+Need to see the exact curl command that will be fired before sending network packets to production? Pass the `--dry-run` flag:
+
+```bash
+$ autocurl --dry-run index.acr
+
+curl -X POST "https://api.dev/users" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Ada"}'
+```
+
+## Using Environment Variables
+
+Because autocurl compiles JavaScript code into curl, you can use standard Node.js `process.env` in your `index.js` file:
+
+```js
+const API_URL = process.env.API_URL || "http://localhost:3000";
+const TOKEN = process.env.AUTH_TOKEN || "test-token";
+
+export default [
+  {
+    name: "Get Authenticated User",
+    method: "GET",
+    url: `${API_URL}/me`,
+    headers: {
+      "Authorization": `Bearer ${TOKEN}`
+    }
+  }
+];
+```
+
+---
+
+[← Installation Guide](/docs/installation) | [.acr File Format Spec →](/docs/acr-format)

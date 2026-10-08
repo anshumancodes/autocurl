@@ -1,0 +1,36 @@
+---
+title: "Documentation Overview - Architecture & Concepts"
+description: "Comprehensive documentation for autocurl CLI. Learn how autocurl compiles JavaScript request definitions into plain .acr curl files and executes them in your terminal."
+---
+
+autocurl is a local-first, developer-friendly command-line tool that simplifies generating, organizing, and executing curl requests. Define your API calls in JavaScript, generate plain `.acr` files, and run them with an interactive terminal selector.
+
+## Core Architecture: Separation of Concerns
+
+Traditional API tools either force you into heavy GUI applications with proprietary cloud databases, or leave you wrestling with unwieldy, unquoted bash strings. autocurl separates the request lifecycle into three distinct, transparent phases:
+
+### Phase 1: Definition (index.js)
+Structured JavaScript array containing endpoint URLs, HTTP methods, headers, and request bodies. Fully programmable and clean.
+
+### Phase 2: Representation (index.acr)
+Clean, human-readable curl commands separated by readable headers. Tracked in git, diffable in pull requests, zero lock-in.
+
+### Phase 3: Execution (Terminal Runner)
+Interactive keyboard-driven selector or direct command runner that delegates directly to native cURL on your machine.
+
+## Documentation Guides
+
+- [Getting Started](/docs/getting-started) — Create your first request file, compile it, and run your first curl command in 2 minutes.
+- [Installation](/docs/installation) — Install via Homebrew, shell script, or binary download for macOS, Linux, and Windows.
+- [CLI Usage & Interactive Runner](/docs/usage) — Master the terminal request selector, fuzzy search, dry-run mode, and CLI flags.
+- [.acr File Format Spec](/docs/acr-format) — Understand comment delimiters, multi-line arguments, JSON body escaping, and git diffing.
+- [Command Reference](/docs/commands) — Full table of CLI options, environment variable inheritance, and standard exit codes.
+- [Real-World API Examples](/docs/examples) — Authentication tokens, multipart file uploads, query parameters, and webhook debugging.
+
+## Why Developers Use autocurl
+
+Developers reach for curl because it is universally available, fast, and has no moving parts. However, managing 20+ curl commands in Markdown files, scratchpads, or shell histories is painful. Flags are forgotten, quotes are corrupted, and tokens are accidentally overwritten.
+
+GUI clients like Postman or Insomnia solve organization, but at the expense of hundreds of megabytes of RAM, forced account logins, cloud storage of private endpoints, and opaque JSON export files that break git merges.
+
+**autocurl** gives you the best of both worlds: structured request authoring in JavaScript, plain-text curl storage on your disk, and an instant terminal runner.
