@@ -1,23 +1,64 @@
 ---
-title: "Getting Started with autocurl - 2-Minute Quickstart Guide"
-description: "Learn how to install autocurl, define your API requests in JavaScript, compile to .acr format, and execute requests directly from your terminal."
+title: "Getting Started"
+description: "Install autocurl, author requests in JavaScript, compile to .autocurl format, and execute requests directly from your terminal in under 2 minutes."
 ---
 
-This guide walks you through setting up autocurl, defining your first request collection in JavaScript, generating human-readable curl commands, and executing requests interactively.
+This guide walks you through installing autocurl, authoring your first request collection in JavaScript, generating human-readable `.autocurl` files, and executing requests interactively.
+
+---
 
 ## Step 1: Install autocurl
 
-If you are on macOS or Linux with Homebrew installed, run:
+autocurl is distributed as a single static binary with zero external runtime dependencies. It utilizes the native `curl` binary already installed on your system.
+
+### Option A: Homebrew (macOS & Linux — Recommended)
+
+The easiest way to install and keep autocurl updated:
 
 ```bash
 brew install autocurl
 ```
 
-For Linux binaries, Windows, or curl installation scripts, see the [full installation guide](/docs/installation).
+To update autocurl in the future:
+
+```bash
+brew upgrade autocurl
+```
+
+### Option B: Quick Shell Installer
+
+For Linux servers, CI/CD runners, or environments without Homebrew:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/anshuman/autocurl/main/install.sh | bash
+```
+
+### Option C: Manual Binary Download
+
+Standalone binaries are available from [GitHub Releases](https://github.com/anshuman/autocurl/releases) for all major platforms:
+
+| Operating System | Architecture |
+|---|---|
+| **macOS** | Apple Silicon (M1/M2/M3/M4) & Intel x86_64 |
+| **Linux** | x86_64 & ARM64 (`aarch64`) |
+| **Windows** | x86_64 standalone executable (`.exe`) |
+
+### Verifying Installation
+
+Check that autocurl is accessible in your shell:
+
+```bash
+$ autocurl --version
+autocurl 0.1.0 (x86_64-apple-darwin)
+```
+
+> **Requirements:** autocurl relies on the standard `curl` executable. Ensure `curl` is available in your `$PATH` (available by default on macOS, modern Linux distributions, and Windows 10/11).
+
+---
 
 ## Step 2: Define your API requests in JavaScript
 
-Create a file named `requests.js` (or `index.js`) in your project root. Export an array of request objects:
+Create a file named `requests.js` (or `index.js`) in your project directory. Export an array of request objects:
 
 ```js
 // requests.js
@@ -25,41 +66,43 @@ export default [
   {
     name: "Health Check",
     method: "GET",
-    url: "https://api.github.com/zen"
+    url: "https://api.github.com/zen",
   },
   {
     name: "Fetch User Profile",
     method: "GET",
     url: "https://api.github.com/users/octocat",
     headers: {
-      "Accept": "application/vnd.github.v3+json",
-      "User-Agent": "autocurl-client"
-    }
+      Accept: "application/vnd.github.v3+json",
+      "User-Agent": "autocurl-client",
+    },
   },
   {
     name: "Create Test Issue",
     method: "POST",
     url: "https://httpbin.org/post",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
     },
     body: {
       title: "Found a bug in API",
-      severity: "medium"
-    }
-  }
+      severity: "medium",
+    },
+  },
 ];
 ```
 
-## Step 3: Compile to plain .acr curl file
+---
 
-Run the generator command against your JavaScript file:
+## Step 3: Compile to plain .autocurl curl file
+
+Run the compiler against your JavaScript file:
 
 ```bash
 autocurl requests.js
 ```
 
-autocurl reads the definitions and creates `requests.acr`:
+autocurl evaluates the definitions and writes `requests.autocurl`:
 
 ```bash
 # Health Check
@@ -79,12 +122,14 @@ curl -X POST \
   -d '{"title":"Found a bug in API","severity":"medium"}'
 ```
 
+---
+
 ## Step 4: Pick and execute interactively
 
-Now pass the generated `.acr` file to autocurl:
+Pass the `.autocurl` file to autocurl to launch the interactive selector:
 
 ```bash
-autocurl requests.acr
+autocurl requests.autocurl
 ```
 
 autocurl opens an interactive prompt in your terminal:
@@ -98,8 +143,8 @@ autocurl opens an interactive prompt in your terminal:
 (Press ↑/↓ to move, Enter to execute, Ctrl+C to exit)
 ```
 
-Select an item and press `Enter`. autocurl invokes standard cURL and displays the response status, headers, and response body directly in stdout.
+Select a request and press `Enter`. autocurl invokes native `curl` and prints the response status, headers, and body directly to your terminal.
 
 ---
 
-**Next:** [Explore CLI Usage & Keyboard Navigation →](/docs/usage) | [Learn about .acr syntax](/docs/acr-format)
+**Next:** [Using autocurl effectively →](/docs/using-autocurl) Learn the `.autocurl` specification, terminal picker shortcuts, direct execution flags, and real-world examples.
