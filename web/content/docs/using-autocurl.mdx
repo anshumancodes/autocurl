@@ -1,0 +1,246 @@
+---
+title: "Using autocurl effectively"
+description: "Comprehensive guide to autocurl: execution modes, the .autocurl file format, terminal picker controls, CLI flags, exit codes, and real-world examples."
+---
+
+autocurl is designed to be intuitive and adaptable: author your requests programmatically in JavaScript, manage them cleanly in version control as `.autocurl` files, and execute them via interactive terminal selection or direct CLI flags.
+
+---
+
+## The Two Execution Modes
+
+autocurl inspects the file extension you pass and switches modes automatically:
+
+### Mode 1: Generator — Compiling JavaScript to Curl
+
+Reads an array of request objects from your JavaScript file and compiles the curl commands into a matching `.autocurl` file:
+
+```bash
+autocurl index.js
+# Generates index.autocurl in the same directory
+```
+
+You can also pass `-g` or `--generate` explicitly.
+
+### Mode 2: Runner — Interactive Terminal Selector
+
+Parses an existing `.autocurl` file, presents each request in a searchable terminal picker, and executes the selected request via system `curl`:
+
+```bash
+autocurl index.autocurl
+```
+
+If no filename is specified, autocurl looks for `index.js` or `index.autocurl` in the current working directory by default.
+
+---
+
+## The .autocurl File Format
+
+An `.autocurl` file is a plain-text document containing human-readable cURL commands separated by comment blocks.
+
+### Anatomy of an .autocurl File
+
+```bash
+# 1. Comment header acts as the request label
+# Create New Organization
+curl -X POST \
+  "https://api.example.com/v1/organizations" \
+  -H "Authorization: Bearer dev_token_xyz" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Acme Corp", "plan": "pro"}'
+
+# Get Current User
+curl -X GET \
+  "https://api.example.com/v1/me" \
+  -H "Authorization: Bearer dev_token_xyz"
+```
+
+### Syntax & Formatting Rules
+
+1. **Request Names (`# [Name]`):** A comment line beginning with `# ` directly above a `curl` invocation defines the title shown in the interactive CLI picker. If omitted, autocurl defaults to the HTTP method and URL endpoint.
+2. **Multi-line Continuations (`\`):** Commands use standard POSIX backslash continuations. This separates flags, headers, and payloads across lines so each change yields clean diffs in git.
+3. **Quoting Standards:**
+   - URLs and HTTP header values are wrapped in double quotes (`"..."`).
+   - JSON bodies and payloads are wrapped in single quotes (`'...'`) to prevent unintended shell variable interpolation.
+
+---
+
+## Terminal Picker Controls
+
+When running in interactive mode (`autocurl [file].autocurl`), use standard terminal keybindings:
+
+| Key / Action | Function |
+|---|---|
+| `↑` / `k` | Move selection up |
+| `↓` / `j` | Move selection down |
+| `Enter` | Execute selected request via native cURL |
+| `[Type text]` | Fuzzy filter requests by name or URL |
+| `Esc` / `Ctrl+C` | Exit picker without running requests |
+
+---
+
+## Direct Execution & CLI Options
+
+### Synopsis
+
+```bash
+autocurl [file] [options]
+```
+
+### Direct Execution (Bypassing the Selector)
+
+In CI/CD jobs, shell scripts, or git hooks, you can bypass the interactive menu and run a specific request directly by name using the `-r` or `--run` flag:
+
+```bash
+autocurl --run "List users" index.autocurl
+```
+
+### Dry Run Mode
+
+To view the exact `curl` command that will run without dispatching network packets, use `--dry-run`:
+
+```bash
+$ autocurl --dry-run index.autocurl
+
+curl -X POST "https://api.dev/users" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Ada"}'
+```
+
+### Pre-filtering Requests
+
+You can launch the terminal menu with a search query already applied:
+
+```bash
+autocurl --filter "auth" index.autocurl
+```
+
+### Flags & Options Reference
+
+| Flag | Type | Description |
+|---|---|---|
+| `[file]` | String | Path to definition (`.js`) or compiled (`.autocurl`) file. Defaults to `index.js` or `index.autocurl`. |
+| `-r, --run <name>` | String | Execute a request by its name immediately without opening the interactive terminal picker. |
+| `-d, --dry-run` | Boolean | Print the fully formatted curl command to stdout instead of sending network packets. |
+| `-g, --generate` | Boolean | Compile the input JavaScript file to `.autocurl` and exit immediately. |
+| `--filter <query>` | String | Launch the terminal picker pre-filtered with the matching search query. |
+| `-v, --verbose` | Boolean | Instruct cURL to print verbose request and response header diagnostics (`curl -v`). |
+| `-V, --version` | Boolean | Display installed autocurl version and system architecture. |
+| `-h, --help` | Boolean | Display help information and command syntax. |
+
+### Exit Codes
+
+autocurl follows standard UNIX exit codes for scripting reliability:
+
+- `0` (**SUCCESS**) — Command or HTTP request completed without error.
+- `1` (**ERROR**) — cURL execution failed or returned an error status.
+- `2` (**PARSE_ERROR**) — Input file could not be found, read, or contains invalid syntax.
+
+---
+
+## Environment Variables & Dynamic Configurations
+
+Because autocurl definition files are standard JavaScript, you can read environment variables using `process.env`:
+
+```js
+// requests.js
+const API_URL = process.env.API_URL || "http://localhost:3000";
+const TOKEN = process.env.AUTH_TOKEN || "test-token";
+
+export default [
+  {
+    name: "Get Authenticated User",
+    method: "GET",
+    url: `${API_URL}/me`,
+    headers: {
+      Authorization: `Bearer ${TOKEN}`,
+    },
+  },
+];
+```
+
+You can run `API_URL="https://staging.api.com" autocurl requests.js` to compile environment-specific files when needed.
+
+---
+
+## Real-World Examples
+
+### 1. Bearer Token Authentication & JSON Payloads
+
+```js
+// requests.js
+export default [
+  {
+    name: "Create Project",
+    method: "POST",
+    url: "https://api.acme.dev/v1/projects",
+    headers: {
+      Authorization: "Bearer sk_test_51MzQ3w...",
+      "Content-Type": "application/json",
+    },
+    body: {
+      title: "New Marketing Campaign",
+      visibility: "private",
+      tags: ["marketing", "q4"],
+    },
+  },
+];
+```
+
+Compiled `.autocurl` output:
+
+```bash
+# Create Project
+curl -X POST \
+  "https://api.acme.dev/v1/projects" \
+  -H "Authorization: Bearer sk_test_51MzQ3w..." \
+  -H "Content-Type: application/json" \
+  -d '{"title":"New Marketing Campaign","visibility":"private","tags":["marketing","q4"]}'
+```
+
+### 2. Paginated GET Requests with Query Parameters
+
+```js
+export default [
+  {
+    name: "Filter Active Subscriptions",
+    method: "GET",
+    url: "https://api.acme.dev/v1/subscriptions?status=active&limit=25&sort=desc",
+    headers: {
+      Accept: "application/json",
+    },
+  },
+];
+```
+
+### 3. Multipart Form File Upload
+
+Uploading files with cURL multipart form data (`-F`):
+
+```js
+export default [
+  {
+    name: "Upload User Avatar",
+    method: "POST",
+    url: "https://api.acme.dev/v1/users/42/avatar",
+    formData: {
+      file: "@./assets/avatar.png",
+      caption: "Profile Photo",
+    },
+  },
+];
+```
+
+Compiled `.autocurl` output:
+
+```bash
+# Upload User Avatar
+curl -X POST \
+  "https://api.acme.dev/v1/users/42/avatar" \
+  -F "file=@./assets/avatar.png" \
+  -F "caption=Profile Photo"
+```
+
+---
+
+[← Getting Started](/docs/getting-started) | [Why autocurl](/docs)
