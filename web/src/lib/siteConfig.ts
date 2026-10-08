@@ -3,7 +3,7 @@ export const siteConfig = {
   title: "autocurl - CLI tool for generating and running curl requests",
   tagline: "Your curl requests in one readable, git-friendly file",
   description:
-    "Define your API requests in JavaScript. autocurl generates clean, reproducible .acr curl files and gives you an interactive terminal runner. Fast, lightweight, local-first.",
+    "Define your API requests in any programming language. autocurl generates clean, reproducible .autocurl curl files and gives you an interactive terminal runner. Fast, lightweight, local-first.",
   url: process.env.NEXT_PUBLIC_SITE_URL || "https://autocurl.lol",
   ogImage: "https://autocurl.dev/og.png",
   author: {
@@ -44,7 +44,7 @@ export const siteConfig = {
     "curl API tool",
     "developer API tools",
     "CLI API testing tool",
-    ".acr file",
+    ".autocurl file",
     "git friendly api client",
   ],
   verification: {
