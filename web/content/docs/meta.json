@@ -1,0 +1,14 @@
+{
+  "title": "autocurl Docs",
+  "pages": [
+    "index",
+    "---Getting Started---",
+    "getting-started",
+    "installation",
+    "---Core Concepts---",
+    "usage",
+    "acr-format",
+    "commands",
+    "examples"
+  ]
+}
