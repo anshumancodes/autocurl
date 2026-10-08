@@ -5,20 +5,19 @@ import FlipWord from "@/components/FlipWord";
 import TerminalDemo from "@/components/TerminalDemo";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import SpotlightCard from "@/components/SpotlightCard";
 import { ArrowRight } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "autocurl - CLI tool for generating and running curl requests",
   description:
-    "Define your API requests in JavaScript. autocurl compiles them into a plain .acr file, then gives you an interactive terminal picker to run curl requests instantly. Local-first, git-friendly, zero GUI.",
+    "Define your API requests in JavaScript. autocurl compiles them into a plain .autocurl file, then gives you an interactive terminal picker to run curl requests instantly. Local-first, git-friendly, zero GUI.",
   alternates: {
     canonical: "/",
   },
   openGraph: {
     title: "autocurl - CLI tool for generating and running curl requests",
     description:
-      "Define requests in JS, compile to plain .acr curl files, and run them with an interactive terminal picker. 100% local, git-diffable, and lightweight.",
+      "Define requests in JS, compile to plain .autocurl curl files, and run them with an interactive terminal picker. 100% local, git-diffable, and lightweight.",
     url: "/",
   },
 };
@@ -27,17 +26,17 @@ const faqItems = [
   {
     question: "What is autocurl and how does it relate to curl?",
     answer:
-      "autocurl is a command-line developer tool designed to bridge the gap between ad-hoc curl commands and heavy GUI API clients. It does not replace curl—instead, it lets you define API requests cleanly in JavaScript, generates standard, reproducible curl commands in a human-readable .acr file, and provides an interactive terminal runner to execute them.",
+      "autocurl is a command-line developer tool designed to bridge the gap between ad-hoc curl commands and heavy GUI API clients. It does not replace curl—instead, it lets you define API requests cleanly in JavaScript, generates standard, reproducible curl commands in a human-readable .autocurl file, and provides an interactive terminal runner to execute them.",
   },
   {
-    question: "What is an .acr file?",
+    question: "What is an .autocurl file?",
     answer:
-      "An .acr (autocurl request) file is a plain-text file containing standard, multi-line curl commands separated by readable comments. Because it is plain text, .acr files can be checked into git, reviewed in pull requests, and inspected in any text editor without proprietary software.",
+      "An .autocurl file is a plain-text file containing standard, multi-line curl commands separated by readable comments. Because it is plain text, .autocurl files can be checked into git, reviewed in pull requests, and inspected in any text editor without proprietary software.",
   },
   {
-    question: "Can I run .acr requests without autocurl installed?",
+    question: "Can I run .autocurl requests without autocurl installed?",
     answer:
-      "Yes. Every request in an .acr file is formatted as valid, copy-pasteable curl commands with backslash line continuations. If a teammate does not have autocurl installed, they can simply copy and execute the command directly in any standard bash or zsh shell.",
+      "Yes. Every request in an .autocurl file is formatted as valid, copy-pasteable curl commands with backslash line continuations. If a teammate does not have autocurl installed, they can simply copy and execute the command directly in any standard bash or zsh shell.",
   },
   {
     question: "How does autocurl compare to Postman or Insomnia?",
@@ -107,229 +106,185 @@ export default function Home() {
           <TerminalDemo />
         </section>
 
-        {/* How It Works Section */}
-        <section
-          id="how"
-          aria-labelledby="how-heading"
-          className="py-16 md:py-22 border-t border-line bg-[rgba(21,19,27,0.72)] backdrop-blur-[10px]"
+        {/* Workflow Section */}
+       <section
+  id="how"
+  aria-labelledby="how-heading"
+  className="py-20 md:py-28 border-t border-line bg-[rgba(21,19,27,0.88)]"
+>
+  <div className="max-w-280 mx-auto px-6">
+    <div className="flex items-end justify-between gap-8 mb-14">
+      <div>
+        <div className="font-mono text-sun text-[12px] font-semibold tracking-widest mb-3">
+          workflow
+        </div>
+
+        <h2
+          id="how-heading"
+          className="font-extrabold text-[clamp(24px,3.2vw,40px)] leading-[1.1] tracking-[-0.03em]"
         >
-          <div className="max-w-[1120px] mx-auto px-6">
-            <div className="font-mono text-sun text-[13px] font-semibold uppercase tracking-wider mb-2">
-              Workflow
-            </div>
-            <h2
-              id="how-heading"
-              className="font-extrabold text-[clamp(28px,3.8vw,46px)] leading-[1.1] tracking-[-0.03em] max-w-[18em]"
-            >
-              The index.js → index.acr → execute workflow.
-            </h2>
-            <p className="mt-[14px] max-w-[36em] text-mute text-[15px] sm:text-[16px]">
-              Three steps: write your request objects, compile them into
-              human-readable curl files, and run them with an interactive
-              terminal selector.
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-8 md:mt-11">
-              <div>
-                <div className="font-medium text-[13px] font-mono text-sun">
-                  1. index.js
-                </div>
-                <h3 className="font-bold text-[20px] mt-[14px] mb-[6px]">
-                  Define requests in code
-                </h3>
-                <p className="text-mute text-[15px] mb-3">
-                  List your endpoints with methods, headers, and request bodies
-                  as plain JavaScript.
-                </p>
-                <div className="bg-[#0e0c13] border border-line rounded-[10px] p-4 font-mono text-[13px] leading-[1.65] whitespace-pre overflow-x-auto">
-                  {`export default [
-  {
-    name: "List users",
-    method: "GET",
-    url: "https://api.dev/users"
-  },
-  {
-    name: "Create user",
-    method: "POST",
-    url: "https://api.dev/users",
-    body: { name: "Ada" }
-  }
-]`}
-                </div>
-              </div>
-              <div>
-                <div className="font-medium text-[13px] font-mono text-sun">
-                  2. autocurl index.js
-                </div>
-                <h3 className="font-bold text-[20px] mt-[14px] mb-[6px]">
-                  Generate the .acr file
-                </h3>
-                <p className="text-mute text-[15px] mb-3">
-                  Each request compiles into a standalone, reproducible curl
-                  command. Readable and git-diffable.
-                </p>
-                <div className="bg-[#0e0c13] border border-line rounded-[10px] p-4 font-mono text-[13px] leading-[1.65] whitespace-pre overflow-x-auto">
-                  {`# List users
-curl -X GET \\
-  "https://api.dev/users"
+          From code to request.
+        </h2>
+      </div>
 
-# Create user
-curl -X POST \\
-  "https://api.dev/users" \\
-  -d '{"name":"Ada"}'`}
-                </div>
-              </div>
-              <div>
-                <div className="font-medium text-[13px] font-mono text-sun">
-                  3. autocurl index.acr
-                </div>
-                <h3 className="font-bold text-[20px] mt-[14px] mb-[6px]">
-                  Pick and execute
-                </h3>
-                <p className="text-mute text-[15px] mb-3">
-                  autocurl launches an interactive terminal picker. Select a
-                  request to run it with native curl.
-                </p>
-                <div className="bg-[#0e0c13] border border-line rounded-[10px] p-4 font-mono text-[13px] leading-[1.65] whitespace-pre overflow-x-auto">
-                  {`? Select a request
-  ❯ List users
-    Create user
+      <Link
+        href="/docs/autocurl-format"
+        className="hidden md:inline-flex items-center gap-1.5 font-mono text-[12px] text-mute hover:text-sun transition-colors"
+      >
+        .autocurl specification
+        <span aria-hidden="true">↗</span>
+      </Link>
+    </div>
 
-→ curl -X GET ...
-200 OK`}
-                </div>
-              </div>
-            </div>
+    <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr_auto_1fr] items-center gap-8 md:gap-6">
+      {/* 01 */}
+      <div>
+        <div className="font-mono text-[11px] text-mute mb-4">
+          01
+        </div>
 
-            <div className="mt-8 text-center sm:text-left">
-              <Link
-                href="/docs/acr-format"
-                className="text-[14px] text-sun hover:underline inline-flex items-center gap-1 font-mono"
-              >
-                <span>Learn more about the .acr file specification</span>
-                <span aria-hidden="true">→</span>
-              </Link>
-            </div>
-          </div>
-        </section>
+        <div className="font-mono text-[13px] text-sun mb-3">
+          index.js
+        </div>
+
+        <h3 className="font-bold text-[18px] tracking-[-0.02em] mb-2">
+          Define
+        </h3>
+
+        <p className="text-mute text-[14px] leading-relaxed max-w-65">
+          Define your API requests in any programming language
+        </p>
+      </div>
+
+      <div
+        className="hidden md:block font-mono text-mute text-xl"
+        aria-hidden="true"
+      >
+        <ArrowRight/> 
+      </div>
+
+      {/* 02 */}
+      <div>
+        <div className="font-mono text-[11px] text-mute mb-4">
+          02
+        </div>
+
+        <div className="font-mono text-[13px] text-sun mb-3">
+          index.autocurl
+        </div>
+
+        <h3 className="font-bold text-[18px] tracking-[-0.02em] mb-2">
+          Generate
+        </h3>
+
+        <p className="text-mute text-[14px] leading-relaxed max-w-65">
+          Turn them into a portable, human-readable request file.
+        </p>
+      </div>
+
+      <div
+        className="hidden md:block font-mono text-mute text-xl"
+        aria-hidden="true"
+      >
+        <ArrowRight/> 
+      </div>
+
+      {/* 03 */}
+      <div>
+        <div className="font-mono text-[11px] text-mute mb-4">
+          03
+        </div>
+
+        <div className="font-mono text-[13px] text-sun mb-3">
+          autocurl index.autocurl
+        </div>
+
+        <h3 className="font-bold text-[18px] tracking-[-0.02em] mb-2">
+          Execute
+        </h3>
+
+        <p className="text-mute text-[14px] leading-relaxed max-w-65">
+          Pick a request and execute it directly from your terminal.
+        </p>
+      </div>
+    </div>
+
+    <div className="mt-14 pt-6 border-t border-line md:hidden">
+      <Link
+        href="/docs/autocurl-format"
+        className="inline-flex items-center gap-1.5 font-mono text-[12px] text-mute hover:text-sun transition-colors"
+      >
+        .autocurl specification
+        <span aria-hidden="true">↗</span>
+      </Link>
+    </div>
+  </div>
+</section>
 
         {/* Why autocurl Section */}
         <section
           id="why"
           aria-labelledby="why-heading"
-          className="py-16 md:py-[112px] border-t border-line bg-[rgba(21,19,27,0.72)] backdrop-blur-[10px]"
+          className="py-16 md:py-24 border-t border-line bg-[rgba(21,19,27,0.88)] backdrop-blur-[10px]"
         >
-          <div className="max-w-[1120px] mx-auto px-6">
-            <div className="font-mono text-sun text-[13px] font-semibold uppercase tracking-wider mb-2">
-              Features & Philosophy
+          <div className="max-w-280 mx-auto px-6">
+            <div className="font-mono text-sun text-[12px] font-semibold   tracking-widest mb-3">
+              Philosophy
             </div>
             <h2
               id="why-heading"
-              className="font-extrabold text-[clamp(28px,4.4vw,56px)] leading-[1.1] tracking-[-0.03em] max-w-[18em]"
+              className="font-extrabold text-[clamp(24px,3.2vw,40px)] leading-[1.1] tracking-[-0.03em] max-w-[18em]"
             >
               Built to stay out of your way.
             </h2>
-            <p className="mt-[14px] max-w-[34em] text-mute text-[15px] sm:text-[16px]">
+            <p className="mt-4 max-w-[34em] text-mute text-[15px] leading-relaxed">
               Your API requests are plain text on your own disk. No cloud sync,
-              no account hurdles, no 500MB Electron client to open.
+              no account hurdles, no 500 MB Electron client to open.
             </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mt-8 md:mt-14">
-              {/* Version control: wide */}
-              <SpotlightCard className="col-span-1 md:col-span-2 lg:col-span-4">
-                <h3 className="font-bold text-[20px] sm:text-[22px] leading-[1.2] tracking-[-0.02em]">
-                  Git-native version control
-                </h3>
-                <p className="text-mute text-[15px] sm:text-[16px] max-w-[30em]">
-                  The .acr file is plain text, so diffs and pull requests show
-                  exactly what changed without messy JSON blobs.
-                </p>
-                <div className="bg-[#0e0c13] border border-line rounded-[12px] font-mono text-[13px] leading-[1.8] overflow-x-auto mt-6">
-                  <div className="px-[14px] py-2 border-b border-line text-mute text-[12px]">
-                    api.acr
-                  </div>
-                  <div className="px-[14px] whitespace-pre text-mute">
-                    {" "}
-                    # Create user
-                  </div>
-                  <div className="px-[14px] whitespace-pre bg-[rgba(255,120,120,0.1)] text-[#ff9d9d] shadow-[inset_2px_0_#ff9d9d]">
-                    {`- curl -X POST "https://api.dev/users" \\`}
-                  </div>
-                  <div className="px-[14px] whitespace-pre bg-[rgba(143,180,255,0.12)] text-sky shadow-[inset_2px_0_var(--sky)]">
-                    {`+ curl -X POST "https://api.dev/v2/users" \\`}
-                  </div>
-                  <div className="px-[14px] whitespace-pre text-mute">{`    -d '{"name":"Ada"}'`}</div>
-                </div>
-              </SpotlightCard>
-
-              {/* Local only: narrow */}
-              <SpotlightCard className="col-span-1 md:col-span-1 lg:col-span-2">
-                <h3 className="font-bold text-[20px] sm:text-[22px] leading-[1.2] tracking-[-0.02em]">
-                  100% Local-first
-                </h3>
-                <p className="text-mute text-[15px] sm:text-[16px] max-w-[30em]">
-                  Requests live in files on your disk. Nothing leaves your
-                  machine.
-                </p>
-                <div className="flex flex-wrap gap-2 mt-auto pt-6">
-                  <span className="font-medium text-[13px] font-mono px-3 py-[6px] rounded-full border border-line text-mute line-through decoration-[rgba(255,157,157,0.8)]">
-                    Cloud Sync
-                  </span>
-                  <span className="font-medium text-[13px] font-mono px-3 py-[6px] rounded-full border border-line text-mute line-through decoration-[rgba(255,157,157,0.8)]">
-                    Telemetry
-                  </span>
-                  <span className="font-medium text-[13px] font-mono px-3 py-[6px] rounded-full border border-line text-mute line-through decoration-[rgba(255,157,157,0.8)]">
-                    Sign-in
-                  </span>
-                  <span className="font-medium text-[13px] font-mono px-3 py-[6px] rounded-full border border-sun bg-sun text-ink font-semibold">
-                    Just plain files
-                  </span>
-                </div>
-              </SpotlightCard>
-
-              {/* Human-readable: narrow */}
-              <SpotlightCard className="col-span-1 md:col-span-1 lg:col-span-2">
-                <h3 className="font-bold text-[20px] sm:text-[22px] leading-[1.2] tracking-[-0.02em]">
-                  Zero lock-in format
-                </h3>
-                <p className="text-mute text-[15px] sm:text-[16px] max-w-[30em]">
-                  Open the file and copy any curl command. You never need
-                  autocurl installed just to run them.
-                </p>
-                <div className="bg-[#0e0c13] border border-line rounded-[12px] font-mono text-[13px] leading-[1.8] overflow-x-auto mt-6">
-                  <div className="px-[14px] py-3 whitespace-pre text-bone bg-[rgba(242,193,78,0.1)] shadow-[inset_2px_0_var(--sun)]">
-                    {`curl "https://api.dev/users"`}
-                  </div>
-                </div>
-              </SpotlightCard>
-
-              {/* Not heavy: wide */}
-              <SpotlightCard className="col-span-1 md:col-span-2 lg:col-span-4">
-                <h3 className="font-bold text-[20px] sm:text-[22px] leading-[1.2] tracking-[-0.02em]">
-                  Lightweight command-line API client
-                </h3>
-                <p className="text-mute text-[15px] sm:text-[16px] max-w-[30em]">
-                  One small, instant CLI replaces the pile of scattered curl
-                  snippets in your notes and bash history.
-                </p>
+            <div className="mt-12 md:mt-16">
+              {[
+                {
+                  label: "Git-native",
+                  title: "Version-controlled by default",
+                  body: "The .autocurl file is plain text. Diffs and pull requests show exactly what changed — no JSON blobs, no binary formats.",
+                },
+                {
+                  label: "Local-first",
+                  title: "Nothing leaves your machine",
+                  body: "Requests live in files on your disk. No cloud sync, no telemetry, no sign-in required.",
+                },
+                {
+                  label: "Human-readable",
+                  title: "Open the file, read the file",
+                  body: "Every .autocurl file is plain curl commands separated by comments. Inspect, edit, or share them in any text editor.",
+                },
+                {
+                  label: "Zero lock-in",
+                  title: "Works without autocurl installed",
+                  body: "Each entry is a valid copy-pasteable curl command. Your team can run requests directly in bash or zsh without any tooling.",
+                },
+                {
+                  label: "Lightweight",
+                  title: "One small CLI, instant startup",
+                  body: "No background processes, no memory overhead. autocurl starts and exits in milliseconds, exactly like a Unix tool should.",
+                },
+              ].map((item) => (
                 <div
-                  className="flex items-center gap-3 sm:gap-5 mt-auto pt-6 flex-wrap sm:flex-nowrap"
-                  aria-hidden="true"
+                  key={item.label}
+                  className="grid grid-cols-1 sm:grid-cols-[160px_1fr] md:grid-cols-[200px_1fr_1fr] gap-x-10 gap-y-1 py-6 border-b border-line last:border-b-0 items-start"
                 >
-                  <div className="scraps min-w-[100px]">
-                    <i />
-                    <i />
-                    <i />
-                    <i />
-                    <i />
-                  </div>
-                  <span className="text-sun font-medium text-[20px] sm:text-[22px] font-mono">
-                    →
+                  <span className="font-mono text-[12px] text-sun   tracking-wider pt-0.5">
+                    {item.label}
                   </span>
-                  <div className="font-medium text-[13px] sm:text-[14px] font-mono text-sun px-4 sm:px-[26px] py-3 sm:py-[22px] rounded-[12px] bg-[#0e0c13] border border-[rgba(242,193,78,0.45)] shadow-[0_0_40px_rgba(242,193,78,0.12)] shrink-0">
-                    api.acr
-                  </div>
+                  <h3 className="font-bold text-[16px] leading-[1.35] tracking-[-0.01em]">
+                    {item.title}
+                  </h3>
+                  <p className="text-mute text-[14px] leading-relaxed mt-1 sm:mt-0 sm:col-start-2 md:col-start-auto">
+                    {item.body}
+                  </p>
                 </div>
-              </SpotlightCard>
+              ))}
             </div>
           </div>
         </section>
@@ -337,31 +292,29 @@ curl -X POST \\
         {/* Who is autocurl for? Section */}
         <section
           aria-labelledby="who-heading"
-          className="py-16 md:py-[88px] border-t border-line bg-[rgba(21,19,27,0.72)] backdrop-blur-[10px]"
+          className="py-16 md:py-24 border-t border-line bg-[rgba(21,19,27,0.88)] backdrop-blur-[10px]"
         >
-          <div className="max-w-[1120px] mx-auto px-6">
-            <div className="font-mono text-sun text-[13px] font-semibold uppercase tracking-wider mb-2">
-              Audience & Use Cases
+          <div className="max-w-280 mx-auto px-6">
+            <div className="font-mono text-sun text-[12px] font-semibold   tracking-widest mb-3">
+              Audience
             </div>
             <h2
               id="who-heading"
-              className="font-extrabold text-[clamp(28px,3.8vw,46px)] leading-[1.1] tracking-[-0.03em] max-w-[20em]"
+              className="font-extrabold text-[clamp(24px,3.2vw,40px)] leading-[1.1] tracking-[-0.03em]"
             >
               Who is autocurl for?
             </h2>
-            <p className="mt-[14px] max-w-[36em] text-mute text-[15px] sm:text-[16px]">
-              Designed specifically for developers who prefer the speed,
-              automation, and transparency of terminal workflows.
+            <p className="mt-4 max-w-[36em] text-mute text-[15px] leading-relaxed">
+              Built for developers who prefer the speed, precision, and transparency of terminal workflows.
             </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
-              <div className="p-6 rounded-2xl border border-line bg-[#0e0c13]/60">
-                <div className="text-sun font-mono text-[14px] font-bold mb-2">
-                  01. Backend Developers
-                </div>
-                <h3 className="font-bold text-[18px] mb-2 text-bone">
-                  Fast Local API Iteration
+            <div className="mt-12 md:mt-16 grid grid-cols-1 md:grid-cols-3 gap-0 md:divide-x md:divide-line">
+              <div className="md:pr-10 pb-10 md:pb-0 border-b border-line md:border-b-0">
+                <div className="font-mono text-[11px] text-mute   tracking-widest mb-5">01</div>
+                <h3 className="font-bold text-[17px] leading-[1.3] tracking-[-0.01em] mb-1">
+                  Backend Developers
                 </h3>
+                <p className="text-sun text-[12px] font-mono mb-4   tracking-wider">Fast local API iteration</p>
                 <p className="text-mute text-[14px] leading-relaxed">
                   Test your Express, FastAPI, Go, or Rails routes locally without
                   opening heavy GUI tools or searching through bash history for
@@ -369,13 +322,12 @@ curl -X POST \\
                 </p>
               </div>
 
-              <div className="p-6 rounded-2xl border border-line bg-[#0e0c13]/60">
-                <div className="text-sun font-mono text-[14px] font-bold mb-2">
-                  02. DevOps & Infrastructure
-                </div>
-                <h3 className="font-bold text-[18px] mb-2 text-bone">
-                  Headless & SSH Environments
+              <div className="md:px-10 py-10 md:py-0 border-b border-line md:border-b-0">
+                <div className="font-mono text-[11px] text-mute   tracking-widest mb-5">02</div>
+                <h3 className="font-bold text-[17px] leading-[1.3] tracking-[-0.01em] mb-1">
+                  DevOps &amp; Infrastructure
                 </h3>
+                <p className="text-sun text-[12px] font-mono mb-4   tracking-wider">Headless &amp; SSH environments</p>
                 <p className="text-mute text-[14px] leading-relaxed">
                   Run requests seamlessly over SSH on remote dev servers and
                   staging boxes where no graphical browser or Electron app can
@@ -383,16 +335,15 @@ curl -X POST \\
                 </p>
               </div>
 
-              <div className="p-6 rounded-2xl border border-line bg-[#0e0c13]/60">
-                <div className="text-sun font-mono text-[14px] font-bold mb-2">
-                  03. API & Engineering Teams
-                </div>
-                <h3 className="font-bold text-[18px] mb-2 text-bone">
-                  Version-Controlled Collections
+              <div className="md:pl-10 pt-10 md:pt-0">
+                <div className="font-mono text-[11px] text-mute   tracking-widest mb-5">03</div>
+                <h3 className="font-bold text-[17px] leading-[1.3] tracking-[-0.01em] mb-1">
+                  API &amp; Engineering Teams
                 </h3>
+                <p className="text-sun text-[12px] font-mono mb-4   tracking-wider">Version-controlled collections</p>
                 <p className="text-mute text-[14px] leading-relaxed">
                   Keep requests inside the repo right alongside the API code.
-                  When endpoints update, your API request files are updated and
+                  When endpoints update, your .autocurl files are updated and
                   reviewed in the same PR.
                 </p>
               </div>
@@ -404,36 +355,40 @@ curl -X POST \\
         <section
           id="faq"
           aria-labelledby="faq-heading"
-          className="py-16 md:py-[88px] border-t border-line bg-[rgba(21,19,27,0.72)] backdrop-blur-[10px]"
+          className="py-16 md:py-24 border-t border-line bg-[rgba(21,19,27,0.88)] backdrop-blur-[10px]"
         >
-          <div className="max-w-[1120px] mx-auto px-6">
-            <div className="font-mono text-sun text-[13px] font-semibold uppercase tracking-wider mb-2">
+          <div className="max-w-180 mx-auto px-6">
+            <div className="font-mono text-sun text-[12px] font-semibold   tracking-widest mb-3">
               FAQ
             </div>
             <h2
               id="faq-heading"
-              className="font-extrabold text-[clamp(28px,3.8vw,46px)] leading-[1.1] tracking-[-0.03em]"
+              className="font-extrabold text-[clamp(24px,3.2vw,40px)] leading-[1.1] tracking-[-0.03em] mb-12 md:mb-14"
             >
-              Frequently Asked Questions
+              Frequently asked questions
             </h2>
-            <p className="mt-[14px] max-w-[34em] text-mute text-[15px] sm:text-[16px] mb-10">
-              Clear answers about autocurl, curl compatibility, and command-line
-              API workflows.
-            </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
               {faqItems.map((item, idx) => (
-                <div
+                <details
                   key={idx}
-                  className="p-6 rounded-2xl border border-line bg-[#0e0c13]/70 flex flex-col justify-start"
+                  className="group border-t border-line last:border-b last:border-line"
                 >
-                  <h3 className="font-bold text-[18px] text-bone mb-3">
-                    {item.question}
-                  </h3>
-                  <p className="text-mute text-[14.5px] leading-relaxed">
+                  <summary className="flex items-center justify-between gap-6 py-5 cursor-pointer list-none select-none">
+                    <h3 className="font-semibold text-[15px] leading-[1.4] tracking-[-0.01em]">
+                      {item.question}
+                    </h3>
+                    <span
+                      className="text-mute text-[20px] font-light leading-none shrink-0 transition-transform duration-200 group-open:rotate-45"
+                      aria-hidden="true"
+                    >
+                      +
+                    </span>
+                  </summary>
+                  <p className="text-mute text-[14px] leading-relaxed pb-6 pr-10">
                     {item.answer}
                   </p>
-                </div>
+                </details>
               ))}
             </div>
           </div>
@@ -443,20 +398,20 @@ curl -X POST \\
         <section
           id="install"
           aria-labelledby="install-heading"
-          className="py-16 md:py-[88px] border-t border-line bg-[rgba(21,19,27,0.72)] backdrop-blur-[10px] text-center"
+          className="py-16 md:py-22 border-t border-line bg-[rgba(21,19,27,0.88)] backdrop-blur-[10px] text-center"
         >
-          <div className="max-w-[1120px] mx-auto px-6">
+          <div className="max-w-280 mx-auto px-6">
             <h2
               id="install-heading"
               className="font-extrabold text-[clamp(28px,3.8vw,46px)] leading-[1.1] tracking-[-0.03em] max-w-[16em] mx-auto"
             >
               Try it on your next API.
             </h2>
-            <p className="mt-[14px] text-mute text-[16px] max-w-[30em] mx-auto">
+            <p className="mt-3.5 text-mute text-[16px] max-w-[30em] mx-auto">
               Install autocurl in seconds and start managing curl requests as
               clean code.
             </p>
-            <div className="inline-flex max-w-full flex-wrap gap-2.5 sm:gap-[14px] items-center font-medium text-[13.5px] sm:text-[15px] font-mono bg-[rgba(21,19,27,0.7)] border border-line rounded-[10px] px-3.5 sm:px-4 py-2.5 sm:py-3 backdrop-blur-[6px] mt-6 sm:mt-[30px]">
+            <div className="inline-flex max-w-full flex-wrap gap-2.5 sm:gap-3.5 items-center font-medium text-[13.5px] sm:text-[15px] font-mono bg-[rgba(21,19,27,0.7)] border border-line rounded-[10px] px-3.5 sm:px-4 py-2.5 sm:py-3 backdrop-blur-[6px] mt-6 sm:mt-7.5">
               <span className="truncate">brew install autocurl</span>
               <CopyButton text="brew install autocurl" />
             </div>
