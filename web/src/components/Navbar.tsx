@@ -16,6 +16,7 @@ const NAV_LINKS: NavLink[] = [
   { href: "/#how", label: "How it works" },
   { href: "/#why", label: "Why autocurl" },
   { href: "/docs", label: "Docs" },
+  { href: "/pricing", label: "Pricing" },
   { href: "/#install", label: "Install" },
 ];
 
