@@ -18,7 +18,7 @@ export default function NotFound() {
       <Navbar />
 
       <main className="min-h-[70vh] flex items-center justify-center px-6 py-20">
-        <div className="max-w-[580px] w-full text-center">
+        <div className="max-w-145 w-full text-center">
           <div className="font-mono text-sun text-[14px] font-semibold tracking-wider uppercase mb-3">
             Error 404
           </div>
@@ -30,7 +30,7 @@ export default function NotFound() {
             a destination below to get back on track.
           </p>
 
-          <div className="bg-[#0e0c13] border border-line rounded-[12px] p-5 font-mono text-[13.5px] text-left mb-8 overflow-x-auto">
+          <div className="bg-[#0e0c13] border border-line rounded-xl p-5 font-mono text-[13.5px] text-left mb-8 overflow-x-auto">
             <span className="text-sun">$</span> autocurl --find-page
             <div className="text-mute mt-1">
               autocurl: page not found in index.autocurl
