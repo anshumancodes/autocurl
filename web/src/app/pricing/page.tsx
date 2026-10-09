@@ -335,7 +335,7 @@ export default function PricingPage() {
             </div>
 
             <div className="overflow-x-auto rounded-[20px] border border-line bg-[rgba(21,19,27,0.7)] shadow-[0_10px_30px_rgba(0,0,0,0.3)]">
-              <table className="w-full text-left border-collapse min-w-[600px]">
+              <table className="w-full text-left border-collapse min-w-150">
                 <thead>
                   <tr className="border-b border-line bg-[rgba(255,255,255,0.02)]">
                     <th
@@ -352,7 +352,7 @@ export default function PricingPage() {
                     </th>
                     <th
                       scope="col"
-                      className="py-4.5 px-6 font-mono text-[14px] font-bold text-sun text-center w-1/5 bg-sun/[0.04]"
+                      className="py-4.5 px-6 font-mono text-[14px] font-bold text-sun text-center w-1/5 bg-sun/4"
                     >
                       Pro
                     </th>
@@ -368,7 +368,7 @@ export default function PricingPage() {
                   {COMPARISON_FEATURES.map((row, idx) => (
                     <tr
                       key={idx}
-                      className="hover:bg-white/[0.02] transition-colors"
+                      className="hover:bg-white/2 transition-colors"
                     >
                       <th
                         scope="row"
@@ -397,7 +397,7 @@ export default function PricingPage() {
                           </span>
                         )}
                       </td>
-                      <td className="py-4 px-6 text-center bg-sun/[0.03]">
+                      <td className="py-4 px-6 text-center bg-sun/3">
                         {typeof row.pro === "boolean" ? (
                           row.pro ? (
                             <Check
