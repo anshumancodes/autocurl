@@ -1,0 +1,79 @@
+
+name: Build autocurl CLI
+
+on:
+  push:
+    branches:
+      - publish
+    paths:
+      - "cli/**"
+      - ".github/workflows/build-cli.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build ${{ matrix.goos }}-${{ matrix.goarch }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - goos: linux
+            goarch: amd64
+            artifact: autocurl-linux-amd64
+
+          - goos: linux
+            goarch: arm64
+            artifact: autocurl-linux-arm64
+
+          - goos: darwin
+            goarch: amd64
+            artifact: autocurl-darwin-amd64
+
+          - goos: darwin
+            goarch: arm64
+            artifact: autocurl-darwin-arm64
+
+          - goos: windows
+            goarch: amd64
+            artifact: autocurl-windows-amd64.exe
+
+          - goos: windows
+            goarch: arm64
+            artifact: autocurl-windows-arm64.exe
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: cli/go.mod
+          cache-dependency-path: cli/go.sum
+
+      - name: Build binary
+        working-directory: cli
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: "0"
+        run: |
+          mkdir -p dist
+          go build \
+            -trimpath \
+            -ldflags="-s -w" \
+            -o "dist/${{ matrix.artifact }}" \
+            ./cmd/autocurl
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: cli/dist/${{ matrix.artifact }}
+          if-no-files-found: error
+          retention-days: 30
