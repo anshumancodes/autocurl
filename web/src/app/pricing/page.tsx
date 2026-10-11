@@ -54,7 +54,7 @@ const PLANS: PricingPlan[] = [
   {
     id: "pro",
     name: "Pro",
-    price: "$9.99",
+    price: "$5.99",
     period: "/month",
     tagline: "Recommended starting point",
     description:
@@ -75,7 +75,7 @@ const PLANS: PricingPlan[] = [
   {
     id: "power",
     name: "Power",
-    price: "$15.99",
+    price: "$10.99",
     period: "/month",
     tagline: "For developers and teams",
     description:
