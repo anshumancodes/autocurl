@@ -195,13 +195,13 @@ module.exports = router;
 	}
 
 	expected := map[string]bool{
-		"GET /health":        false,
-		"POST /login":        false,
-		"PUT /settings":      false,
-		"GET /users":         false,
-		"GET /users/{id}":    false,
-		"POST /users":        false,
-		"DELETE /users/{id}": false,
+		"GET /health":               false,
+		"POST /login":               false,
+		"PUT /settings":             false,
+		"GET /api/v1/users":         false,
+		"GET /api/v1/users/{id}":    false,
+		"POST /api/v1/users":        false,
+		"DELETE /api/v1/users/{id}": false,
 	}
 
 	for _, route := range result.Routes {
@@ -258,5 +258,76 @@ module.exports = router;
 
 	for _, warning := range result.Warnings {
 		t.Logf("warning: %s", warning)
+	}
+}
+
+func TestMountedRouterImportFormsAndMultiplePrefixes(t *testing.T) {
+	root := fixtureProject(t, map[string]string{
+		"package.json": `{"dependencies":{"express":"1"}}`,
+		"app.js": `const express = require("express"); const app = express();
+const explicit = require("./routes/explicit.js");
+const extensionless = require("./routes/extensionless");
+const indexed = require("./routes/indexed");
+app.use("/v1/", explicit); app.use("/legacy", explicit);
+app.use("/x", extensionless); app.use("/i", indexed);`,
+		"routes/explicit.js":      `const express = require("express"); const router = express.Router(); router.get("/users/:id", handler); module.exports = router;`,
+		"routes/extensionless.js": `const express = require("express"); const router = express.Router(); router.post("/items", handler); module.exports = router;`,
+		"routes/indexed/index.js": `const express = require("express"); const router = express.Router(); router.delete("/items", handler); module.exports = router;`,
+	})
+	result, err := discovery.Discover(root, discovery.DiscoverOptions{Extractors: []discovery.Extractor{New()}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := map[string]bool{"GET /v1/users/{id}": true, "GET /legacy/users/{id}": true, "POST /x/items": true, "DELETE /i/items": true}
+	got := map[string]bool{}
+	for _, route := range result.Routes {
+		got[route.Method+" "+route.Path] = true
+	}
+	if len(got) != len(want) {
+		t.Fatalf("routes=%v warnings=%v", got, result.Warnings)
+	}
+	for key := range want {
+		if !got[key] {
+			t.Errorf("missing %s", key)
+		}
+	}
+}
+
+func TestNestedMountsAndRouterIsolation(t *testing.T) {
+	root := fixtureProject(t, map[string]string{
+		"package.json": `{"dependencies":{"express":"1"}}`,
+		"app.js":       `const express = require("express"); const app = express(); const api = require("./api"); app.use("/api", api);`,
+		"api.js":       `const express = require("express"); const one = express.Router(); const two = express.Router(); const admin = require("./admin"); one.use("/admin", admin); one.get("/one", handler); two.get("/two", handler); module.exports = one;`,
+		"admin.js":     `const express = require("express"); const router = express.Router(); router.get("/users", handler); module.exports = router;`,
+	})
+	result, err := discovery.Discover(root, discovery.DiscoverOptions{Extractors: []discovery.Extractor{New()}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	keys := map[string]bool{}
+	for _, route := range result.Routes {
+		keys[route.Method+" "+route.Path] = true
+	}
+	if !keys["GET /api/admin/users"] || !keys["GET /api/one"] || keys["GET /api/two"] || keys["GET /admin/users"] {
+		t.Fatalf("routes=%v warnings=%v", keys, result.Warnings)
+	}
+}
+
+func TestMountWarningsAndCircularRelationships(t *testing.T) {
+	root := fixtureProject(t, map[string]string{
+		"package.json": `{"dependencies":{"express":"1"}}`,
+		"app.js":       `const express = require("express"); const app = express(); const a = require("./a"); app.use(prefix, a); app.use("/api", a); const missing = require("./missing"); app.use("/missing", missing);`,
+		"a.js":         `const express = require("express"); const router = express.Router(); const b = require("./b"); router.use("/b", b); router.get("/a", handler); module.exports = router;`,
+		"b.js":         `const express = require("express"); const router = express.Router(); const a = require("./a"); router.use("/a", a); router.get("/b", handler); module.exports = router;`,
+	})
+	result, err := discovery.Discover(root, discovery.DiscoverOptions{Extractors: []discovery.Extractor{New()}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !containsWarning(result.Warnings, "dynamic mount prefix") || !containsWarning(result.Warnings, "unresolved local import") || !containsWarning(result.Warnings, "circular router mount") {
+		t.Fatalf("warnings=%v", result.Warnings)
+	}
+	if len(result.Routes) != 2 {
+		t.Fatalf("routes=%v", result.Routes)
 	}
 }
