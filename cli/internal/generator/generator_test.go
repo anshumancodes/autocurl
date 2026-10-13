@@ -112,11 +112,13 @@ func TestGenerateFromExpressDiscovery(t *testing.T) {
 		t.Fatal(err)
 	}
 	got, err := generator.Generate(result.Routes, generator.Options{ProjectName: "express-api", ProjectRoot: root})
+	t.Logf("\nGenerated Express .autocurl:\n%s", got)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if !strings.Contains(got, "### 1. GET /users/{id}\n") || !strings.Contains(got, "GET {{baseUrl}}/users/{{id}}\n") || !strings.Contains(got, "# @source server.js:3\n") {
 		t.Fatalf("unexpected generated Express text:\n%s", got)
+		t.Logf("\nGenerated Express .autocurl:\n%s", got)
 	}
 }
 
@@ -131,6 +133,7 @@ func TestGenerateFromNestJSDiscovery(t *testing.T) {
 		t.Fatal(err)
 	}
 	got, err := generator.Generate(result.Routes, generator.Options{ProjectName: "nest-api", ProjectRoot: root})
+	t.Logf("\nGenerated NestJS .autocurl:\n%s", got)
 	if err != nil {
 		t.Fatal(err)
 	}
