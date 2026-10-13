@@ -3,15 +3,12 @@ package express
 
 import (
 	"fmt"
-	"os"
-	"path/filepath"
 	"sort"
 	"strings"
 
 	"github.com/anshumancodes/autocurl/internal/discovery"
 	"github.com/dop251/goja/ast"
 	"github.com/dop251/goja/file"
-	"github.com/dop251/goja/parser"
 )
 
 const staticConfidence = 0.95
@@ -49,28 +46,7 @@ func (Extractor) Applies(ctx discovery.ExtractionContext) bool {
 }
 
 func (Extractor) Extract(ctx discovery.ExtractionContext) ([]discovery.Route, []string, error) {
-	routes := make([]discovery.Route, 0)
-	warnings := make([]string, 0)
-	for _, path := range ctx.Files {
-		if strings.ToLower(filepath.Ext(path)) != ".js" {
-			continue
-		}
-		data, err := os.ReadFile(path)
-		if err != nil {
-			warnings = append(warnings, fmt.Sprintf("express: read %s: %v", path, err))
-			continue
-		}
-		program, err := parser.ParseFile(nil, path, data, 0, parser.WithDisableSourceMaps)
-		if err != nil {
-			warnings = append(warnings, fmt.Sprintf("express: parse %s: %v", path, err))
-			continue
-		}
-		fileRoutes, fileWarnings := extractProgram(program, path)
-		routes = append(routes, fileRoutes...)
-		warnings = append(warnings, fileWarnings...)
-	}
-	sort.Strings(warnings)
-	return routes, warnings, nil
+	return extractProject(ctx)
 }
 
 type bindings struct {
