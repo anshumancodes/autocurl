@@ -139,6 +139,121 @@ func TestAppliesAndDiscoverIntegration(t *testing.T) {
 	}
 }
 
+func TestApplicationRoutingConfigurationThroughDiscover(t *testing.T) {
+	root := fixtureProject(t, map[string]string{
+		"package.json":  `{"dependencies":{"@nestjs/core":"^10.0.0"}}`,
+		"tsconfig.json": `{}`,
+		"main.ts": `import { NestFactory } from '@nestjs/core';
+import { VersioningType } from '@nestjs/common';
+import { AppModule } from './app.module';
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  app.setGlobalPrefix('api');
+  app.enableVersioning({ type: VersioningType.URI });
+}`,
+		"app.module.ts": `import { Module } from '@nestjs/common';
+import { UsersController } from './users.controller';
+@Module({ controllers: [UsersController] })
+export class AppModule {}`,
+		"users.controller.ts": `import { Controller, Get, Post, Version } from '@nestjs/common';
+@Controller({ path: 'users', version: '1' })
+export class UsersController {
+  @Get() findAll() {}
+  @Get(':id') findOne() {}
+  @Version('2') @Post() create() {}
+}`,
+	})
+	result, err := discovery.Discover(root, discovery.DiscoverOptions{Extractors: []discovery.Extractor{New()}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := routeKeys(result.Routes), []string{"GET /api/v1/users", "GET /api/v1/users/{id}", "POST /api/v2/users"}; !reflect.DeepEqual(got, want) {
+		t.Fatalf("routes=%v, want %v; warnings=%v", got, want, result.Warnings)
+	}
+}
+
+func TestGlobalPrefixExclusionsAndSlashComposition(t *testing.T) {
+	root := fixtureProject(t, map[string]string{
+		"main.ts": `import { NestFactory } from '@nestjs/core'; import { RequestMethod } from '@nestjs/common';
+const app = await NestFactory.create(AppModule);
+app.setGlobalPrefix('/api/', { exclude: ['health', { path: 'users', method: RequestMethod.GET }] });`,
+		"controller.ts": `import { Controller, Get, Post } from '@nestjs/common';
+@Controller('/') export class AppController {
+ @Get('/health/') health() {}
+ @Get('/users/') users() {}
+ @Post('/users/') create() {}
+}`,
+	})
+	routes, warnings, err := (Extractor{}).Extract(nestContext(t, root))
+	if err != nil || len(warnings) != 0 {
+		t.Fatalf("routes=%#v warnings=%#v err=%v", routes, warnings, err)
+	}
+	if got, want := routeKeys(routes), []string{"GET /health", "GET /users", "POST /api/users"}; !reflect.DeepEqual(got, want) {
+		t.Fatalf("routes=%v, want %v", got, want)
+	}
+}
+
+func TestRouterModuleMountsOnlyAssociatedControllers(t *testing.T) {
+	root := fixtureProject(t, map[string]string{
+		"app.module.ts": `import { Module } from '@nestjs/common'; import { RouterModule } from '@nestjs/core'; import { AdminModule } from './admin.module';
+@Module({ imports: [AdminModule, RouterModule.register([{ path: 'api', children: [{ path: 'admin', module: AdminModule }] }]) ] })
+export class AppModule {}`,
+		"admin.module.ts": `import { Module } from '@nestjs/common'; import { AdminController } from './admin.controller';
+@Module({ controllers: [AdminController] }) export class AdminModule {}`,
+		"admin.controller.ts": `import { Controller, Get } from '@nestjs/common'; @Controller('users') export class AdminController { @Get(':id') find() {} }`,
+		"other.controller.ts": `import { Controller, Get } from '@nestjs/common'; @Controller('other') export class OtherController { @Get() find() {} }`,
+	})
+	routes, warnings, err := (Extractor{}).Extract(nestContext(t, root))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(warnings) != 0 {
+		t.Fatalf("warnings=%v", warnings)
+	}
+	if got, want := routeKeys(routes), []string{"GET /api/admin/users/:id", "GET /other"}; !reflect.DeepEqual(got, want) {
+		t.Fatalf("routes=%v, want %v", got, want)
+	}
+}
+
+func TestUnsupportedApplicationConfigurationWarnsWithoutGuessing(t *testing.T) {
+	root := fixtureProject(t, map[string]string{
+		"main.ts": `import { NestFactory } from '@nestjs/core'; import { VersioningType } from '@nestjs/common';
+const app = await NestFactory.create(AppModule); app.setGlobalPrefix(config.apiPrefix); app.enableVersioning({ type: VersioningType.HEADER });
+const unrelated = { setGlobalPrefix(p: string) {} }; unrelated.setGlobalPrefix('wrong');`,
+		"controller.ts": `import { Controller, Get } from '@nestjs/common'; @Controller('users') export class Users { @Get() find() {} }`,
+	})
+	routes, warnings, err := (Extractor{}).Extract(nestContext(t, root))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := routeKeys(routes), []string{"GET /users"}; !reflect.DeepEqual(got, want) {
+		t.Fatalf("routes=%v, want %v", got, want)
+	}
+	if !containsWarning(warnings, "dynamic global prefix") || !containsWarning(warnings, "unsupported NestJS versioning") {
+		t.Fatalf("warnings=%v", warnings)
+	}
+}
+
+func TestURIVersionVariantsAndNeutralRoutes(t *testing.T) {
+	root := fixtureProject(t, map[string]string{
+		"main.ts": `import { NestFactory } from '@nestjs/core'; import { VersioningType } from '@nestjs/common';
+const app = await NestFactory.create(AppModule); app.enableVersioning({ type: VersioningType.URI });`,
+		"controller.ts": `import { Controller, Get, Version, VERSION_NEUTRAL } from '@nestjs/common';
+@Controller({ path: 'users', version: ['1', '2'] }) export class Users {
+ @Get() list() {}
+ @Version(['3', '4']) @Get(':id') find() {}
+ @Version(VERSION_NEUTRAL) @Get('health') health() {}
+}`,
+	})
+	routes, warnings, err := (Extractor{}).Extract(nestContext(t, root))
+	if err != nil || len(warnings) != 0 {
+		t.Fatalf("routes=%#v warnings=%#v err=%v", routes, warnings, err)
+	}
+	if got, want := routeKeys(routes), []string{"GET /users/health", "GET /v1/users", "GET /v2/users", "GET /v3/users/:id", "GET /v4/users/:id"}; !reflect.DeepEqual(got, want) {
+		t.Fatalf("routes=%v, want %v", got, want)
+	}
+}
+
 func nestContext(t *testing.T, root string) discovery.ExtractionContext {
 	t.Helper()
 	scan, err := project.Scan(root, project.ScanOptions{})
