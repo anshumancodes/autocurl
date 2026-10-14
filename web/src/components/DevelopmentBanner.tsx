@@ -13,13 +13,10 @@ export default function DevelopmentBanner() {
       role="status"
       className="relative flex flex-wrap items-center justify-center gap-x-2 gap-y-1 border-b border-white/10 bg-white/4 px-4 py-2 pr-10 text-center text-xs text-white/70 sm:px-10"
     >
-      <span className="shrink-0 rounded-full bg-amber-400/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-amber-300">
-        Early access
-      </span>
+     
 
       <p className="min-w-0">
-        autocurl is still in development. Some features may be
-        unstable or not work as expected.
+        autocurl is still in development. Some features may not work yet or break.
       </p>
 
       <button
