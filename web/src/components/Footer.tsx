@@ -67,7 +67,7 @@ export default function Footer() {
                   className="hover:text-bone transition-colors no-underline flex items-center gap-1.5"
                 >
                   <span>GitHub Repository</span>
-                  <span className="text-[11px] text-mute">↗</span>
+                  
                 </a>
               </li>
               <li>
@@ -78,7 +78,7 @@ export default function Footer() {
                   className="hover:text-bone transition-colors no-underline flex items-center gap-1.5"
                 >
                   <span>Report an Issue / Feedback</span>
-                  <span className="text-[11px] text-mute">↗</span>
+                  
                 </a>
               </li>
               <li>
@@ -89,7 +89,7 @@ export default function Footer() {
                   className="hover:text-bone transition-colors no-underline flex items-center gap-1.5"
                 >
                   <span>Releases & Changelog</span>
-                  <span className="text-[11px] text-mute">↗</span>
+                 
                 </a>
               </li>
               <li>
