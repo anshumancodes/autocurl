@@ -37,6 +37,23 @@ Select a request from the interactive menu using arrow keys or fuzzy search, and
 
 ---
 
+## Installation
+
+### Direct binary
+
+Download the archive for your platform from the [GitHub Releases](https://github.com/anshumancodes/autocurl/releases) page, extract it, and place the `autocurl` binary somewhere on your `PATH`.
+
+### Homebrew
+
+Once the tap is available, install autocurl with:
+
+```bash
+brew tap anshumancodes/tap
+brew install autocurl
+```
+
+---
+
 ## Tech Stack
 
 - **CLI:** Go
