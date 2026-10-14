@@ -11,7 +11,7 @@ permissions:
 jobs:
   build:
     name: Build ${{ matrix.goos }}-${{ matrix.goarch }}
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runner }}
 
     strategy:
       fail-fast: false
@@ -19,19 +19,19 @@ jobs:
         include:
           - goos: linux
             goarch: amd64
-            archive: tar.gz
+            runner: ubuntu-24.04
           - goos: linux
             goarch: arm64
-            archive: tar.gz
+            runner: ubuntu-24.04-arm
           - goos: darwin
             goarch: amd64
-            archive: tar.gz
+            runner: macos-13
           - goos: darwin
             goarch: arm64
-            archive: tar.gz
+            runner: macos-14
           - goos: windows
             goarch: amd64
-            archive: zip
+            runner: windows-2025
 
     steps:
       - name: Check out repository
@@ -43,32 +43,90 @@ jobs:
           go-version-file: cli/go.mod
           cache-dependency-path: cli/go.sum
 
-      - name: Build and package binary
+      - name: Configure C compiler (Unix)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          set -eu
+          if [ "$RUNNER_OS" = "Linux" ]; then
+            command -v gcc
+            gcc --version
+            echo "CC=gcc" >> "$GITHUB_ENV"
+          else
+            command -v clang
+            clang --version
+            echo "CC=clang" >> "$GITHUB_ENV"
+          fi
+
+      - name: Configure C compiler (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $gcc = Get-Command gcc -ErrorAction Stop
+          & $gcc.Source --version
+          Add-Content -Path $env:GITHUB_ENV -Value 'CC=gcc'
+
+      - name: Verify native target
         working-directory: cli
+        shell: bash
+        if: runner.os != 'Windows'
+        run: |
+          set -eu
+          test "$(go env GOOS)" = "${{ matrix.goos }}"
+          test "$(go env GOARCH)" = "${{ matrix.goarch }}"
+
+      - name: Verify native target (Windows)
+        working-directory: cli
+        shell: pwsh
+        if: runner.os == 'Windows'
+        run: |
+          if ((go env GOOS) -ne '${{ matrix.goos }}') { throw "Unexpected GOOS" }
+          if ((go env GOARCH) -ne '${{ matrix.goarch }}') { throw "Unexpected GOARCH" }
+
+      - name: Build and package binary (Unix)
+        working-directory: cli
+        if: runner.os != 'Windows'
+        shell: bash
         env:
-          GOOS: ${{ matrix.goos }}
-          GOARCH: ${{ matrix.goarch }}
-          CGO_ENABLED: "0"
+          CGO_ENABLED: "1"
+          TARGET_GOOS: ${{ matrix.goos }}
+          TARGET_GOARCH: ${{ matrix.goarch }}
           VERSION: ${{ github.ref_name }}
         run: |
           set -eu
           mkdir -p dist/package
           binary="autocurl"
-          if [ "$GOOS" = "windows" ]; then
-            binary="autocurl.exe"
-          fi
           go build \
             -trimpath \
             -ldflags="-s -w -X main.version=${VERSION}" \
             -o "dist/package/${binary}" \
             ./cmd/autocurl
 
-          archive_base="autocurl_${VERSION}_${GOOS}_${GOARCH}"
-          if [ "${{ matrix.archive }}" = "zip" ]; then
-            (cd dist/package && zip -q "../${archive_base}.zip" "${binary}")
-          else
-            tar -C dist/package -czf "dist/${archive_base}.tar.gz" "${binary}"
-          fi
+          archive_base="autocurl_${VERSION}_${TARGET_GOOS}_${TARGET_GOARCH}"
+          tar -C dist/package -czf "dist/${archive_base}.tar.gz" "${binary}"
+
+      - name: Build and package binary (Windows)
+        working-directory: cli
+        if: runner.os == 'Windows'
+        shell: pwsh
+        env:
+          CGO_ENABLED: "1"
+          VERSION: ${{ github.ref_name }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Force -Path dist/package | Out-Null
+          $binary = 'autocurl.exe'
+          go build `
+            -trimpath `
+            '-ldflags=-s -w -X main.version=' + $env:VERSION `
+            -o (Join-Path dist/package $binary) `
+            ./cmd/autocurl
+
+          $archiveBase = "autocurl_${env:VERSION}_${{ matrix.goos }}_${{ matrix.goarch }}"
+          Compress-Archive `
+            -Path (Join-Path dist/package $binary) `
+            -DestinationPath (Join-Path dist "$archiveBase.zip") `
+            -Force
 
       - name: Upload release archive
         uses: actions/upload-artifact@v4
@@ -107,6 +165,7 @@ jobs:
     name: Publish GitHub Release
     runs-on: ubuntu-latest
     needs: checksums
+    if: ${{ needs.checksums.result == 'success' }}
 
     steps:
       - name: Download release assets
