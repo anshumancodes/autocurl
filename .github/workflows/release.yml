@@ -27,7 +27,7 @@ jobs:
             runner: ubuntu-24.04-arm
           - goos: darwin
             goarch: amd64
-            runner: macos-13
+            runner: macos-15-intel
           - goos: darwin
             goarch: arm64
             runner: macos-14
@@ -93,7 +93,7 @@ jobs:
           CGO_ENABLED: "1"
           TARGET_GOOS: ${{ matrix.goos }}
           TARGET_GOARCH: ${{ matrix.goarch }}
-          VERSION: ${{ github.ref_name }}
+          VERSION: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || 'dev' }}
         run: |
           set -eu
           mkdir -p dist/package
@@ -104,6 +104,10 @@ jobs:
             -o "dist/package/${binary}" \
             ./cmd/autocurl
 
+          version_output="$(./dist/package/${binary} --version)"
+          echo "$version_output"
+          test "$version_output" = "autocurl ${VERSION}"
+
           archive_base="autocurl_${VERSION}_${TARGET_GOOS}_${TARGET_GOARCH}"
           tar -C dist/package -czf "dist/${archive_base}.tar.gz" "${binary}"
 
@@ -113,13 +117,22 @@ jobs:
         shell: pwsh
         env:
           CGO_ENABLED: "1"
-          VERSION: ${{ github.ref_name }}
+          VERSION: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || 'dev' }}
         run: |
           $ErrorActionPreference = 'Stop'
           New-Item -ItemType Directory -Force -Path dist/package | Out-Null
           $binary = 'autocurl.exe'
           go build -trimpath "-ldflags=-s -w -X main.version=$($env:VERSION)" -o (Join-Path dist/package $binary) ./cmd/autocurl
           if ($LASTEXITCODE -ne 0) { throw "go build failed with exit code $LASTEXITCODE" }
+
+          $versionOutput = & (Join-Path dist/package $binary) --version
+          if ($LASTEXITCODE -ne 0) { throw "Binary smoke test failed" }
+
+          Write-Host $versionOutput
+
+          if ($versionOutput -ne "autocurl $env:VERSION") {
+            throw "Unexpected binary version: $versionOutput"
+          }
 
           $archiveBase = "autocurl_${env:VERSION}_${{ matrix.goos }}_${{ matrix.goarch }}"
           Compress-Archive `
