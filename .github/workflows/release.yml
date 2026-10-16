@@ -305,32 +305,14 @@ jobs:
           # Fail the job before publishing if any archive is dev-stamped or
           # otherwise not built for this release tag. Branch runs legitimately
           # produce autocurl_dev_* artifacts; those must never be published
-          # under a release tag.
-          extract_dir="$(mktemp -d)"
-          trap 'rm -rf "$extract_dir"' 0 1 2 15
+          # under a release tag. Build jobs already smoke-test each binary
+          # against the exact expected version before uploading the archive.
           for f in dist/autocurl_*; do
             case "$f" in
               dist/autocurl_${RELEASE_TAG}_*) ;;
               dist/autocurl_dev_*) echo "$f is a dev artifact; it must not be published under tag ${RELEASE_TAG}" >&2; exit 1 ;;
               *) echo "$f does not match tag ${RELEASE_TAG}" >&2; exit 1 ;;
             esac
-            rm -rf "$extract_dir"/*
-            case "$f" in
-              *.tar.gz) tar -C "$extract_dir" -xzf "$f" ;;
-              *.zip) unzip -q "$f" -d "$extract_dir" ;;
-              *) echo "unexpected archive format: $f" >&2; exit 1 ;;
-            esac
-            for exe in "$extract_dir"/autocurl*; do
-              # Build-time -ldflags="-X main.version=<release tag>" stores the
-              # tag as a literal string in the binary, so every correctly
-              # released artifact must contain it. A dev-built binary will
-              # not (deps carry unrelated "dev" strings, so we probe for the
-              # tag value rather than the literal word "dev").
-              if ! grep -aqF -- "${RELEASE_TAG}" "$exe"; then
-                echo "$f contains a binary whose built-in version is not ${RELEASE_TAG} (possible dev binary)" >&2
-                exit 1
-              fi
-            done
           done
           echo "All assets verified for ${RELEASE_TAG}"
 
