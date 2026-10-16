@@ -6,17 +6,18 @@ on:
       - publish
     tags:
       - "v*"
+  # Validation-free recovery path; publishes artifacts from an existing run without rebuilding.
   workflow_dispatch:
-    description: Validation-free recovery path; publishes artifacts from an existing run without rebuilding.
     inputs:
       release_tag:
         description: "Release/tag to publish (e.g. v0.1.0-beta.4)"
         type: string
         required: true
       artifacts_run_id:
-        description: "Run ID holding the build artifacts (defaults to the run carrying them when publishing from a tag, or leave empty to use this run)."
+        description: "Numeric ID of the workflow run holding the built artifacts (required for recovery; find it in the original run's URL)."
         type: string
-        required: false
+        required: true
+        default: ""
 
 permissions:
   contents: read
@@ -190,7 +191,11 @@ jobs:
     name: Publish public binary release
     runs-on: ubuntu-latest
     needs: checksums
-    if: ${{ (needs.checksums.result == 'success' && startsWith(github.ref, 'refs/tags/v')) || (github.event_name == 'workflow_dispatch' && needs.checksums.result == 'skipped') }}
+    # always() is required: on workflow_dispatch the build and checksums jobs
+    # are skipped, and a skipped `needs` job skips dependents via the implicit
+    # success() gate even when the explicit condition would be true.
+    # The result checks below still prevent publishing when anything failed.
+    if: ${{ always() && ((github.event_name == 'workflow_dispatch' && needs.checksums.result == 'skipped' && inputs.artifacts_run_id != '') || (github.event_name == 'push' && needs.checksums.result == 'success' && startsWith(github.ref, 'refs/tags/v'))) }}
     permissions:
       contents: read
       actions: read
@@ -236,6 +241,8 @@ jobs:
           path: dist
           merge-multiple: true
           github-token: ${{ github.token }}
+          # Tagged releases: artifacts live in this run. Manual recovery:
+          # artifacts come from the previously completed build run.
           run-id: ${{ inputs.artifacts_run_id || github.run_id }}
 
       - name: Verify contained deliverables
@@ -250,6 +257,8 @@ jobs:
           done
           total=$(find dist -mindepth 1 -maxdepth 1 | wc -l)
           test "$total" -eq 6 || { echo "Expected 5 platform archives + checksums.txt, got $total" >&2; exit 1; }
+          # Fail the job before publishing if checksums are empty or missing
+          grep -q '^autocurl_' dist/checksums.txt
 
       - name: Publish release
         uses: softprops/action-gh-release@v2
