@@ -119,11 +119,22 @@ jobs:
 
           version_output="$(./dist/package/${binary} --version)"
           echo "$version_output"
-          if [[ "$GITHUB_REF" == refs/tags/v* && "$version_output" == "autocurl dev" ]]; then
-            echo "Tagged release binary unexpectedly reports dev" >&2
-            exit 1
-          fi
           test "$version_output" = "autocurl ${VERSION}"
+
+          # A tagged release build must never stamp or report "dev":
+          # that happens when the run is triggered outside refs/tags/v*.
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            test -n "$VERSION" && test "$VERSION" != "dev" || {
+              echo "tagged release build got VERSION='$VERSION'; expected the tag name" >&2
+              exit 1
+            }
+            case "$version_output" in
+              "autocurl dev")
+                echo "binary reported dev during tagged release build" >&2
+                exit 1
+                ;;
+            esac
+          fi
 
           archive_base="autocurl_${VERSION}_${TARGET_GOOS}_${TARGET_GOARCH}"
           tar -C dist/package -czf "dist/${archive_base}.tar.gz" "${binary}"
@@ -147,12 +158,19 @@ jobs:
 
           Write-Host $versionOutput
 
-          if ($env:GITHUB_REF -like 'refs/tags/v*' -and $versionOutput -eq 'autocurl dev') {
-            throw "Tagged release binary unexpectedly reports dev"
-          }
-
           if ($versionOutput -ne "autocurl $env:VERSION") {
             throw "Unexpected binary version: $versionOutput"
+          }
+
+          # A tagged release build must never stamp or report "dev":
+          # that happens when the run is triggered outside refs/tags/v*.
+          if ($env:GITHUB_REF_TYPE -eq 'tag') {
+            if (-not $env:VERSION -or $env:VERSION -eq 'dev') {
+              throw "tagged release build got VERSION='$($env:VERSION)'; expected the tag name"
+            }
+            if ($versionOutput -eq 'autocurl dev') {
+              throw "binary reported dev during tagged release build"
+            }
           }
 
           $archiveBase = "autocurl_${env:VERSION}_${{ matrix.goos }}_${{ matrix.goarch }}"
@@ -185,7 +203,21 @@ jobs:
 
       - name: Create SHA-256 checksums
         working-directory: dist
-        run: sha256sum autocurl_* > checksums.txt
+        env:
+          EXPECTED_TAG: ${{ github.ref_name }}
+        run: |
+          set -eu
+          # Refuse dev-only or mismatched archive names before they can reach
+          # a public release (branch pushes legitimately build autocurl_dev_*).
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            for f in autocurl_*; do
+              case "$f" in
+                autocurl_${EXPECTED_TAG}_*) ;;
+                *) echo "$f does not match tag ${EXPECTED_TAG}; refusing dev or mismatched archive" >&2; exit 1 ;;
+              esac
+            done
+          fi
+          sha256sum autocurl_* > checksums.txt
 
       - name: Upload checksums
         uses: actions/upload-artifact@v4
@@ -254,6 +286,8 @@ jobs:
           run-id: ${{ inputs.artifacts_run_id || github.run_id }}
 
       - name: Verify contained deliverables
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag || github.ref_name }}
         run: |
           set -eu
           ls -l dist
@@ -267,6 +301,38 @@ jobs:
           test "$total" -eq 6 || { echo "Expected 5 platform archives + checksums.txt, got $total" >&2; exit 1; }
           # Fail the job before publishing if checksums are empty or missing
           grep -q '^autocurl_' dist/checksums.txt
+
+          # Fail the job before publishing if any archive is dev-stamped or
+          # otherwise not built for this release tag. Branch runs legitimately
+          # produce autocurl_dev_* artifacts; those must never be published
+          # under a release tag.
+          extract_dir="$(mktemp -d)"
+          trap 'rm -rf "$extract_dir"' 0 1 2 15
+          for f in dist/autocurl_*; do
+            case "$f" in
+              dist/autocurl_${RELEASE_TAG}_*) ;;
+              dist/autocurl_dev_*) echo "$f is a dev artifact; it must not be published under tag ${RELEASE_TAG}" >&2; exit 1 ;;
+              *) echo "$f does not match tag ${RELEASE_TAG}" >&2; exit 1 ;;
+            esac
+            rm -rf "$extract_dir"/*
+            case "$f" in
+              *.tar.gz) tar -C "$extract_dir" -xzf "$f" ;;
+              *.zip) unzip -q "$f" -d "$extract_dir" ;;
+              *) echo "unexpected archive format: $f" >&2; exit 1 ;;
+            esac
+            for exe in "$extract_dir"/autocurl*; do
+              # Build-time -ldflags="-X main.version=<release tag>" stores the
+              # tag as a literal string in the binary, so every correctly
+              # released artifact must contain it. A dev-built binary will
+              # not (deps carry unrelated "dev" strings, so we probe for the
+              # tag value rather than the literal word "dev").
+              if ! grep -aqF -- "${RELEASE_TAG}" "$exe"; then
+                echo "$f contains a binary whose built-in version is not ${RELEASE_TAG} (possible dev binary)" >&2
+                exit 1
+              fi
+            done
+          done
+          echo "All assets verified for ${RELEASE_TAG}"
 
       - name: Publish release
         uses: softprops/action-gh-release@v2
