@@ -10,7 +10,7 @@ error() {
   exit 1
 }
 
-VERSION=${AUTOCURL_VERSION:-v0.1.0-beta.3}
+VERSION=${AUTOCURL_VERSION:-v0.1.0-beta.4}
 HOME_DIR=${HOME:-}
 [ -n "$HOME_DIR" ] || error "HOME is not set"
 INSTALL_DIR=${AUTOCURL_INSTALL_DIR:-"${HOME_DIR}/.local/bin"}
@@ -35,7 +35,7 @@ case "$OS:$ARCH" in
   *) error "unsupported platform: ${OS} ${ARCH}; supported platforms are Linux and macOS on AMD64 and ARM64" ;;
 esac
 
-ARCHIVE="autocurl_${VERSION}_${TARGET_OS}_${TARGET_ARCH}.tar.gz"
+ARCHIVE="autocurl_dev_${TARGET_OS}_${TARGET_ARCH}.tar.gz"
 DOWNLOAD_BASE="${RELEASE_BASE_URL%/}/${VERSION}"
 
 TMP_DIR=$(mktemp -d "${TMPDIR:-/tmp}/autocurl-install.XXXXXX") || error "could not create a temporary directory"
