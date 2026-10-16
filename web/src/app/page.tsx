@@ -46,7 +46,7 @@ const faqItems = [
   {
     question: "How do I install autocurl?",
     answer:
-      "autocurl can be installed via Homebrew using 'brew install autocurl'. You can also run it via npx or download prebuilt binaries directly from GitHub releases for macOS, Linux, and Windows.",
+      "Once the public binary distribution is deployed, the recommended installation will be curl -fsSL https://autocurl.lol/install.sh | sh. Homebrew and direct prebuilt binary downloads are also available.",
   },
 ];
 

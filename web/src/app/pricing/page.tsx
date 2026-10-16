@@ -8,12 +8,12 @@ import { ArrowRight, Check } from "lucide-react";
 export const metadata: Metadata = {
   title: "Pricing",
   description:
-    "Simple, transparent pricing for autocurl. Start free with your own AI key, or upgrade to Pro or Power for managed AI with no key required.",
+    "Simple, transparent pricing for autocurl. Start free with your own AI key, or upgrade to Pro for managed AI with no key required.",
   alternates: { canonical: "/pricing" },
   openGraph: {
     title: "Pricing | autocurl",
     description:
-      "Simple, transparent pricing for autocurl. Start free with your own AI key, or upgrade to Pro or Power for managed AI with no key required.",
+      "Simple, transparent pricing for autocurl. Start free with your own AI key, or upgrade to Pro for managed AI with no key required.",
     url: "/pricing",
   },
 };
@@ -72,33 +72,12 @@ const PLANS: PricingPlan[] = [
     ctaHref: "#",
     highlighted: true,
   },
-  {
-    id: "power",
-    name: "Power",
-    price: "$10.99",
-    period: "/month",
-    tagline: "For developers and teams",
-    description:
-      "For developers and teams working with APIs across larger or multiple repositories.",
-    features: [
-      "Everything in Pro",
-      "100 AI-assisted repository scans per month",
-      "Higher scan budgets for larger codebases",
-      "Priority processing and more generous AI usage limits",
-      "Advanced discovery capabilities as they ship",
-    ],
-    cta: "Start Power",
-    // TODO: wire up billing
-    ctaHref: "#",
-    highlighted: false,
-  },
 ];
 
 interface ComparisonFeature {
   name: string;
   free: string | boolean;
   pro: string | boolean;
-  power: string | boolean;
 }
 
 const COMPARISON_FEATURES: ComparisonFeature[] = [
@@ -106,49 +85,41 @@ const COMPARISON_FEATURES: ComparisonFeature[] = [
     name: "Core CLI + .autocurl",
     free: true,
     pro: true,
-    power: true,
   },
   {
     name: "Local request execution",
     free: true,
     pro: true,
-    power: true,
   },
   {
     name: "Bring your own AI key",
     free: true,
     pro: true,
-    power: true,
   },
   {
     name: "Managed AI (no key needed)",
     free: false,
     pro: true,
-    power: true,
   },
   {
     name: "AI-assisted scans / month",
     free: "BYOK",
-    pro: "40",
-    power: "100",
+    pro: "100",
   },
   {
     name: "Language & framework detection",
     free: false,
     pro: true,
-    power: true,
   },
   {
     name: "Priority AI processing",
     free: false,
-    pro: false,
-    power: true,
+    pro: true,
   },
   {
     name: "Advanced discovery features",
     free: false,
-    pro: false,
-    power: true,
+    pro: true,
   },
 ];
 
@@ -213,7 +184,7 @@ export default function PricingPage() {
             Simple pricing. No surprises.
           </h1>
           <p className="mt-4 sm:mt-5 text-mute text-[16px] sm:text-[19px] leading-relaxed max-w-[34em] mx-auto">
-            Start free with your own AI key, or upgrade to Pro or Power for managed AI with no key required.
+            Start free with your own AI key, or upgrade to Pro for managed AI with no key required.
           </p>
         </section>
 
@@ -222,7 +193,7 @@ export default function PricingPage() {
           aria-label="Pricing Plans"
           className="max-w-280 mx-auto px-6 pb-20 sm:pb-28"
         >
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-stretch">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 items-stretch max-w-3xl mx-auto">
             {PLANS.map((plan) => (
               <SpotlightCard
                 key={plan.id}
@@ -330,7 +301,7 @@ export default function PricingPage() {
                 Compare all features
               </h2>
               <p className="text-mute text-[15px] sm:text-[16px] leading-relaxed">
-                A detailed side-by-side view of capabilities across Free, Pro, and Power tiers.
+                A detailed side-by-side view of capabilities across Free and Pro tiers.
               </p>
             </div>
 
@@ -356,12 +327,7 @@ export default function PricingPage() {
                     >
                       Pro
                     </th>
-                    <th
-                      scope="col"
-                      className="py-4.5 px-6 font-mono text-[14px] font-bold text-bone text-center w-1/5"
-                    >
-                      Power
-                    </th>
+
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-line text-[14.5px]">
@@ -418,27 +384,7 @@ export default function PricingPage() {
                           </span>
                         )}
                       </td>
-                      <td className="py-4 px-6 text-center">
-                        {typeof row.power === "boolean" ? (
-                          row.power ? (
-                            <Check
-                              className="w-4.5 h-4.5 text-sun mx-auto"
-                              aria-label="Included in Power"
-                            />
-                          ) : (
-                            <span
-                              className="text-mute/50 font-mono text-base select-none"
-                              aria-label="Not included in Power"
-                            >
-                              —
-                            </span>
-                          )
-                        ) : (
-                          <span className="font-mono text-[13px] font-semibold text-bone">
-                            {row.power}
-                          </span>
-                        )}
-                      </td>
+
                     </tr>
                   ))}
                 </tbody>
