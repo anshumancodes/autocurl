@@ -119,6 +119,10 @@ jobs:
 
           version_output="$(./dist/package/${binary} --version)"
           echo "$version_output"
+          if [[ "$GITHUB_REF" == refs/tags/v* && "$version_output" == "autocurl dev" ]]; then
+            echo "Tagged release binary unexpectedly reports dev" >&2
+            exit 1
+          fi
           test "$version_output" = "autocurl ${VERSION}"
 
           archive_base="autocurl_${VERSION}_${TARGET_GOOS}_${TARGET_GOARCH}"
@@ -142,6 +146,10 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "Binary smoke test failed" }
 
           Write-Host $versionOutput
+
+          if ($env:GITHUB_REF -like 'refs/tags/v*' -and $versionOutput -eq 'autocurl dev') {
+            throw "Tagged release binary unexpectedly reports dev"
+          }
 
           if ($versionOutput -ne "autocurl $env:VERSION") {
             throw "Unexpected binary version: $versionOutput"
