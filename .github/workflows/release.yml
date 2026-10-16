@@ -1,0 +1,287 @@
+name: Release autocurl CLI
+
+on:
+  push:
+    branches:
+      - publish
+    tags:
+      - "v*"
+  # Validation-free recovery path; publishes artifacts from an existing run without rebuilding.
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Release/tag to publish (e.g. v0.1.0-beta.4)"
+        type: string
+        required: true
+      artifacts_run_id:
+        description: "Numeric ID of the workflow run holding the built artifacts (required for recovery; find it in the original run's URL)."
+        type: string
+        required: true
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build ${{ matrix.goos }}-${{ matrix.goarch }}
+    runs-on: ${{ matrix.runner }}
+    if: ${{ github.event_name != 'workflow_dispatch' }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - goos: linux
+            goarch: amd64
+            runner: ubuntu-24.04
+          - goos: linux
+            goarch: arm64
+            runner: ubuntu-24.04-arm
+          - goos: darwin
+            goarch: amd64
+            runner: macos-15-intel
+          - goos: darwin
+            goarch: arm64
+            runner: macos-14
+          - goos: windows
+            goarch: amd64
+            runner: windows-2025
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: cli/go.mod
+          cache-dependency-path: cli/go.sum
+
+      - name: Configure C compiler (Unix)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          set -eu
+          if [ "$RUNNER_OS" = "Linux" ]; then
+            command -v gcc
+            gcc --version
+            echo "CC=gcc" >> "$GITHUB_ENV"
+          else
+            command -v clang
+            clang --version
+            echo "CC=clang" >> "$GITHUB_ENV"
+          fi
+
+      - name: Configure C compiler (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $gcc = Get-Command gcc -ErrorAction Stop
+          & $gcc.Source --version
+          Add-Content -Path $env:GITHUB_ENV -Value 'CC=gcc'
+
+      - name: Verify native target
+        working-directory: cli
+        shell: bash
+        if: runner.os != 'Windows'
+        run: |
+          set -eu
+          test "$(go env GOOS)" = "${{ matrix.goos }}"
+          test "$(go env GOARCH)" = "${{ matrix.goarch }}"
+
+      - name: Verify native target (Windows)
+        working-directory: cli
+        shell: pwsh
+        if: runner.os == 'Windows'
+        run: |
+          if ((go env GOOS) -ne '${{ matrix.goos }}') { throw "Unexpected GOOS" }
+          if ((go env GOARCH) -ne '${{ matrix.goarch }}') { throw "Unexpected GOARCH" }
+
+      - name: Build and package binary (Unix)
+        working-directory: cli
+        if: runner.os != 'Windows'
+        shell: bash
+        env:
+          CGO_ENABLED: "1"
+          TARGET_GOOS: ${{ matrix.goos }}
+          TARGET_GOARCH: ${{ matrix.goarch }}
+          VERSION: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || 'dev' }}
+        run: |
+          set -eu
+          mkdir -p dist/package
+          binary="autocurl"
+          go build \
+            -trimpath \
+            -ldflags="-s -w -X main.version=${VERSION}" \
+            -o "dist/package/${binary}" \
+            ./cmd/autocurl
+
+          version_output="$(./dist/package/${binary} --version)"
+          echo "$version_output"
+          if [[ "$GITHUB_REF" == refs/tags/v* && "$version_output" == "autocurl dev" ]]; then
+            echo "Tagged release binary unexpectedly reports dev" >&2
+            exit 1
+          fi
+          test "$version_output" = "autocurl ${VERSION}"
+
+          archive_base="autocurl_${VERSION}_${TARGET_GOOS}_${TARGET_GOARCH}"
+          tar -C dist/package -czf "dist/${archive_base}.tar.gz" "${binary}"
+
+      - name: Build and package binary (Windows)
+        working-directory: cli
+        if: runner.os == 'Windows'
+        shell: pwsh
+        env:
+          CGO_ENABLED: "1"
+          VERSION: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || 'dev' }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Force -Path dist/package | Out-Null
+          $binary = 'autocurl.exe'
+          go build -trimpath "-ldflags=-s -w -X main.version=$($env:VERSION)" -o (Join-Path dist/package $binary) ./cmd/autocurl
+          if ($LASTEXITCODE -ne 0) { throw "go build failed with exit code $LASTEXITCODE" }
+
+          $versionOutput = & (Join-Path dist/package $binary) --version
+          if ($LASTEXITCODE -ne 0) { throw "Binary smoke test failed" }
+
+          Write-Host $versionOutput
+
+          if ($env:GITHUB_REF -like 'refs/tags/v*' -and $versionOutput -eq 'autocurl dev') {
+            throw "Tagged release binary unexpectedly reports dev"
+          }
+
+          if ($versionOutput -ne "autocurl $env:VERSION") {
+            throw "Unexpected binary version: $versionOutput"
+          }
+
+          $archiveBase = "autocurl_${env:VERSION}_${{ matrix.goos }}_${{ matrix.goarch }}"
+          Compress-Archive `
+            -Path (Join-Path dist/package $binary) `
+            -DestinationPath (Join-Path dist "$archiveBase.zip") `
+            -Force
+
+      - name: Upload release archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: archive-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: cli/dist/autocurl_*
+          if-no-files-found: error
+          retention-days: 1
+
+  checksums:
+    name: Create checksums
+    runs-on: ubuntu-latest
+    needs: build
+    if: ${{ needs.build.result == 'success' && (github.ref == 'refs/heads/publish' || startsWith(github.ref, 'refs/tags/v')) }}
+
+    steps:
+      - name: Download release archives
+        uses: actions/download-artifact@v4
+        with:
+          pattern: archive-*
+          path: dist
+          merge-multiple: true
+
+      - name: Create SHA-256 checksums
+        working-directory: dist
+        run: sha256sum autocurl_* > checksums.txt
+
+      - name: Upload checksums
+        uses: actions/upload-artifact@v4
+        with:
+          name: checksums
+          path: dist/checksums.txt
+          if-no-files-found: error
+          retention-days: 1
+
+  release:
+    name: Publish public binary release
+    runs-on: ubuntu-latest
+    needs: checksums
+    # always() is required: on workflow_dispatch the build and checksums jobs
+    # are skipped, and a skipped `needs` job skips dependents via the implicit
+    # success() gate even when the explicit condition would be true.
+    # The result checks below still prevent publishing when anything failed.
+    if: ${{ always() && ((github.event_name == 'workflow_dispatch' && needs.checksums.result == 'skipped' && inputs.artifacts_run_id != '') || (github.event_name == 'push' && needs.checksums.result == 'success' && startsWith(github.ref, 'refs/tags/v'))) }}
+    permissions:
+      contents: read
+      actions: read
+
+    steps:
+      - name: Validate public distribution configuration
+        env:
+          DISTRIBUTION_REPOSITORY: ${{ vars.AUTOCURL_DISTRIBUTION_REPOSITORY }}
+          DISTRIBUTION_TOKEN: ${{ secrets.AUTOCURL_DISTRIBUTION_TOKEN }}
+        run: |
+          set -eu
+          test -n "$DISTRIBUTION_REPOSITORY" || { echo "Set the AUTOCURL_DISTRIBUTION_REPOSITORY repository variable" >&2; exit 1; }
+          test -n "$DISTRIBUTION_TOKEN" || { echo "Set the AUTOCURL_DISTRIBUTION_TOKEN secret" >&2; exit 1; }
+
+      - name: Bootstrap distribution repository (initial commit + default branch)
+        id: dist
+        env:
+          DISTRIBUTION_REPOSITORY: ${{ vars.AUTOCURL_DISTRIBUTION_REPOSITORY }}
+          DISTRIBUTION_TOKEN: ${{ secrets.AUTOCURL_DISTRIBUTION_TOKEN }}
+        run: |
+          set -eu
+          api="https://api.github.com/repos/$DISTRIBUTION_REPOSITORY"
+          auth="Authorization: Bearer $DISTRIBUTION_TOKEN"
+
+          # The action resolves target_commitish against the *public* repository,
+          # so the repo must have a default branch with at least one commit.
+          commits_status="$(curl -sS -o /dev/null -w '%{http_code}' -H "$auth" "$api/commits")"
+          if [ "$commits_status" = "409" ]; then
+            echo "Distribution repository is empty; creating initial public metadata commit"
+            readme_b64=$(printf 'Public binary distribution of autocurl.\n\nOnly compiled CLI release archives and checksums are published here.\nCLI source lives in the upstream repository.\n' | base64 -w 0)
+            payload=$(jq -n --arg b "$readme_b64" '{"message":"Initial public metadata commit","content":$b}')
+            curl -sS -H "$auth" -H "Content-Type: application/json" -X PUT -d "$payload" "$api/contents/README.md"
+          fi
+
+          default_branch="$(curl -sS -H "$auth" "$api" | jq -r .default_branch)"
+          test -n "$default_branch" && test "$default_branch" != "null"
+          echo "default_branch=$default_branch" >> "$GITHUB_OUTPUT"
+
+      - name: Download release assets
+        uses: actions/download-artifact@v4
+        with:
+          pattern: "*"
+          path: dist
+          merge-multiple: true
+          github-token: ${{ github.token }}
+          # Tagged releases: artifacts live in this run. Manual recovery:
+          # artifacts come from the previously completed build run.
+          run-id: ${{ inputs.artifacts_run_id || github.run_id }}
+
+      - name: Verify contained deliverables
+        run: |
+          set -eu
+          ls -l dist
+          for f in dist/*; do
+            case "$f" in
+              dist/autocurl_*|dist/checksums.txt) ;;
+              *) echo "Unexpected non-release file: $f" >&2; exit 1 ;;
+            esac
+          done
+          total=$(find dist -mindepth 1 -maxdepth 1 | wc -l)
+          test "$total" -eq 6 || { echo "Expected 5 platform archives + checksums.txt, got $total" >&2; exit 1; }
+          # Fail the job before publishing if checksums are empty or missing
+          grep -q '^autocurl_' dist/checksums.txt
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          repository: ${{ vars.AUTOCURL_DISTRIBUTION_REPOSITORY }}
+          token: ${{ secrets.AUTOCURL_DISTRIBUTION_TOKEN }}
+          tag_name: ${{ inputs.release_tag || github.ref_name }}
+          # Must resolve inside the *public* repo; omitting it makes the action
+          # default to the private repo's commit SHA -> HTTP 400.
+          target_commitish: ${{ steps.dist.outputs.default_branch }}
+          prerelease: ${{ contains(inputs.release_tag || github.ref_name, '-') }}
+          # Cross-repo generated notes would resolve commits against the wrong
+          # repo; keep notes static instead.
+          generate_release_notes: false
+          # Rerun-safe: updates an existing release and replaces same-named assets.
+          overwrite_files: true
+          fail_on_unmatched_files: true
+          files: dist/*
