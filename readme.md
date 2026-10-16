@@ -39,9 +39,19 @@ Select a request from the interactive menu using arrow keys or fuzzy search, and
 
 ## Installation
 
+### Quick installer (macOS & Linux)
+
+```bash
+curl -fsSL https://autocurl.lol/install.sh | sh
+```
+
+> Pending deployment of the public binary distribution release.
+
+This installs the verified release binary into `~/.local/bin`.
+
 ### Direct binary
 
-Download the archive for your platform from the [GitHub Releases](https://github.com/anshumancodes/autocurl/releases) page, extract it, and place the `autocurl` binary somewhere on your `PATH`.
+Download the archive for your platform from the public release distribution, verify it with `checksums.txt`, extract it, and place the `autocurl` binary somewhere on your `PATH`.
 
 ### Homebrew
 
