@@ -33,7 +33,7 @@ func TestRunGeneratesExpressProjectAndParsesOutput(t *testing.T) {
 	if len(doc.Requests) != 2 || !strings.Contains(content, "# @source server.js:3") {
 		t.Fatalf("output=%q document=%#v", content, doc)
 	}
-	if !strings.Contains(out.String(), "Framework: Express") || !strings.Contains(out.String(), "Discovered 2 routes.") || !strings.Contains(out.String(), "Generated: index.autocurl") {
+	if !strings.Contains(out.String(), "Framework: Express") || !strings.Contains(out.String(), "Discovered 2 routes.") || !strings.Contains(out.String(), "Generated: ") {
 		t.Fatalf("CLI output=%q", out.String())
 	}
 }
@@ -79,7 +79,7 @@ func TestRunGeneratesNestJSFromAbsolutePathDeterministically(t *testing.T) {
 		t.Fatal(err)
 	}
 	first := readGenerated(t, root)
-	if err := os.Remove(filepath.Join(root, "index.autocurl")); err != nil {
+	if err := os.Remove(generatedPath(t, root)); err != nil {
 		t.Fatal(err)
 	}
 	var secondOut bytes.Buffer
@@ -111,7 +111,7 @@ func TestRunPreservesWarningsAndRejectsEmptyDiscovery(t *testing.T) {
 	if err := commands.Run([]string{root}, commands.Config{Out: &out}); err == nil || !strings.Contains(err.Error(), "no routes discovered") || !strings.Contains(out.String(), "Warning:") {
 		t.Fatalf("err=%v output=%q", err, out.String())
 	}
-	if _, err := os.Stat(filepath.Join(root, "index.autocurl")); !os.IsNotExist(err) {
+	if _, err := os.Stat(filepath.Join(root, filepath.Base(root)+".autocurl")); !os.IsNotExist(err) {
 		t.Fatalf("generated output exists after empty discovery: %v", err)
 	}
 
@@ -127,19 +127,20 @@ func TestRunArgumentValidationAndExistingOutputProtection(t *testing.T) {
 	if err := os.WriteFile(source, []byte("console.log('deferred')"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	if err := commands.Run([]string{source}, commands.Config{Out: io.Discard}); err == nil || !strings.Contains(err.Error(), "source-file generation is not supported") {
+	if err := commands.Run([]string{source}, commands.Config{Out: io.Discard}); err == nil || !strings.Contains(err.Error(), "no routes discovered") {
 		t.Fatalf("source-file error=%v", err)
 	}
 	if err := commands.Run([]string{filepath.Join(root, "missing")}, commands.Config{Out: io.Discard}); err == nil || !strings.Contains(err.Error(), "stat") {
 		t.Fatalf("missing path error=%v", err)
 	}
-	if err := os.WriteFile(filepath.Join(root, "index.autocurl"), []byte("keep"), 0o644); err != nil {
+	output := filepath.Join(root, filepath.Base(root)+".autocurl")
+	if err := os.WriteFile(output, []byte("keep"), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	if err := commands.Run([]string{root}, commands.Config{Out: io.Discard}); err == nil || !strings.Contains(err.Error(), "already exists") {
 		t.Fatalf("existing output error=%v", err)
 	}
-	content, err := os.ReadFile(filepath.Join(root, "index.autocurl"))
+	content, err := os.ReadFile(output)
 	if err != nil || string(content) != "keep" {
 		t.Fatalf("existing output changed: %q, %v", content, err)
 	}
@@ -147,7 +148,7 @@ func TestRunArgumentValidationAndExistingOutputProtection(t *testing.T) {
 
 func TestRunExistingAutocurlRemainsInteractive(t *testing.T) {
 	root := t.TempDir()
-	path := filepath.Join(root, "index.autocurl")
+	path := filepath.Join(root, "requests.autocurl")
 	if err := os.WriteFile(path, []byte("### 1. GET /health\nGET http://example.test/health\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
@@ -176,7 +177,7 @@ func TestAIModeFlagOverridesEnvironment(t *testing.T) {
 	if !provider.called {
 		t.Fatal("environment mode did not enable AI")
 	}
-	if err := os.Remove(filepath.Join(root, "index.autocurl")); err != nil {
+	if err := os.Remove(generatedPath(t, root)); err != nil {
 		t.Fatal(err)
 	}
 	provider = &commandStubProvider{}
@@ -185,6 +186,33 @@ func TestAIModeFlagOverridesEnvironment(t *testing.T) {
 	}
 	if provider.called {
 		t.Fatal("CLI off flag did not override environment")
+	}
+}
+
+func TestRunScopedModuleAndFileGeneration(t *testing.T) {
+	root := fixtureProject(t, map[string]string{
+		"package.json":                      `{"name":"Servio","dependencies":{"express":"5.0.0"}}`,
+		"src/app.js":                        "const express = require('express');\nconst app = express();\nconst user = require('./modules/user/user.routes');\napp.use('/api', user);\napp.get('/health', handler);\n",
+		"src/modules/user/user.routes.js":   "const express = require('express');\nconst router = express.Router();\nrouter.get('/profile', handler);\nmodule.exports = router;\n",
+		"src/modules/admin/admin.routes.js": "const express = require('express');\nconst router = express.Router();\nrouter.get('/audit', handler);\nmodule.exports = router;\n",
+	})
+	moduleDir := filepath.Join(root, "src", "modules", "user")
+	if err := commands.Run([]string{moduleDir}, commands.Config{Out: io.Discard}); err != nil {
+		t.Fatal(err)
+	}
+	moduleOutput := filepath.Join(root, "servio.user.autocurl")
+	content, err := os.ReadFile(moduleOutput)
+	if err != nil || !strings.Contains(string(content), "/api/profile") || strings.Contains(string(content), "/audit") || strings.Contains(string(content), "/health") {
+		t.Fatalf("module output=%q err=%v", content, err)
+	}
+	if err := os.Remove(moduleOutput); err != nil {
+		t.Fatal(err)
+	}
+	if err := commands.Run([]string{filepath.Join(moduleDir, "user.routes.js")}, commands.Config{Out: io.Discard}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(moduleOutput); err != nil {
+		t.Fatalf("file output missing: %v", err)
 	}
 }
 
@@ -216,9 +244,24 @@ func fixtureProject(t *testing.T, files map[string]string) string {
 
 func readGenerated(t *testing.T, root string) string {
 	t.Helper()
-	content, err := os.ReadFile(filepath.Join(root, "index.autocurl"))
+	content, err := os.ReadFile(generatedPath(t, root))
 	if err != nil {
 		t.Fatal(err)
 	}
 	return string(content)
+}
+
+func generatedPath(t *testing.T, root string) string {
+	t.Helper()
+	entries, err := os.ReadDir(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, entry := range entries {
+		if !entry.IsDir() && strings.HasSuffix(entry.Name(), ".autocurl") {
+			return filepath.Join(root, entry.Name())
+		}
+	}
+	t.Fatalf("no generated autocurl file in %s", root)
+	return ""
 }
