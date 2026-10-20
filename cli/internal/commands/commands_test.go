@@ -2,6 +2,7 @@ package commands_test
 
 import (
 	"bytes"
+	"context"
 	"io"
 	"net/http"
 	"os"
@@ -10,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/anshumancodes/autocurl/internal/commands"
+	"github.com/anshumancodes/autocurl/internal/discovery"
 	"github.com/anshumancodes/autocurl/internal/parser"
 )
 
@@ -159,6 +161,38 @@ func TestRunExistingAutocurlRemainsInteractive(t *testing.T) {
 	if !strings.Contains(out.String(), "HTTP 200 OK") || !strings.Contains(out.String(), `"ok": true`) {
 		t.Fatalf("interactive output=%q", out.String())
 	}
+}
+
+func TestAIModeFlagOverridesEnvironment(t *testing.T) {
+	root := fixtureProject(t, map[string]string{
+		"package.json": `{"dependencies":{"express":"5.0.0"}}`,
+		"server.js":    "const express = require('express');\nconst app = express();\napp.get('/health', handler);\n",
+	})
+	t.Setenv("AUTOCURL_AI", "always")
+	provider := &commandStubProvider{}
+	if err := commands.Run([]string{root}, commands.Config{Out: io.Discard, AIProvider: provider}); err != nil {
+		t.Fatal(err)
+	}
+	if !provider.called {
+		t.Fatal("environment mode did not enable AI")
+	}
+	if err := os.Remove(filepath.Join(root, "index.autocurl")); err != nil {
+		t.Fatal(err)
+	}
+	provider = &commandStubProvider{}
+	if err := commands.Run([]string{"--ai=off", root}, commands.Config{Out: io.Discard, AIProvider: provider}); err != nil {
+		t.Fatal(err)
+	}
+	if provider.called {
+		t.Fatal("CLI off flag did not override environment")
+	}
+}
+
+type commandStubProvider struct{ called bool }
+
+func (p *commandStubProvider) Analyze(context.Context, discovery.AIRequest) (discovery.AIResponse, error) {
+	p.called = true
+	return discovery.AIResponse{}, nil
 }
 
 type roundTripFunc func(*http.Request) (*http.Response, error)
