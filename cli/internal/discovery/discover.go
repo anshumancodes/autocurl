@@ -1,9 +1,13 @@
 package discovery
 
 import (
+	stdcontext "context"
 	"errors"
 	"fmt"
+	"path/filepath"
 	"sort"
+	"strings"
+	"time"
 
 	"github.com/anshumancodes/autocurl/internal/project"
 )
@@ -14,6 +18,8 @@ import (
 type DiscoverOptions struct {
 	ScanOptions project.ScanOptions
 	Extractors  []Extractor
+	AIMode      AIMode
+	AIProvider  AIProvider
 }
 
 // ExtractionContext is the read-only project information made available to an
@@ -118,9 +124,103 @@ func Discover(root string, options DiscoverOptions) (DiscoveryResult, error) {
 
 	normalized := NormalizeRoutes(candidates)
 	warnings = append(warnings, normalized.Warnings...)
+	if options.AIMode != AIModeOff && aiShouldRun(options.AIMode, normalized.Routes, warnings) {
+		if options.AIProvider == nil {
+			warnings = append(warnings, "AI analysis skipped: no provider configured")
+		} else {
+			aiRequest, requestErr := BuildAIRequest(context.Root, context, normalized.Routes, warnings, "discover_and_enrich")
+			if requestErr != nil {
+				warnings = append(warnings, fmt.Sprintf("AI context unavailable: %v", requestErr))
+			} else {
+				aiContext, cancel := stdcontext.WithTimeout(stdcontext.Background(), 30*time.Second)
+				aiResponse, aiErr := options.AIProvider.Analyze(aiContext, aiRequest)
+				cancel()
+				if aiErr != nil {
+					warnings = append(warnings, fmt.Sprintf("AI analysis failed: %v", aiErr))
+				} else {
+					mergeAIResults(scan.Root, scan.Files, aiRequest.Snippets, &normalized, aiResponse)
+				}
+			}
+		}
+	}
 	sort.Strings(warnings)
 	normalized.Warnings = warnings
 	return normalized, nil
+}
+
+func aiShouldRun(mode AIMode, routes []Route, warnings []string) bool {
+	if mode == AIModeAlways {
+		return true
+	}
+	if mode != AIModeAuto {
+		return false
+	}
+	if len(routes) == 0 {
+		return true
+	}
+	for _, warning := range warnings {
+		lower := strings.ToLower(warning)
+		if strings.Contains(lower, "dynamic") || strings.Contains(lower, "unresolved") || strings.Contains(lower, "unsupported") || strings.Contains(lower, "no route") {
+			return true
+		}
+	}
+	return false
+}
+
+func mergeAIResults(root string, files []string, snippets []SourceSnippet, result *DiscoveryResult, response AIResponse) {
+	allowed := make(map[string]struct{}, len(files))
+	for _, file := range files {
+		absolute, err := filepath.Abs(file)
+		if err == nil {
+			allowed[filepath.Clean(absolute)] = struct{}{}
+		}
+	}
+	byKey := make(map[string]int, len(result.Routes))
+	for i, route := range result.Routes {
+		byKey[route.Method+"\x00"+route.Path] = i
+	}
+	for _, candidate := range response.Endpoints {
+		if !validAIEndpoint(root, allowed, snippets, candidate) {
+			continue
+		}
+		route := Route{Method: candidate.Method, Path: candidate.Path, Source: candidate.Source, Strategy: StrategyAI, Confidence: .6, Headers: applyAuthHeader(candidate.Headers, candidate.Auth), Body: candidate.Body, HasBody: candidate.HasBody, Auth: cloneAuth(candidate.Auth)}
+		normalized, err := NormalizeRoute(route)
+		if err != nil {
+			continue
+		}
+		key := normalized.Method + "\x00" + normalized.Path
+		if index, exists := byKey[key]; exists {
+			current := result.Routes[index]
+			if sameSource(root, current.Source, normalized.Source) {
+				current.Headers, current.Body, current.HasBody, current.Auth, current.Enriched = normalized.Headers, normalized.Body, normalized.HasBody, normalized.Auth, true
+				result.Routes[index] = current
+			}
+			continue
+		}
+		byKey[key] = len(result.Routes)
+		result.Routes = append(result.Routes, normalized)
+	}
+	sort.Slice(result.Routes, func(i, j int) bool {
+		if result.Routes[i].Path != result.Routes[j].Path {
+			return result.Routes[i].Path < result.Routes[j].Path
+		}
+		return result.Routes[i].Method < result.Routes[j].Method
+	})
+}
+
+func sameSource(root string, a, b SourceLocation) bool {
+	return resolveSource(root, a.File) == resolveSource(root, b.File) && a.Line == b.Line
+}
+
+func resolveSource(root, file string) string {
+	if !filepath.IsAbs(file) {
+		file = filepath.Join(root, file)
+	}
+	absolute, err := filepath.Abs(file)
+	if err != nil {
+		return ""
+	}
+	return filepath.Clean(absolute)
 }
 
 func extractorName(extractor Extractor) string {
