@@ -12,10 +12,12 @@ import (
 
 	"github.com/anshumancodes/autocurl/internal/discovery"
 	"github.com/anshumancodes/autocurl/internal/executor"
+	"github.com/anshumancodes/autocurl/internal/extractors/django"
 	"github.com/anshumancodes/autocurl/internal/extractors/echo"
 	"github.com/anshumancodes/autocurl/internal/extractors/express"
 	"github.com/anshumancodes/autocurl/internal/extractors/fastapi"
 	"github.com/anshumancodes/autocurl/internal/extractors/fiber"
+	"github.com/anshumancodes/autocurl/internal/extractors/flask"
 	"github.com/anshumancodes/autocurl/internal/extractors/gin"
 	"github.com/anshumancodes/autocurl/internal/extractors/nestjs"
 	"github.com/anshumancodes/autocurl/internal/extractors/nethttp"
@@ -86,6 +88,8 @@ func generateProject(rawRoot string, out io.Writer) error {
 		Extractors: []discovery.Extractor{
 			express.New(),
 			fastapi.New(),
+			flask.New(),
+			django.New(),
 			gin.New(),
 			echo.New(),
 			fiber.New(),
