@@ -18,14 +18,16 @@ type Document struct {
 
 // Request is one numbered request block.
 type Request struct {
-	Number  int
-	Title   string
-	Method  string
-	URL     string
-	Headers map[string]string
-	Source  *Source
-	Body    string
-	HasBody bool
+	Number   int
+	Title    string
+	Method   string
+	URL      string
+	Headers  map[string]string
+	Source   *Source
+	Body     string
+	HasBody  bool
+	Strategy string
+	Enriched bool
 }
 
 // Source identifies the source location recorded for a request.
@@ -110,6 +112,24 @@ func parseRequest(lines []string, start int, seen map[int]bool) (Request, int, e
 	i := start + 1
 	for i < len(lines) && strings.TrimSpace(lines[i]) == "" {
 		i++
+	}
+	if i < len(lines) && strings.HasPrefix(lines[i], "# @strategy ") {
+		strategy := strings.TrimSpace(strings.TrimPrefix(lines[i], "# @strategy "))
+		if strategy != "ast" && strategy != "ai" {
+			return Request{}, i, parseErr(i+1, "invalid strategy metadata")
+		}
+		req.Strategy = strategy
+		i++
+		for i < len(lines) && strings.TrimSpace(lines[i]) == "" {
+			i++
+		}
+	}
+	if i < len(lines) && strings.TrimSpace(lines[i]) == "# @enriched ai" {
+		req.Enriched = true
+		i++
+		for i < len(lines) && strings.TrimSpace(lines[i]) == "" {
+			i++
+		}
 	}
 	if i < len(lines) && strings.HasPrefix(lines[i], "# @source") {
 		source, ok := parseSource(lines[i])
