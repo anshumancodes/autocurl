@@ -56,10 +56,34 @@ func Generate(routes []discovery.Route, options Options) (string, error) {
 	for index, route := range sortedRoutes {
 		output.WriteString("\n### ")
 		fmt.Fprintf(&output, "%d. %s %s\n", index+1, route.Method, route.Path)
+		if route.Strategy == discovery.StrategyAI || route.Enriched {
+			strategy := route.Strategy
+			if route.Enriched {
+				strategy = discovery.StrategyAST
+			}
+			fmt.Fprintf(&output, "# @strategy %s\n", strategy)
+			if route.Enriched {
+				output.WriteString("# @enriched ai\n")
+			}
+		}
 		if source := sourceText(route, options.ProjectRoot); source != "" {
 			fmt.Fprintf(&output, "# @source %s\n", source)
 		}
 		fmt.Fprintf(&output, "%s%s\nAccept: application/json\n", route.Method, requestURL(route.Path))
+		for _, name := range sortedHeaders(route.Headers) {
+			value := route.Headers[name]
+			if strings.EqualFold(name, "Accept") {
+				continue
+			}
+			fmt.Fprintf(&output, "%s: %s\n", name, value)
+		}
+		if route.HasBody {
+			output.WriteString("\n")
+			output.WriteString(route.Body)
+			if !strings.HasSuffix(route.Body, "\n") {
+				output.WriteString("\n")
+			}
+		}
 	}
 	return output.String(), nil
 }
@@ -97,7 +121,37 @@ func validateRoute(route discovery.Route) error {
 	if route.Source.Line < 0 {
 		return fmt.Errorf("%w: negative source line %d", ErrInvalidRoute, route.Source.Line)
 	}
+	for name, value := range route.Headers {
+		if !validHeaderToken(name) || strings.ContainsAny(value, "\r\n") {
+			return fmt.Errorf("%w: unsafe header %q", ErrInvalidRoute, name)
+		}
+	}
+	if route.HasBody && (strings.ContainsAny(route.Body, "\x00\r") || len(route.Body) > 16<<10) {
+		return fmt.Errorf("%w: unsafe request body", ErrInvalidRoute)
+	}
 	return nil
+}
+
+func validHeaderToken(value string) bool {
+	if value == "" {
+		return false
+	}
+	for _, r := range value {
+		if unicode.IsLetter(r) || unicode.IsDigit(r) || strings.ContainsRune("!#$%&'*+-.^_`|~", r) {
+			continue
+		}
+		return false
+	}
+	return true
+}
+
+func sortedHeaders(headers map[string]string) []string {
+	keys := make([]string, 0, len(headers))
+	for key := range headers {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	return keys
 }
 
 func validateMetadata(name, value string) error {
