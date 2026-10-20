@@ -22,6 +22,18 @@ autocurl ./my-api
 
 > **Existing File Protection:** If an `index.autocurl` already exists in the project root, autocurl refuses to overwrite it to protect manual edits or existing files. You must rename or delete the file before regenerating.
 
+AI-assisted discovery is optional and defaults to `off`:
+
+```bash
+GEMINI_API_KEY=your-key autocurl --ai=auto ./your-project
+```
+
+Use `--ai=always` to request analysis even when AST extraction has no warning,
+or set `AUTOCURL_AI=off|auto|always`. A CLI flag overrides the environment
+setting. Without `GEMINI_API_KEY`, autocurl continues with deterministic AST
+discovery. AI candidates must cite supplied source context; invalid, duplicate
+or ungrounded candidates are discarded. AI errors preserve AST results.
+
 ### Mode 2: Runner — Interactive Terminal Execution
 
 Pass an existing `.autocurl` file to autocurl to launch the interactive terminal runner:
@@ -150,7 +162,7 @@ autocurl --version
 autocurl -V
 ```
 
-> **Planned CLI Flags:** The current release of autocurl focuses on a minimal, single-argument CLI interface. Additional flags—such as `--run <name>` (non-interactive execution for CI/CD), `--dry-run` (print HTTP request details without dispatching), and `--filter <query>` (pre-filtered interactive menu)—are planned for future releases.
+The generator also accepts `--ai=off|auto|always`; the default is `off`.
 
 ### Exit Codes
 
