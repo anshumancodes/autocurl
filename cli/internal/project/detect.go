@@ -232,8 +232,21 @@ func detectPython(root string, files []string, languages, frameworks stringSet) 
 		}
 		for _, line := range strings.Split(string(source), "\n") {
 			line = strings.TrimSpace(line)
-			if strings.HasPrefix(line, "import fastapi") || strings.HasPrefix(line, "from fastapi import") {
-				frameworks.add("fastapi")
+			for _, framework := range []struct{ prefix, name string }{
+				{"import fastapi", "fastapi"}, {"from fastapi import", "fastapi"},
+				{"import flask", "flask"}, {"from flask import", "flask"},
+				{"import django", "django"}, {"from django.", "django"},
+				{"from rest_framework.", "drf"}, {"from rest_framework import", "drf"}, {"import rest_framework", "drf"},
+			} {
+				if strings.HasPrefix(line, framework.prefix) {
+					frameworks.add(framework.name)
+					languages.add("python")
+				}
+			}
+			if strings.HasPrefix(line, "import fastapi") || strings.HasPrefix(line, "from fastapi import") ||
+				strings.HasPrefix(line, "import flask") || strings.HasPrefix(line, "from flask import") ||
+				strings.HasPrefix(line, "import django") || strings.HasPrefix(line, "from django.") ||
+				strings.HasPrefix(line, "import rest_framework") || strings.HasPrefix(line, "from rest_framework.") || strings.HasPrefix(line, "from rest_framework import") {
 				languages.add("python")
 				break
 			}
