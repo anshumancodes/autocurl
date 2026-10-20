@@ -12,10 +12,13 @@ import (
 
 	"github.com/anshumancodes/autocurl/internal/discovery"
 	"github.com/anshumancodes/autocurl/internal/executor"
+	"github.com/anshumancodes/autocurl/internal/extractors/echo"
 	"github.com/anshumancodes/autocurl/internal/extractors/express"
 	"github.com/anshumancodes/autocurl/internal/extractors/fastapi"
+	"github.com/anshumancodes/autocurl/internal/extractors/fiber"
 	"github.com/anshumancodes/autocurl/internal/extractors/gin"
 	"github.com/anshumancodes/autocurl/internal/extractors/nestjs"
+	"github.com/anshumancodes/autocurl/internal/extractors/nethttp"
 	"github.com/anshumancodes/autocurl/internal/generator"
 	"github.com/anshumancodes/autocurl/internal/interactive"
 	"github.com/anshumancodes/autocurl/internal/parser"
@@ -84,6 +87,9 @@ func generateProject(rawRoot string, out io.Writer) error {
 			express.New(),
 			fastapi.New(),
 			gin.New(),
+			echo.New(),
+			fiber.New(),
+			nethttp.New(),
 			nestjs.New(),
 		},
 	})
