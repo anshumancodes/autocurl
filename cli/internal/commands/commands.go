@@ -10,6 +10,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/anshumancodes/autocurl/internal/ai"
 	"github.com/anshumancodes/autocurl/internal/discovery"
 	"github.com/anshumancodes/autocurl/internal/executor"
 	"github.com/anshumancodes/autocurl/internal/extractors/django"
@@ -31,16 +32,19 @@ const outputFilename = "index.autocurl"
 
 // Config supplies the streams and optional HTTP client used by a command.
 type Config struct {
-	In     io.Reader
-	Out    io.Writer
-	Client executor.HTTPClient
+	In         io.Reader
+	Out        io.Writer
+	Client     executor.HTTPClient
+	AIMode     discovery.AIMode
+	AIProvider discovery.AIProvider
 }
 
 // Run routes one CLI argument to project generation or existing-file
 // execution. It returns errors for main to report and choose an exit status.
 func Run(args []string, config Config) error {
-	if len(args) != 1 {
-		return errors.New("usage: autocurl <project-directory|file.autocurl>")
+	path, mode, err := parseArgs(args, config.AIMode)
+	if err != nil {
+		return err
 	}
 	if config.In == nil {
 		config.In = strings.NewReader("")
@@ -49,23 +53,62 @@ func Run(args []string, config Config) error {
 		config.Out = io.Discard
 	}
 
-	info, err := os.Stat(args[0])
+	info, err := os.Stat(path)
 	if err != nil {
-		return fmt.Errorf("stat %s: %w", args[0], err)
+		return fmt.Errorf("stat %s: %w", path, err)
 	}
 	if info.IsDir() {
-		return generateProject(args[0], config.Out)
+		provider := config.AIProvider
+		if provider == nil && mode != discovery.AIModeOff {
+			provider = ai.NewGemini(os.Getenv("GEMINI_API_KEY"))
+		}
+		return generateProject(path, config.Out, mode, provider)
 	}
 	if !info.Mode().IsRegular() {
-		return fmt.Errorf("%s is not a regular file or directory", args[0])
+		return fmt.Errorf("%s is not a regular file or directory", path)
 	}
-	if !strings.EqualFold(filepath.Ext(args[0]), ".autocurl") {
-		return fmt.Errorf("source-file generation is not supported for %s; pass a project directory instead", args[0])
+	if !strings.EqualFold(filepath.Ext(path), ".autocurl") {
+		return fmt.Errorf("source-file generation is not supported for %s; pass a project directory instead", path)
 	}
-	return executeFile(args[0], config)
+	return executeFile(path, config)
 }
 
-func generateProject(rawRoot string, out io.Writer) error {
+func parseArgs(args []string, configured discovery.AIMode) (string, discovery.AIMode, error) {
+	mode := configured
+	if mode == "" {
+		mode = discovery.AIMode(strings.ToLower(strings.TrimSpace(os.Getenv("AUTOCURL_AI"))))
+	}
+	if mode == "" {
+		mode = discovery.AIModeOff
+	}
+	if !validAIMode(mode) {
+		return "", "", fmt.Errorf("invalid AI mode %q; expected off, auto or always", mode)
+	}
+	paths := make([]string, 0, 1)
+	for _, arg := range args {
+		if strings.HasPrefix(arg, "--ai=") {
+			mode = discovery.AIMode(strings.ToLower(strings.TrimPrefix(arg, "--ai=")))
+			if !validAIMode(mode) {
+				return "", "", fmt.Errorf("invalid AI mode %q; expected off, auto or always", mode)
+			}
+			continue
+		}
+		if strings.HasPrefix(arg, "--") {
+			return "", "", fmt.Errorf("unknown option %s", arg)
+		}
+		paths = append(paths, arg)
+	}
+	if len(paths) != 1 {
+		return "", "", errors.New("usage: autocurl [--ai=off|auto|always] <project-directory|file.autocurl>")
+	}
+	return paths[0], mode, nil
+}
+
+func validAIMode(mode discovery.AIMode) bool {
+	return mode == discovery.AIModeOff || mode == discovery.AIModeAuto || mode == discovery.AIModeAlways
+}
+
+func generateProject(rawRoot string, out io.Writer, mode discovery.AIMode, provider discovery.AIProvider) error {
 	root, err := filepath.Abs(rawRoot)
 	if err != nil {
 		return fmt.Errorf("resolve project directory %s: %w", rawRoot, err)
@@ -96,6 +139,7 @@ func generateProject(rawRoot string, out io.Writer) error {
 			nethttp.New(),
 			nestjs.New(),
 		},
+		AIMode: mode, AIProvider: provider,
 	})
 	if err != nil {
 		return err
