@@ -3,13 +3,16 @@ package project
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/BurntSushi/toml"
+	goparser "go/parser"
+	"go/token"
+	"golang.org/x/mod/modfile"
 	"os"
 	"path/filepath"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
-	"github.com/BurntSushi/toml"
-	"golang.org/x/mod/modfile"
 )
 
 // DetectionResult describes the languages and web frameworks found in a
@@ -39,10 +42,10 @@ func Detect(root string) (DetectionResult, error) {
 	if err := detectJavaScript(scan.Root, languages, frameworks); err != nil {
 		return DetectionResult{}, err
 	}
-	if err := detectGo(scan.Root, languages, frameworks); err != nil {
+	if err := detectGo(scan.Root, scan.Files, languages, frameworks); err != nil {
 		return DetectionResult{}, err
 	}
-	if err := detectPython(scan.Root, languages, frameworks); err != nil {
+	if err := detectPython(scan.Root, scan.Files, languages, frameworks); err != nil {
 		return DetectionResult{}, err
 	}
 
@@ -129,34 +132,59 @@ func addJavaScriptFramework(dependency string, frameworks stringSet) {
 	}
 }
 
-func detectGo(root string, languages, frameworks stringSet) error {
+func detectGo(root string, files []string, languages, frameworks stringSet) error {
 	path := filepath.Join(root, "go.mod")
 	data, err := os.ReadFile(path)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return nil
+			data = nil
+		} else {
+			return fmt.Errorf("read go.mod: %w", err)
 		}
-		return fmt.Errorf("read go.mod: %w", err)
 	}
-	languages.add("go")
-	file, err := modfile.Parse(path, data, nil)
-	if err != nil {
-		return fmt.Errorf("parse go.mod: %w", err)
+	if data != nil {
+		languages.add("go")
+		file, err := modfile.Parse(path, data, nil)
+		if err != nil {
+			return fmt.Errorf("parse go.mod: %w", err)
+		}
+		for _, require := range file.Require {
+			switch require.Mod.Path {
+			case "github.com/gin-gonic/gin":
+				frameworks.add("gin")
+			case "github.com/labstack/echo/v4":
+				frameworks.add("echo")
+			case "github.com/go-chi/chi/v5":
+				frameworks.add("chi")
+			}
+		}
 	}
-	for _, require := range file.Require {
-		switch require.Mod.Path {
-		case "github.com/gin-gonic/gin":
-			frameworks.add("gin")
-		case "github.com/labstack/echo/v4":
-			frameworks.add("echo")
-		case "github.com/go-chi/chi/v5":
-			frameworks.add("chi")
+	// A source import is useful for small or incomplete projects that do not
+	// have a usable go.mod yet. Syntax errors are deliberately ignored here;
+	// extractors report those with source locations during discovery.
+	for _, sourcePath := range files {
+		if strings.ToLower(filepath.Ext(sourcePath)) != ".go" {
+			continue
+		}
+		source, readErr := os.ReadFile(sourcePath)
+		if readErr != nil {
+			continue
+		}
+		parsed, _ := goparser.ParseFile(token.NewFileSet(), sourcePath, source, goparser.ImportsOnly)
+		if parsed == nil {
+			continue
+		}
+		for _, imported := range parsed.Imports {
+			path, unquoteErr := strconv.Unquote(imported.Path.Value)
+			if unquoteErr == nil && path == "github.com/gin-gonic/gin" {
+				frameworks.add("gin")
+			}
 		}
 	}
 	return nil
 }
 
-func detectPython(root string, languages, frameworks stringSet) error {
+func detectPython(root string, files []string, languages, frameworks stringSet) error {
 	for _, name := range []string{"requirements.txt", "Pipfile"} {
 		path := filepath.Join(root, name)
 		data, err := os.ReadFile(path)
@@ -183,6 +211,25 @@ func detectPython(root string, languages, frameworks stringSet) error {
 		}
 	} else if !os.IsNotExist(err) {
 		return fmt.Errorf("read pyproject.toml: %w", err)
+	}
+	// Source imports cover small projects that do not yet have a dependency
+	// manifest. This is framework detection only; route extraction remains AST-based.
+	for _, sourcePath := range files {
+		if strings.ToLower(filepath.Ext(sourcePath)) != ".py" {
+			continue
+		}
+		source, readErr := os.ReadFile(sourcePath)
+		if readErr != nil {
+			continue
+		}
+		for _, line := range strings.Split(string(source), "\n") {
+			line = strings.TrimSpace(line)
+			if strings.HasPrefix(line, "import fastapi") || strings.HasPrefix(line, "from fastapi import") {
+				frameworks.add("fastapi")
+				languages.add("python")
+				break
+			}
+		}
 	}
 	return nil
 }
