@@ -20,6 +20,12 @@ type DiscoverOptions struct {
 	Extractors  []Extractor
 	AIMode      AIMode
 	AIProvider  AIProvider
+	// RouteFilter is applied after extraction and normalization, before the
+	// optional AI pass. Extractors still receive the complete project context
+	// so cross-file routing relationships remain available.
+	RouteFilter func(Route) bool
+	// AIContextFiles bounds fallback AI context for scoped discovery.
+	AIContextFiles []string
 }
 
 // ExtractionContext is the read-only project information made available to an
@@ -124,11 +130,26 @@ func Discover(root string, options DiscoverOptions) (DiscoveryResult, error) {
 
 	normalized := NormalizeRoutes(candidates)
 	warnings = append(warnings, normalized.Warnings...)
+	if options.RouteFilter != nil {
+		filtered := normalized.Routes[:0]
+		for _, route := range normalized.Routes {
+			if options.RouteFilter(route) {
+				filtered = append(filtered, route)
+			}
+		}
+		normalized.Routes = filtered
+	}
 	if options.AIMode != AIModeOff && aiShouldRun(options.AIMode, normalized.Routes, warnings) {
 		if options.AIProvider == nil {
 			warnings = append(warnings, "AI analysis skipped: no provider configured")
 		} else {
-			aiRequest, requestErr := BuildAIRequest(context.Root, context, normalized.Routes, warnings, "discover_and_enrich")
+			aiFiles := scan.Files
+			if options.RouteFilter != nil || len(options.AIContextFiles) > 0 {
+				aiFiles = options.AIContextFiles
+			}
+			aiRequestContext := context
+			aiRequestContext.Files = append([]string(nil), aiFiles...)
+			aiRequest, requestErr := BuildAIRequest(scan.Root, aiRequestContext, normalized.Routes, warnings, "discover_and_enrich")
 			if requestErr != nil {
 				warnings = append(warnings, fmt.Sprintf("AI context unavailable: %v", requestErr))
 			} else {
@@ -138,7 +159,7 @@ func Discover(root string, options DiscoverOptions) (DiscoveryResult, error) {
 				if aiErr != nil {
 					warnings = append(warnings, fmt.Sprintf("AI analysis failed: %v", aiErr))
 				} else {
-					mergeAIResults(scan.Root, scan.Files, aiRequest.Snippets, &normalized, aiResponse)
+					mergeAIResults(scan.Root, aiFiles, aiRequest.Snippets, &normalized, aiResponse)
 				}
 			}
 		}
