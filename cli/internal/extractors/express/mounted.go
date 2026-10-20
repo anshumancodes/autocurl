@@ -357,8 +357,10 @@ func resolveLocalModule(from, requested, root string, modules map[string]*projec
 		return ""
 	}
 	candidates := []string{base}
-	if filepath.Ext(base) == "" {
-		candidates = append(candidates, base+".js")
+	if ext := strings.ToLower(filepath.Ext(base)); ext != ".js" && ext != ".ts" {
+		// Conventional names such as user.routes are commonly imported without
+		// their source extension; retain the suffix and try source extensions.
+		candidates = append(candidates, base+".js", base+".ts")
 	}
 	candidates = append(candidates, filepath.Join(base, "index.js"))
 	for _, candidate := range candidates {
