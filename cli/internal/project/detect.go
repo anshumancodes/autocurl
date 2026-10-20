@@ -154,6 +154,8 @@ func detectGo(root string, files []string, languages, frameworks stringSet) erro
 				frameworks.add("gin")
 			case "github.com/labstack/echo/v4":
 				frameworks.add("echo")
+			case "github.com/gofiber/fiber/v2":
+				frameworks.add("fiber")
 			case "github.com/go-chi/chi/v5":
 				frameworks.add("chi")
 			}
@@ -178,6 +180,12 @@ func detectGo(root string, files []string, languages, frameworks stringSet) erro
 			path, unquoteErr := strconv.Unquote(imported.Path.Value)
 			if unquoteErr == nil && path == "github.com/gin-gonic/gin" {
 				frameworks.add("gin")
+			}
+			if unquoteErr == nil && path == "github.com/labstack/echo/v4" {
+				frameworks.add("echo")
+			}
+			if unquoteErr == nil && path == "github.com/gofiber/fiber/v2" {
+				frameworks.add("fiber")
 			}
 		}
 	}
