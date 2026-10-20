@@ -36,6 +36,35 @@ func TestRunGeneratesExpressProjectAndParsesOutput(t *testing.T) {
 	}
 }
 
+func TestRunGeneratesGinProjectAndParsesOutput(t *testing.T) {
+	root := fixtureProject(t, map[string]string{
+		"go.mod": `module example.test/gin
+
+go 1.23
+
+require github.com/gin-gonic/gin v1.10.0`,
+		"main.go": `package main
+import "github.com/gin-gonic/gin"
+func main() {
+  router := gin.Default()
+  api := router.Group("/api")
+  api.GET("/users/:id", handler)
+}`,
+	})
+	var out bytes.Buffer
+	if err := commands.Run([]string{root}, commands.Config{Out: &out}); err != nil {
+		t.Fatal(err)
+	}
+	content := readGenerated(t, root)
+	doc, err := parser.Parse(content)
+	if err != nil || len(doc.Requests) != 1 || doc.Requests[0].URL != "{{baseUrl}}/api/users/{{id}}" {
+		t.Fatalf("content=%q document=%#v err=%v", content, doc, err)
+	}
+	if !strings.Contains(out.String(), "Framework: Gin") || !strings.Contains(out.String(), "Discovered 1 routes.") {
+		t.Fatalf("CLI output=%q", out.String())
+	}
+}
+
 func TestRunGeneratesNestJSFromAbsolutePathDeterministically(t *testing.T) {
 	root := fixtureProject(t, map[string]string{
 		"package.json":            `{"dependencies":{"@nestjs/core":"^10.0.0"}}`,
