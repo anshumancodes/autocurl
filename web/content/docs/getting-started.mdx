@@ -1,21 +1,34 @@
 ---
 title: "Getting Started"
-description: "Install autocurl, author requests in JavaScript, compile to .autocurl format, and execute requests directly from your terminal in under 2 minutes."
+description: "Install autocurl, scan your backend project to discover routes, generate clean .autocurl files, and execute requests directly from your terminal in under 2 minutes."
 ---
 
-This guide walks you through installing autocurl, authoring your first request collection in JavaScript, generating human-readable `.autocurl` files, and executing requests interactively.
+This guide walks you through installing autocurl, automatically discovering API routes from your existing backend project, inspecting the generated `.autocurl` file, and executing requests interactively.
 
 ---
 
 ## Step 1: Install autocurl
 
-autocurl is distributed as a single static binary with zero external runtime dependencies. It utilizes the native `curl` binary already installed on your system.
+autocurl is distributed as a single static binary with zero external runtime dependencies. Request execution is handled directly by its built-in HTTP client.
 
-### Option A: Homebrew (macOS & Linux — Recommended)
+### Option A: Quick installer (macOS & Linux — Recommended)
+
+Install the prebuilt binary without Go or a compiler:
+
+```bash
+curl -fsSL https://autocurl.lol/install.sh | sh
+```
+
+The installer supports Linux and macOS on AMD64 and ARM64, installs to `~/.local/bin`, and prints PATH guidance when needed. Set `AUTOCURL_INSTALL_DIR` to choose another destination.
+
+> This command is available once the public binary distribution release is deployed.
+
+### Option B: Homebrew
 
 The easiest way to install and keep autocurl updated:
 
 ```bash
+brew tap anshumancodes/tap
 brew install autocurl
 ```
 
@@ -25,17 +38,11 @@ To update autocurl in the future:
 brew upgrade autocurl
 ```
 
-### Option B: Quick Shell Installer
-
-For Linux servers, CI/CD runners, or environments without Homebrew:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/anshuman/autocurl/main/install.sh | bash
-```
+> **Note:** The formula currently points at the private repository's release URL. Repoint it to the public distribution release before using this option; until then, use the installer after deployment or manual downloads from that public release.
 
 ### Option C: Manual Binary Download
 
-Standalone binaries are available from [GitHub Releases](https://github.com/anshuman/autocurl/releases) for all major platforms:
+Standalone binaries are published with each public release for:
 
 | Operating System | Architecture |
 |---|---|
@@ -48,103 +55,121 @@ Standalone binaries are available from [GitHub Releases](https://github.com/ansh
 Check that autocurl is accessible in your shell:
 
 ```bash
-$ autocurl --version
-autocurl 0.1.0 (x86_64-apple-darwin)
+autocurl --version
 ```
 
-> **Requirements:** autocurl relies on the standard `curl` executable. Ensure `curl` is available in your `$PATH` (available by default on macOS, modern Linux distributions, and Windows 10/11).
+Output:
+
+```
+autocurl v0.1.0-beta.4
+```
+
+> **Note:** `dev` is the default build version for development builds. Official releases display their tag.
+>
+> **Requirements:** autocurl is a self-contained Go binary with zero external dependencies. No external curl binary or runtime environment is required.
 
 ---
 
-## Step 2: Define your API requests in JavaScript
+## Step 2: Discover API routes from your backend project
 
-Create a file named `requests.js` (or `index.js`) in your project directory. Export an array of request objects:
+Run autocurl against your existing backend project directory (such as an Express or NestJS project). autocurl scans your source files using AST analysis to discover your routes automatically—no manual request authoring required.
 
-```js
-// requests.js
-export default [
-  {
-    name: "Health Check",
-    method: "GET",
-    url: "https://api.github.com/zen",
-  },
-  {
-    name: "Fetch User Profile",
-    method: "GET",
-    url: "https://api.github.com/users/octocat",
-    headers: {
-      Accept: "application/vnd.github.v3+json",
-      "User-Agent": "autocurl-client",
-    },
-  },
-  {
-    name: "Create Test Issue",
-    method: "POST",
-    url: "https://httpbin.org/post",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: {
-      title: "Found a bug in API",
-      severity: "medium",
-    },
-  },
-];
+```bash
+autocurl ./my-api
 ```
+
+autocurl scans your project, identifies the framework, and writes the output file:
+
+```
+Scanning project...
+
+Framework: Express.
+
+Discovered 4 routes.
+
+Generated: index.autocurl
+```
+
+> **Existing File Protection:** If `index.autocurl` already exists in the target directory, autocurl protects your changes by refusing to overwrite it: `index.autocurl already exists; rename or remove it before regenerating`.
 
 ---
 
-## Step 3: Compile to plain .autocurl curl file
+## Step 3: Inspect your generated .autocurl file
 
-Run the compiler against your JavaScript file:
+autocurl generates an `index.autocurl` file in the root of your project directory. Discovered routes are organized into clean, numbered request blocks with shared base URL variables and source code references:
 
-```bash
-autocurl requests.js
+```http
+# Generated by autocurl
+# Project: my-api
+
+@baseUrl = http://localhost:3000
+
+### 1. GET /health
+# @source src/server.js:12
+GET {{baseUrl}}/health
+Accept: application/json
+
+### 2. GET /users/{id}
+# @source src/routes/users.js:25
+GET {{baseUrl}}/users/{{id}}
+Accept: application/json
+
+### 3. POST /users
+# @source src/routes/users.js:40
+POST {{baseUrl}}/users
+Accept: application/json
 ```
 
-autocurl evaluates the definitions and writes `requests.autocurl`:
-
-```bash
-# Health Check
-curl -X GET \
-  "https://api.github.com/zen"
-
-# Fetch User Profile
-curl -X GET \
-  "https://api.github.com/users/octocat" \
-  -H "Accept: application/vnd.github.v3+json" \
-  -H "User-Agent: autocurl-client"
-
-# Create Test Issue
-curl -X POST \
-  "https://httpbin.org/post" \
-  -H "Content-Type: application/json" \
-  -d '{"title":"Found a bug in API","severity":"medium"}'
-```
+Each route entry preserves:
+- The HTTP method and endpoint URL with `{{variable}}` placeholders
+- The source location where the route was discovered (`# @source file:line`)
+- Default `Accept: application/json` headers
+- A shared `@baseUrl` definition at the top of the file
 
 ---
 
 ## Step 4: Pick and execute interactively
 
-Pass the `.autocurl` file to autocurl to launch the interactive selector:
+Pass your `.autocurl` file to autocurl to launch the interactive terminal runner:
 
 ```bash
-autocurl requests.autocurl
+autocurl index.autocurl
 ```
 
-autocurl opens an interactive prompt in your terminal:
+autocurl displays the discovered requests as a numbered list:
 
 ```
-? Select a request to run:
-  ❯ Health Check
-    Fetch User Profile
-    Create Test Issue
-
-(Press ↑/↓ to move, Enter to execute, Ctrl+C to exit)
+1. GET /health
+2. GET /users/{{id}}
+3. POST /users
+Select request: 
 ```
 
-Select a request and press `Enter`. autocurl invokes native `curl` and prints the response status, headers, and body directly to your terminal.
+Type the number of the request you want to run and press `Enter`.
+
+### Providing Dynamic Variables
+
+If the selected request contains path or query variables (such as `{{id}}`), autocurl prompts you for each missing value before executing:
+
+```
+Select request: 2
+Enter value for id: 42
+```
+
+autocurl resolves the URL, dispatches the HTTP request using its built-in client, and prints the method, resolved URL, HTTP status code, duration, and formatted JSON response body:
+
+```
+GET http://localhost:3000/users/42
+HTTP 200 OK
+Duration: 12ms
+Response body:
+{
+  "id": 42,
+  "name": "Ada Lovelace",
+  "role": "admin"
+}
+```
 
 ---
 
-**Next:** [Using autocurl effectively →](/docs/using-autocurl) Learn the `.autocurl` specification, terminal picker shortcuts, direct execution flags, and real-world examples.
+**Next:** [Using autocurl effectively →](/docs/using-autocurl) Learn the complete .autocurl specification, variable resolution, CLI options, and real-world examples.
