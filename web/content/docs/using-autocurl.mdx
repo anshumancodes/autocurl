@@ -72,9 +72,11 @@ You can also set the mode via the environment variable `AUTOCURL_AI=off|auto|alw
 
 ### Managed AI Access
 
-autocurl does not support bring-your-own-key (BYOK). AI credentials and provider configuration are managed internally by autocurl. You do not set or configure a Gemini API key.
+autocurl does not support bring-your-own-key (BYOK). AI credentials and provider configuration are managed internally by autocurl. You never set or configure a Gemini API key.
 
-AI usage is controlled through your autocurl account and subscription plan. When your AI quota is exhausted, autocurl automatically falls back to deterministic AST discovery so your workflow is never blocked.
+The CLI sends only bounded, redacted source snippets needed for discovery to the managed API at `https://api.autocurl.lol/v1/scan`. AI scans require a Clerk-authenticated autocurl account. Configure the short-lived account token supplied by the autocurl login flow as `AUTOCURL_API_TOKEN`; configure `AUTOCURL_API_URL` only for local or staging APIs.
+
+AI usage is controlled through your autocurl account and subscription plan. When authentication or quota is unavailable, autocurl reports the managed API error and points to the pricing page. `--ai=off` always remains local and never requires login.
 
 AI candidates must cite supplied source context; invalid, duplicate, or ungrounded suggestions are discarded. AI errors always preserve AST results.
 
