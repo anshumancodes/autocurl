@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import SpotlightCard from "@/components/SpotlightCard";
 import { ArrowRight, Check } from "lucide-react";
+import PricingCards from "./PricingCards";
+
 
 export const metadata: Metadata = {
   title: "Pricing",
@@ -18,61 +19,7 @@ export const metadata: Metadata = {
   },
 };
 
-interface PricingPlan {
-  id: string;
-  name: string;
-  price: string;
-  period: string;
-  tagline: string;
-  description: string;
-  badge?: string;
-  features: string[];
-  cta: string;
-  ctaHref: string;
-  highlighted: boolean;
-}
 
-const PLANS: PricingPlan[] = [
-  {
-    id: "free",
-    name: "Free",
-    price: "$0",
-    period: "/month",
-    tagline: "$0 /month",
-    description:
-      "For developers who want the autocurl workflow, with a free taste of AI.",
-    features: [
-      "Core CLI and .autocurl workflow",
-      "Local API request execution",
-      "10 AI-assisted repository scans in your first 30 days",
-      "Free account required for AI scans, no credit card needed",
-    ],
-    cta: "Get started",
-    ctaHref: "/docs/getting-started",
-    highlighted: false,
-  },
-  {
-    id: "pro",
-    name: "Pro",
-    price: "$5.99",
-    period: "/month",
-    tagline: "or $59 /year (2 months free)",
-    description:
-      "For developers who want AI route discovery built in, ready to use.",
-    badge: "Recommended",
-    features: [
-      "Everything in Free",
-      "100 AI-assisted repository scans per month",
-      "Automatic language and framework detection",
-      "Email support with a 48-hour response time",
-      "Early access to new AI features",
-    ],
-    cta: "Start Pro",
-    // TODO: wire up billing
-    ctaHref: "#",
-    highlighted: true,
-  },
-];
 
 interface ComparisonFeature {
   name: string;
@@ -233,101 +180,7 @@ export default function PricingPage() {
           </p>
         </section>
 
-        {/* Pricing Cards Section */}
-        <section
-          aria-label="Pricing Plans"
-          className="max-w-280 mx-auto px-6 pb-20 sm:pb-28"
-        >
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 items-stretch max-w-3xl mx-auto">
-            {PLANS.map((plan) => (
-              <SpotlightCard
-                key={plan.id}
-                className={`flex flex-col justify-between h-full p-6 sm:p-8 rounded-[22px] transition-all relative ${
-                  plan.highlighted
-                    ? "ring-1 ring-sun/40 shadow-[0_0_35px_rgba(242,193,78,0.08)]"
-                    : ""
-                }`}
-              >
-                {plan.badge && (
-                  <span className="absolute top-4 right-4 bg-sun text-ink text-[11px] font-mono font-semibold px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-sm">
-                    {plan.badge}
-                  </span>
-                )}
-
-                <div>
-                  <div className="flex items-center gap-2">
-                    {plan.highlighted && (
-                      <span className="text-sun text-[16px] leading-none" aria-hidden="true">
-                        ✦
-                      </span>
-                    )}
-                    <h2 className="font-extrabold text-[22px] sm:text-[24px] tracking-tight text-bone">
-                      {plan.name}
-                    </h2>
-                  </div>
-                  <p className="text-mute text-[13.5px] mt-1 font-mono">
-                    {plan.tagline}
-                  </p>
-
-                  <div className="flex items-baseline gap-1 mt-6 mb-3">
-                    <span
-                      className={`text-[38px] sm:text-[44px] font-extrabold tracking-tight font-mono ${
-                        plan.highlighted ? "text-sun" : "text-bone"
-                      }`}
-                    >
-                      {plan.price}
-                    </span>
-                    <span className="text-mute text-[14px] font-mono">
-                      {plan.period}
-                    </span>
-                  </div>
-
-                  <p className="text-mute text-[14px] leading-relaxed mb-6">
-                    {plan.description}
-                  </p>
-
-                  <div className="border-t border-line pt-6 mb-8">
-                    <div className="text-[12px] font-mono font-semibold uppercase tracking-wider text-mute mb-4">
-                      Included features
-                    </div>
-                    <ul className="flex flex-col gap-3 list-none p-0 m-0">
-                      {plan.features.map((feature, idx) => (
-                        <li
-                          key={idx}
-                          className="flex items-start gap-2.5 text-[14px] text-bone/90 leading-snug"
-                        >
-                          <Check
-                            className="w-4 h-4 text-sun shrink-0 mt-0.5"
-                            aria-hidden="true"
-                          />
-                          <span>{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-
-                {plan.highlighted ? (
-                  <Link
-                    href={plan.ctaHref}
-                    className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-semibold text-[14px] bg-sun text-ink hover:bg-[#e0b040] transition-colors shadow-[0_0_20px_rgba(242,193,78,0.25)] no-underline w-full mt-auto"
-                  >
-                    <span>{plan.cta}</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </Link>
-                ) : (
-                  <Link
-                    href={plan.ctaHref}
-                    className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-medium text-[14px] bg-white/5 border border-line text-bone hover:bg-white/10 hover:border-bone/30 transition-colors no-underline w-full mt-auto"
-                  >
-                    <span>{plan.cta}</span>
-                    <ArrowRight className="w-4 h-4 text-mute" />
-                  </Link>
-                )}
-              </SpotlightCard>
-            ))}
-          </div>
-        </section>
+        <PricingCards />
 
         {/* Feature Comparison Table */}
         <section
