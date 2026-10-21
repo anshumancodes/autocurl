@@ -8,12 +8,12 @@ import { ArrowRight, Check } from "lucide-react";
 export const metadata: Metadata = {
   title: "Pricing",
   description:
-    "Simple, transparent pricing for autocurl. Start free with your own AI key, or upgrade to Pro for managed AI with no key required.",
+    "Simple, transparent pricing for autocurl. Run requests free, forever. Try AI scans free for 30 days, then upgrade to Pro when you're ready.",
   alternates: { canonical: "/pricing" },
   openGraph: {
     title: "Pricing | autocurl",
     description:
-      "Simple, transparent pricing for autocurl. Start free with your own AI key, or upgrade to Pro for managed AI with no key required.",
+      "Simple, transparent pricing for autocurl. Run requests free, forever. Try AI scans free for 30 days, then upgrade to Pro when you're ready.",
     url: "/pricing",
   },
 };
@@ -38,14 +38,14 @@ const PLANS: PricingPlan[] = [
     name: "Free",
     price: "$0",
     period: "/month",
-    tagline: "Bring your own key",
+    tagline: "$0 /month",
     description:
-      "For developers who want the autocurl workflow without paying for managed AI.",
+      "For developers who want the autocurl workflow, with a free taste of AI.",
     features: [
       "Core CLI and .autocurl workflow",
       "Local API request execution",
-      "AI-powered route discovery using your own Google AI API key",
-      "Pay your AI provider directly for usage",
+      "10 AI-assisted repository scans in your first 30 days",
+      "Free account required for AI scans, no credit card needed",
     ],
     cta: "Get started",
     ctaHref: "/docs/getting-started",
@@ -56,16 +56,16 @@ const PLANS: PricingPlan[] = [
     name: "Pro",
     price: "$5.99",
     period: "/month",
-    tagline: "Recommended starting point",
+    tagline: "or $59 /year (2 months free)",
     description:
-      "For developers who want AI built in, without managing API keys.",
+      "For developers who want AI route discovery built in, ready to use.",
     badge: "Recommended",
     features: [
       "Everything in Free",
-      "Native AI support, with no personal API key required",
-      "40 AI-assisted repository scans per month",
+      "100 AI-assisted repository scans per month",
       "Automatic language and framework detection",
-      "Higher usage limits and priority access to new AI features",
+      "Email support with a 48-hour response time",
+      "Early access to new AI features",
     ],
     cta: "Start Pro",
     // TODO: wire up billing
@@ -80,73 +80,118 @@ interface ComparisonFeature {
   pro: string | boolean;
 }
 
-const COMPARISON_FEATURES: ComparisonFeature[] = [
+interface ComparisonSection {
+  section: string;
+  rows: ComparisonFeature[];
+}
+
+const COMPARISON_SECTIONS: ComparisonSection[] = [
   {
-    name: "Core CLI + .autocurl",
-    free: true,
-    pro: true,
+    section: "Core",
+    rows: [
+      {
+        name: "Core CLI and .autocurl files",
+        free: "Included",
+        pro: "Included",
+      },
+      {
+        name: "Local request execution",
+        free: "Included",
+        pro: "Included",
+      },
+    ],
   },
   {
-    name: "Local request execution",
-    free: true,
-    pro: true,
+    section: "AI scans",
+    rows: [
+      {
+        name: "AI-assisted repository scans",
+        free: "10 in your first 30 days",
+        pro: "100 per month",
+      },
+      {
+        name: "Scan limit resets",
+        free: false,
+        pro: "Every billing period",
+      },
+      {
+        name: "Language and framework detection",
+        free: false,
+        pro: true,
+      },
+    ],
   },
   {
-    name: "Bring your own AI key",
-    free: true,
-    pro: true,
+    section: "Account",
+    rows: [
+      {
+        name: "Account required for AI scans",
+        free: "Yes (free)",
+        pro: "Yes",
+      },
+    ],
   },
   {
-    name: "Managed AI (no key needed)",
-    free: false,
-    pro: true,
-  },
-  {
-    name: "AI-assisted scans / month",
-    free: "BYOK",
-    pro: "100",
-  },
-  {
-    name: "Language & framework detection",
-    free: false,
-    pro: true,
-  },
-  {
-    name: "Priority AI processing",
-    free: false,
-    pro: true,
-  },
-  {
-    name: "Advanced discovery features",
-    free: false,
-    pro: true,
+    section: "Support",
+    rows: [
+      {
+        name: "Support",
+        free: "GitHub issues",
+        pro: "Email, 48-hour response",
+      },
+    ],
   },
 ];
 
+// Kept for the FAQ schema — flat list of all features
+const COMPARISON_FEATURES: ComparisonFeature[] = COMPARISON_SECTIONS.flatMap(
+  (s) => s.rows
+);
+
 const PRICING_FAQ = [
   {
-    question: "Can I use autocurl for free forever?",
+    question: "Is Free really free forever?",
     answer:
-      "Yes. The Free tier is unlimited for local use and BYOK AI. You only pay if you want managed AI.",
+      "Yes. The core CLI and local request execution are free forever. AI scans include 10 free scans in your first 30 days. After that, AI scans require Pro.",
+  },
+  {
+    question: "Do I need an account?",
+    answer:
+      "You need a free account to run AI scans (when you use the --ai flag). It takes a minute and no credit card is required. The base CLI works without any account.",
+  },
+  {
+    question: "How does the free trial work?",
+    answer:
+      "When you create your account, you get 10 AI scans to use within 30 days. When they're used up or the 30 days pass, you can upgrade to Pro to keep scanning.",
   },
   {
     question: "What counts as an AI-assisted repository scan?",
     answer:
-      "A scan is one full AI pass over a codebase to discover and map API routes. Scans reset monthly.",
+      "A scan is one AI pass over a codebase to discover and map its API routes. See the documentation for details and limits.",
   },
   {
-    question: "Do I need a credit card for the Free plan?",
-    answer: "No. The Free plan requires no payment details.",
+    question: "What happens if I use all 100 scans?",
+    answer:
+      "You'll be notified and can wait for your next reset. We never charge automatically for extra usage.",
+  },
+  {
+    question: "Do unused scans roll over?",
+    answer: "No. Your 100 scans reset at the start of each billing period.",
+  },
+  {
+    question: "What happens to my code during an AI scan?",
+    answer:
+      "Only the code needed for the scan is sent to our servers to generate results.",
   },
   {
     question: "Can I switch plans at any time?",
     answer:
-      "Yes. Upgrades take effect immediately; downgrades apply at the next billing cycle.",
+      "Yes. Upgrades take effect immediately. Downgrades apply at the end of your current billing period.",
   },
   {
-    question: "What happens if I exceed my scan limit?",
+    question: "How do I cancel, and do you offer refunds?",
     answer:
-      "You'll be notified and can either upgrade or wait for the next monthly reset. No automatic charges.",
+      "You can cancel anytime from your account, and you keep Pro until the end of your billing period.",
   },
 ];
 
@@ -184,7 +229,7 @@ export default function PricingPage() {
             Simple pricing. No surprises.
           </h1>
           <p className="mt-4 sm:mt-5 text-mute text-[16px] sm:text-[19px] leading-relaxed max-w-[34em] mx-auto">
-            Start free with your own AI key, or upgrade to Pro for managed AI with no key required.
+            Run requests free, forever. Try AI scans free for 30 days, then upgrade to Pro when you&apos;re ready.
           </p>
         </section>
 
@@ -298,10 +343,10 @@ export default function PricingPage() {
                 id="comparison-heading"
                 className="font-extrabold text-[clamp(24px,3.4vw,40px)] leading-[1.1] tracking-[-0.03em] text-bone mb-4"
               >
-                Compare all features
+                Compare plans
               </h2>
               <p className="text-mute text-[15px] sm:text-[16px] leading-relaxed">
-                A detailed side-by-side view of capabilities across Free and Pro tiers.
+                A detailed side-by-side view of capabilities across Free and Pro.
               </p>
             </div>
 
@@ -327,65 +372,75 @@ export default function PricingPage() {
                     >
                       Pro
                     </th>
-
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-line text-[14.5px]">
-                  {COMPARISON_FEATURES.map((row, idx) => (
-                    <tr
-                      key={idx}
-                      className="hover:bg-white/2 transition-colors"
-                    >
-                      <th
-                        scope="row"
-                        className="py-4 px-6 font-medium text-bone/90"
-                      >
-                        {row.name}
-                      </th>
-                      <td className="py-4 px-6 text-center">
-                        {typeof row.free === "boolean" ? (
-                          row.free ? (
-                            <Check
-                              className="w-4.5 h-4.5 text-sun mx-auto"
-                              aria-label="Included in Free"
-                            />
-                          ) : (
-                            <span
-                              className="text-mute/50 font-mono text-base select-none"
-                              aria-label="Not included in Free"
-                            >
-                              —
-                            </span>
-                          )
-                        ) : (
-                          <span className="font-mono text-[13px] font-semibold text-bone">
-                            {row.free}
-                          </span>
-                        )}
-                      </td>
-                      <td className="py-4 px-6 text-center bg-sun/3">
-                        {typeof row.pro === "boolean" ? (
-                          row.pro ? (
-                            <Check
-                              className="w-4.5 h-4.5 text-sun mx-auto"
-                              aria-label="Included in Pro"
-                            />
-                          ) : (
-                            <span
-                              className="text-mute/50 font-mono text-base select-none"
-                              aria-label="Not included in Pro"
-                            >
-                              —
-                            </span>
-                          )
-                        ) : (
-                          <span className="font-mono text-[13px] font-semibold text-sun">
-                            {row.pro}
-                          </span>
-                        )}
-                      </td>
-
-                    </tr>
+                  {COMPARISON_SECTIONS.map((section) => (
+                    <>
+                      <tr key={section.section} className="bg-white/[0.015]">
+                        <th
+                          colSpan={3}
+                          className="py-2.5 px-6 font-mono text-[11px] font-semibold tracking-widest uppercase text-mute/60"
+                        >
+                          {section.section}
+                        </th>
+                      </tr>
+                      {section.rows.map((row, idx) => (
+                        <tr
+                          key={idx}
+                          className="hover:bg-white/2 transition-colors"
+                        >
+                          <th
+                            scope="row"
+                            className="py-4 px-6 font-medium text-bone/90"
+                          >
+                            {row.name}
+                          </th>
+                          <td className="py-4 px-6 text-center">
+                            {typeof row.free === "boolean" ? (
+                              row.free ? (
+                                <Check
+                                  className="w-4.5 h-4.5 text-sun mx-auto"
+                                  aria-label="Included in Free"
+                                />
+                              ) : (
+                                <span
+                                  className="text-mute/50 font-mono text-base select-none"
+                                  aria-label="Not included in Free"
+                                >
+                                  —
+                                </span>
+                              )
+                            ) : (
+                              <span className="font-mono text-[13px] font-semibold text-bone">
+                                {row.free}
+                              </span>
+                            )}
+                          </td>
+                          <td className="py-4 px-6 text-center bg-sun/3">
+                            {typeof row.pro === "boolean" ? (
+                              row.pro ? (
+                                <Check
+                                  className="w-4.5 h-4.5 text-sun mx-auto"
+                                  aria-label="Included in Pro"
+                                />
+                              ) : (
+                                <span
+                                  className="text-mute/50 font-mono text-base select-none"
+                                  aria-label="Not included in Pro"
+                                >
+                                  —
+                                </span>
+                              )
+                            ) : (
+                              <span className="font-mono text-[13px] font-semibold text-sun">
+                                {row.pro}
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </>
                   ))}
                 </tbody>
               </table>
@@ -449,7 +504,7 @@ export default function PricingPage() {
               Start for free today.
             </h2>
             <p className="mt-3.5 text-mute text-[16px] max-w-[30em] mx-auto">
-              No credit card required for the Free plan. Run requests locally in minutes.
+              Run requests locally in minutes. Try AI scans on us for 30 days.
             </p>
             <div className="mt-8 flex flex-wrap justify-center items-center gap-4 text-[14px]">
               <Link
