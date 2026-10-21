@@ -1,9 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import SpotlightCard from "@/components/SpotlightCard";
 import { ArrowRight, Check } from "lucide-react";
 import { useCurrency } from "@/lib/useCurrency";
+import { useAuth } from "@clerk/nextjs";
 
 // ─── Price definitions ────────────────────────────────────────────────────────
 // Adjust these values when you want to change INR pricing.
@@ -73,8 +76,7 @@ function buildPlans(symbol: "$" | "₹", isIndia: boolean): PricingPlan[] {
         "Early access to new AI features",
       ],
       cta: "Start Pro",
-      // TODO: wire up billing
-      ctaHref: "#",
+      ctaHref: "#checkout",
       highlighted: true,
     },
   ];
@@ -94,9 +96,44 @@ function PriceSkeleton({ highlighted }: { highlighted: boolean }) {
 
 export default function PricingCards() {
   const { loaded, isIndia, symbol } = useCurrency();
+  const router = useRouter();
+  const { getToken, isSignedIn, isLoaded } = useAuth();
+  const [selectedPlan, setSelectedPlan] = useState<"monthly" | "yearly">(() => {
+    const value = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search).get("plan");
+    return value === "yearly" ? "yearly" : "monthly";
+  });
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Build plans only once loaded so prices are never incorrect
   const plans = loaded ? buildPlans(symbol as "$" | "₹", isIndia) : null;
+
+  async function startCheckout(plan: "monthly" | "yearly") {
+    setBusy(true); setError(null);
+    const api = process.env.NEXT_PUBLIC_API_URL || "https://api.autocurl.lol";
+    try {
+      const token = await getToken();
+      const response = await fetch(`${api}/api/billing/checkout`, { method: "POST", headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) }, credentials: "include", body: JSON.stringify({ plan }) });
+      if (response.status === 401) { localStorage.setItem("autocurl_checkout_plan", plan); router.push(`/sign-in?redirect_url=${encodeURIComponent(`/pricing?plan=${plan}`)}`); return; }
+      const data = await response.json();
+      if (!response.ok) throw new Error(data?.error?.message || "Checkout is unavailable.");
+      await new Promise<void>((resolve, reject) => {
+        const script = document.createElement("script"); script.src = "https://checkout.razorpay.com/v1/checkout.js"; script.onload = () => resolve(); script.onerror = () => reject(new Error("Unable to load Razorpay Checkout.")); document.body.appendChild(script);
+      });
+      const Razorpay = (window as Window & { Razorpay?: new (options: Record<string, unknown>) => { open: () => void } }).Razorpay;
+      if (!Razorpay) throw new Error("Razorpay Checkout is unavailable.");
+      new Razorpay({ key: data.key_id || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, subscription_id: data.subscription_id, name: "autocurl", description: `Pro ${plan}`, handler: async (payment: Record<string, string>) => { const verifyToken = await getToken(); await fetch(`${api}/api/billing/verify`, { method: "POST", headers: { "Content-Type": "application/json", ...(verifyToken ? { Authorization: `Bearer ${verifyToken}` } : {}) }, credentials: "include", body: JSON.stringify(payment) }); router.push("/account/billing?pending=1"); } }).open();
+    } catch (checkoutError) { setError(checkoutError instanceof Error ? checkoutError.message : "Checkout is unavailable."); }
+    finally { setBusy(false); }
+  }
+
+  useEffect(() => {
+    const pending = localStorage.getItem("autocurl_checkout_plan");
+    if (isLoaded && isSignedIn && pending && (pending === "monthly" || pending === "yearly")) {
+      localStorage.removeItem("autocurl_checkout_plan");
+      window.setTimeout(() => void startCheckout(pending), 0);
+    }
+  }, [isLoaded, isSignedIn]);
 
   return (
     <section
@@ -189,13 +226,15 @@ export default function PricingCards() {
             </div>
 
             {plan.highlighted ? (
-              <Link
-                href={plan.ctaHref}
+              <button
+                type="button"
+                onClick={() => startCheckout(selectedPlan)}
+                disabled={busy}
                 className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-semibold text-[14px] bg-sun text-ink hover:bg-[#e0b040] transition-colors shadow-[0_0_20px_rgba(242,193,78,0.25)] no-underline w-full mt-auto"
               >
-                <span>{plan.cta}</span>
+                <span>{busy ? "Opening checkout…" : plan.cta}</span>
                 <ArrowRight className="w-4 h-4" />
-              </Link>
+              </button>
             ) : (
               <Link
                 href={plan.ctaHref}
@@ -208,6 +247,11 @@ export default function PricingCards() {
           </SpotlightCard>
         ))}
       </div>
+      <div className="flex justify-center gap-2 mt-6" aria-label="Billing period">
+        <button type="button" onClick={() => setSelectedPlan("monthly")} className={`rounded-lg px-3 py-2 text-sm border ${selectedPlan === "monthly" ? "border-sun text-sun" : "border-line text-mute"}`}>Monthly</button>
+        <button type="button" onClick={() => setSelectedPlan("yearly")} className={`rounded-lg px-3 py-2 text-sm border ${selectedPlan === "yearly" ? "border-sun text-sun" : "border-line text-mute"}`}>Yearly</button>
+      </div>
+      {error && <p role="alert" className="text-center text-red-300 text-sm mt-6">{error}</p>}
     </section>
   );
 }
