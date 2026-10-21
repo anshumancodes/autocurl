@@ -5,6 +5,7 @@ import { siteConfig } from "@/lib/siteConfig";
 import "./globals.css";
 import DevelopmentBanner from "@/components/DevelopmentBanner";
 import EarlyAccessBanner from "@/components/EarlyAccessBanner";
+import { ClerkProvider } from "@clerk/nextjs";
 
 const bricolageGrotesque = Bricolage_Grotesque({
   variable: "--font-sans-bricolage",
@@ -74,7 +75,16 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: "/favicon.ico",
+    icon: [
+      { url: "/favicon/android-chrome-512x512.png", sizes: "512x512", type: "image/png" },
+      { url: "/favicon/android-chrome-192x192.png", sizes: "192x192", type: "image/png" },
+      { url: "/favicon/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon/favicon.ico", type: "image/x-icon" },
+    ],
+    apple: [
+      { url: "/favicon/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
   },
   verification: {
     google: siteConfig.verification.google,
@@ -96,6 +106,19 @@ export default function RootLayout({
     url: siteConfig.url,
     description: siteConfig.description,
     inLanguage: "en-US",
+  };
+
+  const organizationSchema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: siteConfig.name,
+    url: siteConfig.url,
+    logo: `${siteConfig.url}/Autocurl_transparent.png`,
+    sameAs: [
+      siteConfig.links.github,
+      `https://twitter.com/${siteConfig.author.twitter.replace("@", "")}`,
+      siteConfig.author.url,
+    ],
   };
 
   const softwareAppSchema = {
@@ -132,12 +155,18 @@ export default function RootLayout({
         />
         <script
           type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+        />
+        <script
+          type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareAppSchema) }}
         />
       </head>
-      <EarlyAccessBanner/>
       <body className="min-h-screen flex flex-col antialiased">
-        <RootProvider>{children}</RootProvider>
+        <EarlyAccessBanner />
+        <ClerkProvider>
+          <RootProvider>{children}</RootProvider>
+        </ClerkProvider>
       </body>
     </html>
   );
