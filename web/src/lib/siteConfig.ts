@@ -5,7 +5,7 @@ export const siteConfig = {
   description:
     "Define your API requests in any programming language. autocurl generates clean, reproducible .autocurl curl files and gives you an interactive terminal runner. Fast, lightweight, local-first.",
   url: process.env.NEXT_PUBLIC_SITE_URL || "https://autocurl.lol",
-  ogImage: "https://autocurl.lol/og.png",
+  ogImage: "https://autocurl.lol/opengraph-image",
   author: {
     name: "Anshuman",
     url: "https://github.com/anshumancodes",
