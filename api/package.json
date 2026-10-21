@@ -1,0 +1,24 @@
+{
+  "name": "autocurl-api",
+  "version": "1.0.0",
+  "description": "autocurl backend",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/anshumancodes/autocurl"
+  },
+  "license": "ISC",
+  "author": "anshumancodes",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}
