@@ -22,17 +22,15 @@ autocurl ./my-api
 
 > **Existing File Protection:** If an `index.autocurl` already exists in the project root, autocurl refuses to overwrite it to protect manual edits or existing files. You must rename or delete the file before regenerating.
 
-AI-assisted discovery is optional and defaults to `off`:
+By default, autocurl uses deterministic AST discovery only. You can enable AI‑assisted analysis with the `--ai` flag:
 
 ```bash
-GEMINI_API_KEY=your-key autocurl --ai=auto ./your-project
+autocurl --ai=auto ./your-project   # use AI when additional analysis helps
+autocurl --ai=always ./your-project # always request AI-assisted analysis
+autocurl --ai=off ./your-project   # deterministic AST only (default)
 ```
 
-Use `--ai=always` to request analysis even when AST extraction has no warning,
-or set `AUTOCURL_AI=off|auto|always`. A CLI flag overrides the environment
-setting. Without `GEMINI_API_KEY`, autocurl continues with deterministic AST
-discovery. AI candidates must cite supplied source context; invalid, duplicate
-or ungrounded candidates are discarded. AI errors preserve AST results.
+See [AI-Assisted Discovery](#ai-assisted-discovery) for full details.
 
 ### Mode 2: Runner — Interactive Terminal Execution
 
@@ -55,6 +53,55 @@ autocurl analyzes backend project source code using Tree-sitter AST parsing.
 | **Express** | JavaScript / TypeScript | Full route discovery & extraction |
 | **NestJS** | TypeScript | Full controller & decorator extraction |
 | **Fastify, Hono, Gin, Echo, Chi, Flask, Django, FastAPI** | Multiple | Framework detection supported (extractors in progress) |
+
+---
+
+## AI-Assisted Discovery
+
+autocurl includes optional AI-assisted route analysis to complement its deterministic AST parser. AI is managed entirely by autocurl—you do not need to supply or configure your own API keys.
+
+### `--ai` Modes
+
+| Flag | Behaviour |
+|---|---|
+| `--ai=off` | *(Default)* Deterministic AST discovery only. No AI requests are made. |
+| `--ai=auto` | AI analysis is requested when the AST pass needs additional help (e.g. dynamic route patterns, indirect registrations). |
+| `--ai=always` | AI analysis is always requested, even when the AST pass succeeds without warnings. |
+
+You can also set the mode via the environment variable `AUTOCURL_AI=off|auto|always`. A `--ai` CLI flag always takes precedence over the environment variable.
+
+### Managed AI Access
+
+autocurl does not support bring-your-own-key (BYOK). AI credentials and provider configuration are managed internally by autocurl. You do not set or configure a Gemini API key.
+
+AI usage is controlled through your autocurl account and subscription plan. When your AI quota is exhausted, autocurl automatically falls back to deterministic AST discovery so your workflow is never blocked.
+
+AI candidates must cite supplied source context; invalid, duplicate, or ungrounded suggestions are discarded. AI errors always preserve AST results.
+
+### Plans & Pricing
+
+> **Coming with the public release**
+
+| Plan | AI Access | Price |
+|---|---|---|
+| **Free** | Limited monthly AI trial quota | Free |
+| **Pro** | Full AI-assisted discovery | ~$5 / month |
+
+Deterministic AST discovery (the default `--ai=off` mode) remains free on all plans with no quota.
+
+Exact quota amounts and final pricing will be confirmed at public release.
+
+### Upgrading to Pro
+
+> **Coming with the public release**
+
+To upgrade your autocurl account, run:
+
+```bash
+autocurl upgrade
+```
+
+This opens your browser and takes you to the autocurl Pro signup page.
 
 ---
 
@@ -153,16 +200,28 @@ Response body:
 ```bash
 # Discover routes and generate index.autocurl from a project directory
 autocurl <project-directory>
+autocurl --ai=off|auto|always <project-directory>
 
 # Execute requests interactively from an existing .autocurl file
 autocurl <file.autocurl>
+
+# Upgrade your autocurl account (opens browser)
+autocurl upgrade
 
 # Display version information
 autocurl --version
 autocurl -V
 ```
 
-The generator also accepts `--ai=off|auto|always`; the default is `off`.
+### `--ai` Flag
+
+Controls AI-assisted route analysis during generation. See [AI-Assisted Discovery](#ai-assisted-discovery) for full details.
+
+| Flag | Behaviour |
+|---|---|
+| `--ai=off` | Deterministic AST only *(default)* |
+| `--ai=auto` | AI used when additional analysis is needed |
+| `--ai=always` | AI analysis always requested |
 
 ### Exit Codes
 
