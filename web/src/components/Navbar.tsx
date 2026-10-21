@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useAuth, SignInButton, UserButton } from "@clerk/nextjs";
 
 // One source of truth for both menus.
 // `mobileOnly` links appear only in the mobile dropdown, so the desktop bar
@@ -22,6 +23,7 @@ const NAV_LINKS: NavLink[] = [
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const closeMenu = () => setIsMobileMenuOpen(false);
+  const { isSignedIn } = useAuth();
 
   return (
     <header className="max-w-280 w-full mx-auto px-6 relative z-50">
@@ -30,7 +32,7 @@ export default function Navbar() {
           className="font-extrabold text-[22px] tracking-[-0.02em] no-underline"
           href="/"
         >
-          auto<span className="text-sun">curl</span>
+          auto<span className="text-sun">cURL</span>
         </Link>
 
         {/* Desktop Navigation */}
@@ -44,6 +46,31 @@ export default function Navbar() {
               {link.label}
             </Link>
           ))}
+          {!isSignedIn ? (
+            <SignInButton mode="redirect">
+              <button
+                className="ml-6 inline-flex items-center h-9 px-4 text-[14px] font-semibold text-ink bg-bone rounded-lg
+                           hover:bg-sun transition-colors duration-150
+                           active:scale-[0.97]
+                           focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sun
+                           cursor-pointer"
+              >
+                Sign in
+              </button>
+            </SignInButton>
+          ) : (
+            <>
+              <Link
+                href="/account"
+                className="text-[15px] text-mute no-underline ml-6 hover:text-bone transition-colors"
+              >
+                Account
+              </Link>
+              <div className="ml-4 flex items-center">
+                <UserButton />
+              </div>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -79,9 +106,27 @@ export default function Navbar() {
               {link.label}
             </Link>
           ))}
+
+          {!isSignedIn ? (
+            <SignInButton mode="redirect">
+              <button
+                onClick={closeMenu}
+                className="mt-1 h-10 text-[15px] font-semibold text-ink bg-bone rounded-lg hover:bg-sun transition-colors cursor-pointer"
+              >
+                Sign in
+              </button>
+            </SignInButton>
+          ) : (
+            <Link
+              href="/account"
+              onClick={closeMenu}
+              className="text-[15px] text-mute hover:text-bone hover:bg-white/5 px-3.5 py-2.5 rounded-lg transition-colors no-underline"
+            >
+              Account
+            </Link>
+          )}
         </div>
       )}
     </header>
-
   );
 }
