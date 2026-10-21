@@ -230,7 +230,7 @@ export default function PricingPage() {
                 <tbody className="divide-y divide-line text-[14.5px]">
                   {COMPARISON_SECTIONS.map((section) => (
                     <>
-                      <tr key={section.section} className="bg-white/[0.015]">
+                      <tr key={section.section} className="bg-white/1.5">
                         <th
                           colSpan={3}
                           className="py-2.5 px-6 font-mono text-[11px] font-semibold tracking-widest uppercase text-mute/60"
