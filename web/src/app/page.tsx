@@ -415,8 +415,8 @@ export default function Home() {
               clean code.
             </p>
             <div className="inline-flex max-w-full flex-wrap gap-2.5 sm:gap-3.5 items-center font-medium text-[13.5px] sm:text-[15px] font-mono bg-[rgba(21,19,27,0.7)] border border-line rounded-[10px] px-3.5 sm:px-4 py-2.5 sm:py-3 backdrop-blur-[6px] mt-6 sm:mt-7.5">
-              <span className="truncate">brew install autocurl</span>
-              <CopyButton text="brew install autocurl" />
+              <span className="truncate">curl -fsSL https://autocurl.lol/install.sh | sh</span>
+              <CopyButton text="curl -fsSL https://autocurl.lol/install.sh | sh" />
             </div>
 
             <div className="mt-8 flex justify-center gap-4 text-[14px]">
