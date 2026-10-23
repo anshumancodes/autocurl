@@ -223,7 +223,13 @@ func generateProject(rawRoot string, out io.Writer, mode discovery.AIMode, provi
 	for _, warning := range result.Warnings {
 		fmt.Fprintf(out, "Warning: %s\n", warning)
 	}
+	for _, message := range result.Errors {
+		fmt.Fprintf(out, "Managed AI: %s\n", message)
+	}
 	if len(result.Routes) == 0 {
+		if len(result.Errors) > 0 {
+			return errors.New(result.Errors[0])
+		}
 		return fmt.Errorf("no routes discovered; no %s was generated", outputFilename)
 	}
 	fmt.Fprintf(out, "Discovered %d routes.\n", len(result.Routes))
