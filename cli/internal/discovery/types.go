@@ -37,6 +37,12 @@ type Route struct {
 type DiscoveryResult struct {
 	Routes   []Route
 	Warnings []string
+	Errors   []string
+}
+
+type ActionableError interface {
+	error
+	ErrorCode() string
 }
 
 type AIMode string
