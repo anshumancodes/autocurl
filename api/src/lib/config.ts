@@ -6,7 +6,7 @@ export function requiredEnv(name: string): string {
 
 export const billingConfig = {
   currency: () => process.env.RAZORPAY_CURRENCY?.trim() || 'INR',
-  monthlyAmount: () => Number(process.env.PRO_MONTHLY_AMOUNT_MINOR || 499),
+  monthlyAmount: () => Number(process.env.PRO_MONTHLY_AMOUNT_MINOR || 49900),
   keyId: () => requiredEnv('RAZORPAY_KEY_ID'),
   keySecret: () => requiredEnv('RAZORPAY_KEY_SECRET'),
   webhookSecret: () => requiredEnv('RAZORPAY_WEBHOOK_SECRET'),
