@@ -1,6 +1,7 @@
 package discovery
 
 import (
+	"context"
 	"errors"
 	"os"
 	"path/filepath"
@@ -10,6 +11,17 @@ import (
 
 	"github.com/anshumancodes/autocurl/internal/project"
 )
+
+type actionableProviderError struct{ code string }
+
+func (e actionableProviderError) Error() string     { return "managed access denied" }
+func (e actionableProviderError) ErrorCode() string { return e.code }
+
+type actionableProvider struct{}
+
+func (actionableProvider) Analyze(context.Context, AIRequest) (AIResponse, error) {
+	return AIResponse{}, actionableProviderError{code: "upgrade_required"}
+}
 
 type stubExtractor struct {
 	name       string
@@ -174,6 +186,20 @@ func TestDiscoverDeterministicOutput(t *testing.T) {
 	}
 	if !reflect.DeepEqual(first, second) {
 		t.Fatalf("results differ:\nfirst: %#v\nsecond: %#v", first, second)
+	}
+}
+
+func TestDiscoverSurfacesManagedAccessErrorsAndKeepsASTRoutes(t *testing.T) {
+	root := writeFixture(t, map[string]string{"main.go": "package main"})
+	result, err := Discover(root, DiscoverOptions{
+		Extractors: []Extractor{&stubExtractor{name: "routes", applicable: true, routes: []Route{{Method: "GET", Path: "/health", Strategy: StrategyAST, Confidence: 1}}}},
+		AIMode:     AIModeAlways, AIProvider: actionableProvider{},
+	})
+	if err != nil || len(result.Routes) != 1 || len(result.Errors) != 1 || !strings.Contains(result.Errors[0], "upgrade_required") {
+		t.Fatalf("result = %#v, error = %v", result, err)
+	}
+	if len(result.Warnings) != 0 {
+		t.Fatalf("warnings = %#v, want actionable error separated from warnings", result.Warnings)
 	}
 }
 
