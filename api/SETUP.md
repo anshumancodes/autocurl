@@ -2,7 +2,7 @@
 
 Billing is implemented in the standalone Express service under `api/`. Use Razorpay test mode during development only.
 
-1. Copy `.env.example` to `.env` and set `DATABASE_URL`, `CLERK_SECRET_KEY`, `CLERK_WEBHOOK_SECRET`, Clerk/Gemini values, `APP_BASE_URL`, `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, and `RAZORPAY_WEBHOOK_SECRET`. Keep the secret values server-only. V1 uses the existing monthly Razorpay test plan for ₹499/month (`RAZORPAY_CURRENCY=INR`, `PRO_MONTHLY_AMOUNT_MINOR=499`). Confirm in the Razorpay dashboard that the existing test plan matches these values.
+1. Copy `.env.example` to `.env` and set `DATABASE_URL`, `CLERK_SECRET_KEY`, `CLERK_WEBHOOK_SECRET`, Clerk/Gemini values, `APP_BASE_URL`, `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, and `RAZORPAY_WEBHOOK_SECRET`. Keep the secret values server-only. V1 uses the existing monthly Razorpay test plan for ₹499/month (`RAZORPAY_CURRENCY=INR`, `PRO_MONTHLY_AMOUNT_MINOR=49900`). Confirm in the Razorpay dashboard that the existing test plan matches these values.
 2. Run `npm run db:generate` and `npm run db:migrate`.
 3. Set the existing monthly test plan ID in `RAZORPAY_PLAN_ID_MONTHLY`. Do not create another plan.
 4. Register `POST https://<api-host>/api/webhooks/razorpay` in Razorpay and subscribe to subscription lifecycle events (`authenticated`, `activated`, `charged`, `pending`, `halted`, `cancelled`, `completed`, and `expired`). The webhook secret must match `RAZORPAY_WEBHOOK_SECRET`.
