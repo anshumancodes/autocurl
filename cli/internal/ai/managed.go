@@ -23,7 +23,14 @@ type APIError struct {
 	Message string
 }
 
-func (e *APIError) Error() string { return e.Message }
+func (e *APIError) Error() string     { return e.Message }
+func (e *APIError) ErrorCode() string { return e.Code }
+func (e *APIError) Unwrap() error {
+	if e.Code == "authentication_required" {
+		return ErrAuthenticationRequired
+	}
+	return nil
+}
 
 type ManagedAPI struct {
 	BaseURL string
@@ -59,7 +66,7 @@ func NewManagedAPIFromEnv() *ManagedAPI {
 
 func (a *ManagedAPI) Analyze(ctx context.Context, request discovery.AIRequest) (discovery.AIResponse, error) {
 	if a == nil || strings.TrimSpace(a.Token) == "" {
-		return discovery.AIResponse{}, ErrAuthenticationRequired
+		return discovery.AIResponse{}, &APIError{Code: "authentication_required", Message: ErrAuthenticationRequired.Error()}
 	}
 	payload := scanRequest{Version: "v1", Operation: request.Operation, Detection: scanDetection{Languages: request.Detection.Languages, Frameworks: request.Detection.Frameworks}, Routes: toRoutes(request.Routes), Warnings: request.Warnings, Snippets: toSnippets(request.Snippets), RequestID: requestID(request)}
 	data, err := json.Marshal(payload)
@@ -107,9 +114,9 @@ func (a *ManagedAPI) Analyze(ctx context.Context, request discovery.AIRequest) (
 
 func (a *ManagedAPI) BillingStatus(ctx context.Context) (BillingStatus, error) {
 	if a == nil || strings.TrimSpace(a.Token) == "" {
-		return BillingStatus{}, ErrAuthenticationRequired
+		return BillingStatus{}, &APIError{Code: "authentication_required", Message: ErrAuthenticationRequired.Error()}
 	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, a.BaseURL+"/api/billing/status", nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, a.BaseURL+"/api/cli/billing/status", nil)
 	if err != nil {
 		return BillingStatus{}, err
 	}
