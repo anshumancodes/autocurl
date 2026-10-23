@@ -157,7 +157,12 @@ func Discover(root string, options DiscoverOptions) (DiscoveryResult, error) {
 				aiResponse, aiErr := options.AIProvider.Analyze(aiContext, aiRequest)
 				cancel()
 				if aiErr != nil {
-					warnings = append(warnings, fmt.Sprintf("AI analysis failed: %v", aiErr))
+					var actionable ActionableError
+					if errors.As(aiErr, &actionable) && actionableErrorCode(actionable) {
+						normalized.Errors = append(normalized.Errors, fmt.Sprintf("managed AI [%s]: %v", actionable.ErrorCode(), aiErr))
+					} else {
+						warnings = append(warnings, fmt.Sprintf("AI analysis failed: %v", aiErr))
+					}
 				} else {
 					mergeAIResults(scan.Root, aiFiles, aiRequest.Snippets, &normalized, aiResponse)
 				}
@@ -167,6 +172,15 @@ func Discover(root string, options DiscoverOptions) (DiscoveryResult, error) {
 	sort.Strings(warnings)
 	normalized.Warnings = warnings
 	return normalized, nil
+}
+
+func actionableErrorCode(err ActionableError) bool {
+	switch err.ErrorCode() {
+	case "authentication_required", "upgrade_required", "quota_exceeded":
+		return true
+	default:
+		return false
+	}
 }
 
 func aiShouldRun(mode AIMode, routes []Route, warnings []string) bool {
