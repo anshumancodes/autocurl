@@ -34,6 +34,17 @@ func TestManagedAPIUsesBearerAuthAndV1Contract(t *testing.T) {
 	}
 }
 
+func TestManagedAPIFromEnvSupportsLocalAndProductionDefaults(t *testing.T) {
+	t.Setenv("AUTOCURL_API_URL", "http://localhost:8000/")
+	if got := NewManagedAPIFromEnv().BaseURL; got != "http://localhost:8000" {
+		t.Fatalf("local API URL = %q", got)
+	}
+	t.Setenv("AUTOCURL_API_URL", "https://api.autocurl.lol/")
+	if got := NewManagedAPIFromEnv().BaseURL; got != "https://api.autocurl.lol" {
+		t.Fatalf("production API URL = %q", got)
+	}
+}
+
 func TestManagedAPIMapsStructuredErrors(t *testing.T) {
 	provider := NewManagedAPI("https://api.test", "clerk-token")
 	provider.Client = &http.Client{Transport: roundTripFunc(func(*http.Request) (*http.Response, error) {
