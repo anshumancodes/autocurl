@@ -7,10 +7,16 @@ import { ApiError, sendError } from '../lib/errors.js';
 import { billingConfig } from '../lib/config.js';
 import { cancelSubscription, createSubscription, getSubscription, verifyCheckoutSignature, verifySignature } from '../lib/razorpay.js';
 import { syncEntitlement } from './entitlements.js';
+import { hasClerkCredentials } from '../lib/clerk-auth.js';
 
 const idFrom = (value: unknown): string | null => typeof value === 'string' && value ? value : null;
 const dateFromUnix = (value: unknown): Date | null => typeof value === 'number' ? new Date(value * 1000) : null;
-function authUser(req: Request): string { const auth = getAuth(req); if (!auth.isAuthenticated || !auth.userId) throw new ApiError(401, 'authentication_required', 'Sign in to manage billing.'); return auth.userId; }
+export function authUser(req: Request): string {
+  if (!hasClerkCredentials(req)) throw new ApiError(401, 'authentication_required', 'Sign in to manage billing.');
+  const auth = getAuth(req);
+  if (!auth.isAuthenticated || !auth.userId) throw new ApiError(401, 'authentication_required', 'Sign in to manage billing.');
+  return auth.userId;
+}
 export function mapRazorpayStatus(value: string): SubscriptionStatus { return ({created: 'CREATED', authenticated: 'AUTHENTICATED', active: 'ACTIVE', pending: 'PENDING', paused: 'PENDING', halted: 'HALTED', cancelled: 'CANCELLED', completed: 'COMPLETED', expired: 'EXPIRED'} as Record<string, SubscriptionStatus>)[value] || 'CREATED'; }
 export function safeSubscriptionTransition(current: SubscriptionStatus, proposed: SubscriptionStatus): SubscriptionStatus {
   if (['HALTED', 'CANCELLED', 'COMPLETED', 'EXPIRED'].includes(current) && !['HALTED', 'CANCELLED', 'COMPLETED', 'EXPIRED'].includes(proposed)) return current;
@@ -60,7 +66,7 @@ export async function postVerify(req: Request, res: Response): Promise<void> {
 }
 
 export async function getStatus(req: Request, res: Response): Promise<void> {
-  try { const auth = getAuth(req); const clerkUserId = req.authenticatedUserId || (auth.isAuthenticated ? auth.userId : null); if (!clerkUserId) throw new ApiError(401, 'authentication_required', 'Sign in to view billing status.'); const user = await prisma.user.findUnique({ where: { clerkUserId }, include: { entitlement: true, subscriptions: { orderBy: { createdAt: 'desc' }, take: 1 } } }); if (!user) { res.json({ plan: 'FREE', usage: { used: 0, limit: 10 } }); return; } const e = user.entitlement; const start = e?.plan === 'PRO' ? e.periodStartsAt : e?.trialStartedAt; const end = e?.plan === 'PRO' ? e.periodEndsAt : start ? new Date(start.getTime() + 30 * 86400000) : new Date(); const used = start && end ? await prisma.scanUsage.count({ where: { userId: user.id, status: 'SUCCEEDED', createdAt: { gte: start, lt: end } } }) : 0; const subscription = user.subscriptions[0]; res.json({ plan: e?.plan || 'FREE', usage: { used, limit: e?.plan === 'PRO' ? 100 : 10, periodEndsAt: end }, subscription: subscription && { status: subscription.status, renewalAt: subscription.currentPeriodEndsAt, cancelAtPeriodEnd: subscription.cancelAtPeriodEnd } }); }
+  try { const auth = hasClerkCredentials(req) ? getAuth(req) : null; const clerkUserId = req.authenticatedUserId || (auth?.isAuthenticated ? auth.userId : null); if (!clerkUserId) throw new ApiError(401, 'authentication_required', 'Sign in to view billing status.'); const user = await prisma.user.findUnique({ where: { clerkUserId }, include: { entitlement: true, subscriptions: { orderBy: { createdAt: 'desc' }, take: 1 } } }); if (!user) { res.json({ plan: 'FREE', usage: { used: 0, limit: 10 } }); return; } const e = user.entitlement; const start = e?.plan === 'PRO' ? e.periodStartsAt : e?.trialStartedAt; const end = e?.plan === 'PRO' ? e.periodEndsAt : start ? new Date(start.getTime() + 30 * 86400000) : new Date(); const used = start && end ? await prisma.scanUsage.count({ where: { userId: user.id, status: 'SUCCEEDED', createdAt: { gte: start, lt: end } } }) : 0; const subscription = user.subscriptions[0]; res.json({ plan: e?.plan || 'FREE', usage: { used, limit: e?.plan === 'PRO' ? 100 : 10, periodEndsAt: end }, subscription: subscription && { status: subscription.status, renewalAt: subscription.currentPeriodEndsAt, cancelAtPeriodEnd: subscription.cancelAtPeriodEnd } }); }
   catch (error) { if (error instanceof ApiError) sendError(res, error); else sendError(res, new ApiError(500, 'internal_error', 'Billing status unavailable.')); }
 }
 
