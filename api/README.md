@@ -6,18 +6,33 @@ Required environment:
 
 - `DATABASE_URL`: PostgreSQL connection string used by Prisma.
 - `CLERK_SECRET_KEY`: Clerk backend secret used by `@clerk/express`.
+- `CLERK_PUBLISHABLE_KEY`: matching Clerk development/production publishable key used by the Express auth middleware.
 - `CLERK_WEBHOOK_SECRET`: signing secret for `POST /api/webhooks/clerk`.
 - `GEMINI_API_KEY`: server-only Gemini credential.
 - `GEMINI_MODEL` (optional): defaults to `gemini-2.0-flash`.
 - `GEMINI_TIMEOUT_MS` (optional): defaults to 25 seconds.
-- `PORT` (optional): defaults to 3000.
+- `PORT` (optional): defaults to 8000.
 - Billing variables are documented in `.env.example` and `SETUP.md`. Razorpay
   credentials and webhook secrets are server-only; V1 uses only the existing
   monthly Razorpay plan for ₹499/month, and the website receives only
   `NEXT_PUBLIC_RAZORPAY_KEY_ID`.
 
 The production endpoint is `https://api.autocurl.lol/v1/scan`. Never expose
-Clerk or Gemini secrets to the CLI or web client.
+Clerk, Razorpay, database, or Gemini secrets to the CLI or web client.
+
+## Build and run
+
+```bash
+npm ci
+npm run db:generate
+npm run build
+npm start
+```
+
+The liveness check is `GET /health`; the database readiness check is
+`GET /health/ready`. `npm run db:migrate:status` is read-only. Apply migrations
+deliberately with `npm run db:migrate:deploy` only after reviewing the pending
+migrations and approving the database change.
 
 After changing the Prisma schema:
 
