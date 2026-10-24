@@ -33,6 +33,9 @@ Managed requests use `https://api.autocurl.lol` and require an authenticated
 autocurl token in `AUTOCURL_API_TOKEN`. The CLI never reads or sends a Gemini
 API key.
 
+For local API development, set `AUTOCURL_API_URL=http://localhost:8000`.
+When unset, the CLI uses the deployed production API URL.
+
 ### 2. Run requests interactively
 Execute the `.autocurl` file:
 
