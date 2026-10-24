@@ -6,15 +6,27 @@ import { scanRateLimit } from './middleware/rate-limit.js';
 import { getStatus, postCancel, postCheckout, postVerify, postWebhook } from './billing/billing.js';
 import { postCliExchange, postCliRevoke, requireCliSession } from './auth/cli.js';
 import { postClerkWebhook } from './auth/webhooks.js';
+import { hasClerkCredentials } from './lib/clerk-auth.js';
+import { allowedWebOrigins } from './lib/config.js';
+import { prisma } from './lib/db.js';
 
 export function createApp() {
   const app = express();
   app.disable('x-powered-by');
   app.set('trust proxy', 1);
+  app.get('/health', (_req, res) => res.json({ ok: true, service: 'autocurl-api' }));
+  app.get('/health/ready', async (_req, res) => {
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+      res.json({ ok: true, service: 'autocurl-api', database: 'reachable' });
+    } catch {
+      res.status(503).json({ ok: false, service: 'autocurl-api', database: 'unavailable' });
+    }
+  });
+  const allowedOrigins = new Set(allowedWebOrigins());
   app.use((req, res, next) => {
     const origin = req.header('Origin');
-    const allowed = process.env.WEB_APP_URL?.trim() || 'http://localhost:3000';
-    if (origin === allowed || origin === 'https://autocurl.lol') {
+    if (origin && allowedOrigins.has(origin)) {
       res.header('Access-Control-Allow-Origin', origin);
       res.header('Access-Control-Allow-Credentials', 'true');
       res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Idempotency-Key');
@@ -23,7 +35,11 @@ export function createApp() {
     if (req.method === 'OPTIONS') { res.sendStatus(204); return; }
     next();
   });
-  app.use(clerkMiddleware());
+  const authenticateWithClerk = clerkMiddleware();
+  app.use((req, res, next) => {
+    if (!hasClerkCredentials(req)) return next();
+    return authenticateWithClerk(req, res, next);
+  });
   app.post('/api/webhooks/clerk', express.raw({ type: 'application/json', limit: '256kb' }), postClerkWebhook);
   app.post('/api/webhooks/razorpay', express.raw({ type: 'application/json', limit: '256kb' }), postWebhook);
   app.use(express.json({ limit: '64kb' }));
