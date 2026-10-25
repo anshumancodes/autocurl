@@ -1,7 +1,9 @@
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import { DocsPage, DocsBody, DocsTitle, DocsDescription } from 'fumadocs-ui/page';
 import { docsSource } from '@/lib/source';
 import type { Metadata } from 'next';
+import { ArrowLeft } from 'lucide-react';
 
 interface Props {
   params: Promise<{ slug?: string[] }>;
@@ -16,6 +18,13 @@ export default async function Page({ params }: Props) {
 
   return (
     <DocsPage toc={page.data.toc}>
+      <Link
+        href={page.url === '/docs' ? '/' : '/docs'}
+        className="mb-6 inline-flex items-center gap-1.5 text-sm text-fd-muted-foreground transition-colors hover:text-fd-foreground"
+      >
+        <ArrowLeft className="size-4" aria-hidden="true" />
+        {page.url === '/docs' ? 'Back to home' : 'Back to docs'}
+      </Link>
       <DocsTitle>{page.data.title}</DocsTitle>
       <DocsDescription>{page.data.description}</DocsDescription>
       <DocsBody>
