@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useAuth, SignInButton, UserButton } from "@clerk/nextjs";
+import Brand from "@/components/Brand";
 
 // One source of truth for both menus.
 // `mobileOnly` links appear only in the mobile dropdown, so the desktop bar
@@ -26,7 +27,7 @@ export default function Navbar() {
   const { isSignedIn } = useAuth();
 
   return (
-    <header className="max-w-280 w-full mx-auto px-6 relative z-50">
+    <header className="sticky top-0 max-w-280 w-full mx-auto px-6 relative z-50 backdrop-blur-md">
       <nav className="flex justify-between items-center py-5 sm:py-5.5">
         <Link
           className="font-extrabold text-[22px] tracking-[-0.02em] no-underline"
