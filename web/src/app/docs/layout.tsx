@@ -1,3 +1,5 @@
+
+import Link from 'next/link';
 import { DocsLayout } from 'fumadocs-ui/layouts/docs';
 import { docsSource } from '@/lib/source';
 import type { ReactNode } from 'react';
@@ -25,7 +27,20 @@ export default function RootDocsLayout({
   children: ReactNode;
 }) {
   return (
-    <DocsLayout tree={docsSource.pageTree} nav={{ title: 'autocurl Docs' }}>
+    <DocsLayout
+      tree={docsSource.pageTree}
+      nav={{
+        title: (
+          <Link
+            href="/"
+            className="font-extrabold text-[22px] tracking-[-0.02em] no-underline"
+          >
+            auto<span className="text-sun">cURL</span>
+          </Link>
+        ),
+        url: '/',
+      }}
+    >
       {children}
     </DocsLayout>
   );
