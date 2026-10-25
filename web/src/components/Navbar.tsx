@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useAuth, SignInButton, UserButton } from "@clerk/nextjs";
-import Brand from "@/components/Brand";
+import { useAuth, SignInButton, SignOutButton, UserButton } from "@clerk/nextjs";
 
 // One source of truth for both menus.
 // `mobileOnly` links appear only in the mobile dropdown, so the desktop bar
@@ -68,7 +67,7 @@ export default function Navbar() {
                 Account
               </Link>
               <div className="ml-4 flex items-center">
-                <UserButton />
+                <UserButton userProfileUrl="/account" />
               </div>
             </>
           )}
@@ -118,13 +117,24 @@ export default function Navbar() {
               </button>
             </SignInButton>
           ) : (
-            <Link
-              href="/account"
-              onClick={closeMenu}
-              className="text-[15px] text-mute hover:text-bone hover:bg-white/5 px-3.5 py-2.5 rounded-lg transition-colors no-underline"
-            >
-              Account
-            </Link>
+            <>
+              <Link
+                href="/account"
+                onClick={closeMenu}
+                className="text-[15px] text-mute hover:text-bone hover:bg-white/5 px-3.5 py-2.5 rounded-lg transition-colors no-underline"
+              >
+                Account
+              </Link>
+              <SignOutButton redirectUrl="/">
+                <button
+                  type="button"
+                  onClick={closeMenu}
+                  className="text-left text-[15px] text-mute hover:text-bone hover:bg-white/5 px-3.5 py-2.5 rounded-lg transition-colors cursor-pointer"
+                >
+                  Sign out
+                </button>
+              </SignOutButton>
+            </>
           )}
         </div>
       )}

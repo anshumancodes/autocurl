@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { UserProfile } from "@clerk/nextjs";
+import { SignOutButton, UserProfile } from "@clerk/nextjs";
 
 export const metadata: Metadata = {
   title: "Account",
@@ -9,5 +9,21 @@ export const metadata: Metadata = {
 };
 
 export default function AccountPage() {
-  return <main className="min-h-[70vh] max-w-180 mx-auto px-6 py-16"><p className="font-mono text-sun text-xs uppercase tracking-widest">account</p><h1 className="text-bone text-4xl font-extrabold mt-3 mb-8">Profile</h1><UserProfile routing="hash" /></main>;
+  return (
+    <main className="min-h-[70vh] max-w-180 mx-auto px-6 py-16">
+      <p className="font-mono text-sun text-xs uppercase tracking-widest">account</p>
+      <div className="mt-3 mb-8 flex items-center justify-between gap-4">
+        <h1 className="text-bone text-4xl font-extrabold">Profile</h1>
+        <SignOutButton redirectUrl="/">
+          <button
+            type="button"
+            className="rounded-lg border border-line px-4 py-2 text-sm font-semibold text-bone transition-colors hover:border-sun hover:text-sun"
+          >
+            Sign out
+          </button>
+        </SignOutButton>
+      </div>
+      <UserProfile routing="hash" />
+    </main>
+  );
 }
