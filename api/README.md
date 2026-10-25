@@ -12,6 +12,8 @@ Required environment:
 - `GEMINI_MODEL` (optional): defaults to `gemini-2.0-flash`.
 - `GEMINI_TIMEOUT_MS` (optional): defaults to 25 seconds.
 - `PORT` (optional): defaults to 8000.
+- `HOST` (optional): defaults to `127.0.0.1`; keep this value in production
+  behind the Nginx reverse proxy.
 - Billing variables are documented in `.env.example` and `SETUP.md`. Razorpay
   credentials and webhook secrets are server-only; V1 uses only the existing
   monthly Razorpay plan for ₹499/month, and the website receives only
