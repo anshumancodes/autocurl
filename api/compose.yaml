@@ -1,0 +1,21 @@
+name: autocurl-api
+
+x-api: &api
+  image: ${GHCR_IMAGE:?GHCR_IMAGE must be set}:${IMAGE_TAG:?IMAGE_TAG must be set}
+  env_file:
+    - ${API_ENV_FILE:-/opt/autocurl/api/.env}
+  environment:
+    HOST: 0.0.0.0
+    PORT: 8000
+
+services:
+  api:
+    <<: *api
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8000:8000"
+
+  migrate:
+    <<: *api
+    restart: "no"
+    command: ["npm", "run", "db:migrate:deploy"]
