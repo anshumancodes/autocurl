@@ -5,7 +5,6 @@ import { siteConfig } from "@/lib/siteConfig";
 import "./globals.css";
 import DevelopmentBanner from "@/components/DevelopmentBanner";
 import EarlyAccessBanner from "@/components/EarlyAccessBanner";
-import { ClerkProvider } from "@clerk/nextjs";
 
 const bricolageGrotesque = Bricolage_Grotesque({
   variable: "--font-sans-bricolage",
@@ -164,9 +163,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen flex flex-col antialiased">
         <EarlyAccessBanner />
-        <ClerkProvider>
-          <RootProvider>{children}</RootProvider>
-        </ClerkProvider>
+        <RootProvider>{children}</RootProvider>
       </body>
     </html>
   );
