@@ -1,285 +1,63 @@
 ---
-title: "Using autocurl effectively"
-description: "Comprehensive guide to autocurl: execution modes, the .autocurl file format, interactive terminal runner, CLI usage, exit codes, and real-world examples."
+title: "Using autocurl"
+description: "Configure optional Gemini BYOK discovery, scope route generation, and run generated requests safely."
 ---
 
-autocurl is designed to be fast, minimal, and transparent: discover routes automatically from your backend codebase, track them cleanly in version control as `.autocurl` files, and execute requests on demand with an interactive terminal runner.
+## AI-assisted discovery with your own Gemini key
 
----
+The default `--ai=off` mode performs deterministic local discovery and makes no network requests. It needs no API key. Optional AI analysis runs in the Go CLI and connects directly to Google's Gemini API; no autocurl backend or account is required.
 
-## The Two Execution Modes
+### Get a Gemini API key
 
-autocurl inspects the argument you pass and switches modes automatically:
-
-### Mode 1: Generator — Discovering Routes from Source Code
-
-Point autocurl at an existing backend project directory (such as Express or NestJS). autocurl scans source files using AST analysis, extracts your HTTP routes, and writes an `index.autocurl` file in the project root:
+Create a key in [Google AI Studio](https://aistudio.google.com/app/apikey), then set it in your shell. Do not paste it into source code or `.autocurl` files, and do not commit it.
 
 ```bash
-autocurl ./my-api
-# Discovers routes and writes index.autocurl in ./my-api/
+export GEMINI_API_KEY="your_api_key"
 ```
 
-> **Existing File Protection:** If an `index.autocurl` already exists in the project root, autocurl refuses to overwrite it to protect manual edits or existing files. You must rename or delete the file before regenerating.
-
-By default, autocurl uses deterministic AST discovery only. You can enable AI‑assisted analysis with the `--ai` flag:
-
-```bash
-autocurl --ai=auto ./your-project   # use AI when additional analysis helps
-autocurl --ai=always ./your-project # always request AI-assisted analysis
-autocurl --ai=off ./your-project   # deterministic AST only (default)
-```
-
-See [AI-Assisted Discovery](#ai-assisted-discovery) for full details.
-
-### Mode 2: Runner — Interactive Terminal Execution
-
-Pass an existing `.autocurl` file to autocurl to launch the interactive terminal runner:
-
-```bash
-autocurl index.autocurl
-```
-
-> **Single Argument Requirement:** autocurl requires exactly one positional argument: either a project directory to generate from, or a `.autocurl` file to execute.
-
----
-
-## Supported Frameworks
-
-autocurl analyzes backend project source code using Tree-sitter AST parsing.
-
-| Framework | Language | Status |
-|---|---|---|
-| **Express** | JavaScript / TypeScript | Full route discovery & extraction |
-| **NestJS** | TypeScript | Full controller & decorator extraction |
-| **Fastify, Hono, Gin, Echo, Chi, Flask, Django, FastAPI** | Multiple | Framework detection supported (extractors in progress) |
-
----
-
-## AI-Assisted Discovery
-
-autocurl includes optional AI-assisted route analysis to complement its deterministic AST parser. AI is managed entirely by autocurl—you do not need to supply or configure your own API keys.
-
-### `--ai` Modes
+For a one-command setup, set the variable in the same shell before running autocurl. Avoid putting the key in project configuration files. The CLI reads it at runtime and sends it only to Google's Gemini API over HTTPS. It does not print or write the key. The bounded, redacted source context for AI analysis is sent to Google; inspect your provider's privacy and retention terms before enabling AI. You are responsible for Gemini usage and any provider charges.
 
 | Flag | Behaviour |
 |---|---|
-| `--ai=off` | *(Default)* Deterministic AST discovery only. No AI requests are made. |
-| `--ai=auto` | AI analysis is requested when the AST pass needs additional help (e.g. dynamic route patterns, indirect registrations). |
-| `--ai=always` | AI analysis is always requested, even when the AST pass succeeds without warnings. |
+| `--ai=off` | Local deterministic discovery only; default and offline. |
+| `--ai=auto` | Uses Gemini only if AST discovery finds unresolved or unsupported routes or no routes. The key is needed only if that analysis is invoked. |
+| `--ai=always` | Requests Gemini analysis for every generation. Requires `GEMINI_API_KEY`. |
 
-You can also set the mode via the environment variable `AUTOCURL_AI=off|auto|always`. A `--ai` CLI flag always takes precedence over the environment variable.
+CLI flags override `AUTOCURL_AI`. Without an API key, `auto` still succeeds when AI is not needed. When AI is needed, missing or rejected credentials are reported clearly. Rate limits, network errors, and timeouts are reported without exposing the key. When provider service failures occur, deterministic AST routes remain available.
 
-### Managed AI Access
+### Troubleshooting
 
-autocurl does not support bring-your-own-key (BYOK). AI credentials and provider configuration are managed internally by autocurl. You never set or configure a Gemini API key.
+- **Missing key:** export `GEMINI_API_KEY` in the same shell, or use `--ai=off`.
+- **Key rejected:** verify the key in Google AI Studio, ensure Gemini API access is enabled, and remove accidental surrounding whitespace.
+- **Rate limited:** wait and retry; usage and limits are controlled by Google for your account.
+- **Timeout/network failure:** check connectivity and retry. AI calls have a bounded timeout; local discovery remains available with `--ai=off`.
+- **No AI route accepted:** AI suggestions are validated against source evidence and may be discarded if ungrounded or unsafe.
 
-The CLI sends only bounded, redacted source snippets needed for discovery to the managed API at `https://api.autocurl.lol/v1/scan`. AI scans require a Clerk-authenticated autocurl account. Configure the short-lived account token supplied by the autocurl login flow as `AUTOCURL_API_TOKEN`; configure `AUTOCURL_API_URL` only for local or staging APIs.
+## Scope generation
 
-AI usage is controlled through your autocurl account and subscription plan. When authentication or quota is unavailable, autocurl reports the managed API error and points to the pricing page. `--ai=off` always remains local and never requires login.
-
-AI candidates must cite supplied source context; invalid, duplicate, or ungrounded suggestions are discarded. AI errors always preserve AST results.
-
-### Plans & Pricing
-
-> **Coming with the public release**
-
-| Plan | AI Access | Price |
-|---|---|---|
-| **Free** | Limited monthly AI trial quota | Free |
-| **Pro** | Full AI-assisted discovery | ₹499 / month |
-
-Deterministic AST discovery (the default `--ai=off` mode) remains free on all plans with no quota.
-
-Pro includes 100 managed AI scans per monthly billing period.
-
-### Upgrading to Pro
-
-> **Coming with the public release**
-
-To upgrade your autocurl account, run:
+Run autocurl with a project root, a module/directory, or a supported source file:
 
 ```bash
-autocurl upgrade
+autocurl ./my-api                 # project-wide generation
+autocurl ./my-api/src/modules/users # directory-scoped generation
+autocurl ./my-api/src/routes/users.js # file-scoped generation
 ```
 
-This opens your browser and takes you to the autocurl Pro signup page.
+Extractors retain full project context for mounted routes and framework relationships. The output includes only routes in the selected scope, with source locations. Existing `.autocurl` output is protected from overwrite; rename or remove it before regenerating.
 
----
-
-## The .autocurl File Format
-
-An `.autocurl` file is a plain-text HTTP specification format structured into numbered request blocks, separated by `###` markers.
-
-### Anatomy of an .autocurl File
-
-```http
-# Generated by autocurl
-# Project: my-api
-
-@baseUrl = http://localhost:3000
-
-### 1. GET /health
-# @source src/server.js:14
-GET {{baseUrl}}/health
-Accept: application/json
-
-### 2. POST /organizations
-# @source src/controllers/orgs.ts:28
-POST {{baseUrl}}/organizations
-Authorization: Bearer dev_token_xyz
-Content-Type: application/json
-
-{
-  "name": "Acme Corp",
-  "plan": "pro"
-}
-
-### 3. GET /users/{id}
-# @source src/controllers/users.ts:15
-GET {{baseUrl}}/users/{{id}}
-Accept: application/json
-```
-
-### Syntax & Formatting Rules
-
-1. **File Header Metadata (`#`):** Comments at the top of the file record metadata, such as `# Generated by autocurl` and `# Project: <name>`.
-2. **Variable Declarations (`@name = value`):** Variables defined at the top of the file (like `@baseUrl = http://localhost:3000`) provide default values. They can be referenced throughout requests using `{{name}}`.
-3. **Request Block Separators (`### N. METHOD /path`):** Each request block begins with a triple hash `###`, a sequential index, and a label (typically the HTTP method and path).
-4. **Source Annotations (`# @source file:line`):** Added automatically during discovery to record the source file and line number where the route was defined.
-5. **Request Line (`METHOD URL`):** The primary line of each block declares the HTTP method (`GET`, `POST`, `PUT`, `DELETE`, `PATCH`, etc.) and the destination URL with variable placeholders.
-6. **Headers (`Header-Name: value`):** HTTP headers follow immediately below the request line.
-7. **Request Body:** Separated from headers by a blank line. Contains the raw request payload (such as JSON).
-8. **Variable Placeholders (`{{name}}`):** When parameterized segments like `{{id}}` appear in the URL or body, the runner prompts for values interactively before executing.
-
----
-
-## Interactive Terminal Runner
-
-When you run `autocurl <file.autocurl>`, autocurl lists all available requests by number:
-
-```
-1. GET /health
-2. POST /organizations
-3. GET /users/{{id}}
-Select request: 
-```
-
-### Terminal Controls
-
-| Action | How to Perform |
-|---|---|
-| **Select a request** | Type the request number (e.g., `1`, `2`) and press `Enter` |
-| **Supply missing variables** | When prompted (e.g., `Enter value for id:`), type the value and press `Enter` |
-| **Cancel execution** | Press `Ctrl+C` or send EOF (`Ctrl+D` / empty input); exits with code `130` |
-
-### Response Summary & Display
-
-autocurl executes requests directly using Go's built-in HTTP client. When the server responds, autocurl prints a concise, formatted summary:
-
-```
-GET http://localhost:3000/users/42
-HTTP 200 OK
-Duration: 8ms
-Response body:
-{
-  "id": 42,
-  "name": "Ada Lovelace",
-  "role": "admin"
-}
-```
-
-- JSON responses are automatically formatted and indented for readability.
-- If the endpoint returns an empty body, autocurl displays `Response body: <empty>`.
-- Sensitive authorization tokens are kept private and never logged to stdout during execution.
-
----
-
-## CLI Synopsis & Options
-
-### Synopsis
+## CLI options
 
 ```bash
-# Discover routes and generate index.autocurl from a project directory
-autocurl <project-directory>
-autocurl --ai=off|auto|always <project-directory>
-
-# Execute requests interactively from an existing .autocurl file
+autocurl [--ai=off|auto|always] <project-directory|source-file>
 autocurl <file.autocurl>
-
-# Upgrade your autocurl account (opens browser)
-autocurl upgrade
-
-# Display version information
 autocurl --version
-autocurl -V
 ```
 
-### `--ai` Flag
+AI mode defaults to `off`. `--ai` applies to generation; executing an existing `.autocurl` file remains local to the CLI.
 
-Controls AI-assisted route analysis during generation. See [AI-Assisted Discovery](#ai-assisted-discovery) for full details.
+## `.autocurl` format and execution
 
-| Flag | Behaviour |
-|---|---|
-| `--ai=off` | Deterministic AST only *(default)* |
-| `--ai=auto` | AI used when additional analysis is needed |
-| `--ai=always` | AI analysis always requested |
-
-### Exit Codes
-
-autocurl uses standard UNIX exit codes:
-
-| Code | Name | Meaning |
-|---|---|---|
-| `0` | **SUCCESS** | Request executed successfully, routes generated, or version displayed. |
-| `1` | **ERROR** | General error (HTTP/network failure, file read/parse error, or generation error). |
-| `2` | **USAGE_ERROR** | Incorrect number of CLI arguments provided (expected exactly 1 argument). |
-| `130` | **CANCELLED** | Interactive session cancelled by user (`Ctrl+C` or EOF). |
-
----
-
-## Customizing Variables & Environments
-
-Because `.autocurl` files are plain text, managing multiple environments is straightforward. You can edit `@baseUrl` directly at the top of the file:
-
-```http
-# Local development
-@baseUrl = http://localhost:3000
-
-# Or staging:
-# @baseUrl = https://staging-api.example.com
-```
-
-You can also define custom variables for tokens or dynamic paths:
-
-```http
-@baseUrl = http://localhost:3000
-@authToken = dev_secret_token_123
-
-### 1. GET /me
-GET {{baseUrl}}/me
-Authorization: Bearer {{authToken}}
-Accept: application/json
-```
-
----
-
-## Real-World Examples
-
-### 1. Discovered Express Backend
-
-Given an Express server file:
-
-```js
-// server.js
-const express = require('express');
-const app = express();
-
-app.get('/health', (req, res) => res.json({ status: 'ok' }));
-app.post('/api/items', (req, res) => res.status(201).json(req.body));
-```
-
-Running `autocurl .` generates:
+Generated files are plain text and remain suitable for review and version control. They contain a base URL, request separators, source annotations, method and URL, headers, and an optional body. AI credentials are never included.
 
 ```http
 # Generated by autocurl
@@ -291,68 +69,15 @@ Running `autocurl .` generates:
 # @source server.js:4
 GET {{baseUrl}}/health
 Accept: application/json
-
-### 2. POST /api/items
-# @source server.js:5
-POST {{baseUrl}}/api/items
-Accept: application/json
 ```
 
-### 2. NestJS Controller with Path Parameters
+Run a file to select and execute a request interactively:
 
-Given a NestJS controller:
-
-```ts
-// src/users.controller.ts
-import { Controller, Get, Param } from '@nestjs/common';
-
-@Controller('users')
-export class UsersController {
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return { id, name: 'Alice' };
-  }
-}
+```bash
+autocurl index.autocurl
 ```
 
-Running `autocurl .` produces:
-
-```http
-# Generated by autocurl
-# Project: nest-service
-
-@baseUrl = http://localhost:3000
-
-### 1. GET /users/{id}
-# @source src/users.controller.ts:6
-GET {{baseUrl}}/users/{{id}}
-Accept: application/json
-```
-
-When you select this request in the interactive runner, autocurl prompts:
-
-```
-Enter value for id: 101
-```
-
-And executes `GET http://localhost:3000/users/101`.
-
-### 3. Authenticated Request with JSON Payload
-
-You can add request bodies and headers directly to any request block in `index.autocurl`:
-
-```http
-### 1. POST /api/projects
-# @source src/projects.controller.ts:18
-POST {{baseUrl}}/api/projects
-Authorization: Bearer secret_api_token
-Content-Type: application/json
-
-{
-  "name": "Q4 Performance Initiative",
-  "visibility": "private"
-}
-```
+autocurl resolves `{{variable}}` placeholders interactively, executes requests with its built-in Go HTTP client, and formats JSON responses. The parser and executor work independently of Gemini configuration.
 
 ---
 
