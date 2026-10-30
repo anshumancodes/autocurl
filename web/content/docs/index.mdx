@@ -19,13 +19,13 @@ API clients like Postman or Insomnia solve organization, but introduce heavy GUI
 Instead of forcing you into a proprietary format or bloated GUI exports, autocurl separates your API workflow into three simple, transparent stages:
 
 ### 1. Point at Your Backend Project
-Run `autocurl ./your-project` against an existing backend (like Express or NestJS). autocurl scans your source files using AST analysis to discover your API routes automatically—no manual request definitions required.
+Run `autocurl ./your-project` against a supported backend. Route extractors cover Express and NestJS (JavaScript/TypeScript), FastAPI, Flask, and Django (Python), plus Gin, Echo, Fiber, and `net/http` (Go). Framework detection is distinct from route extraction support; identifying a framework does not guarantee its routes are extracted.
 
 ### 2. Version in Plain Text (`index.autocurl`)
 autocurl writes an `index.autocurl` file containing clean, HTTP-client-style request definitions—one per discovered route, complete with `@baseUrl` variables, request separators, and source annotations. These files live right in your git repository alongside your codebase and produce clean, readable diffs.
 
 ### 3. Run Interactively from Your Terminal
-Pass the `.autocurl` file to autocurl: it lists your requests by number, you enter the request number to select it, and autocurl executes the request directly using its built-in HTTP client, displaying status, timing, and formatted responses.
+Pass the `.autocurl` file to autocurl: it lists requests by number, you enter a number to select one, and autocurl executes it with its built-in Go HTTP client, displaying status, timing, and formatted responses. If Gemini analysis is enabled, bounded and redacted source context is sent to Google for analysis; see the [BYOK documentation](/docs/using-autocurl).
 
 ---
 
