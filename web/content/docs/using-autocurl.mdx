@@ -43,7 +43,7 @@ autocurl ./my-api/src/modules/users # directory-scoped generation
 autocurl ./my-api/src/routes/users.js # file-scoped generation
 ```
 
-Extractors retain full project context for mounted routes and framework relationships. The output includes only routes in the selected scope, with source locations. Existing `.autocurl` output is protected from overwrite; rename or remove it before regenerating.
+Route extraction is implemented for Express and NestJS (JavaScript/TypeScript), FastAPI, Flask, and Django (Python), and Gin, Echo, Fiber, and `net/http` (Go). Framework detection is a separate identification step: detecting a framework does not mean its routes can be extracted. Extractors retain project context for mounted routes and framework relationships. The output includes only routes in the selected scope, with source locations. Existing `.autocurl` output is protected from overwrite; rename or remove it before regenerating.
 
 ## CLI options
 
