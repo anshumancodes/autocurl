@@ -9,7 +9,7 @@ This guide walks you through installing autocurl, automatically discovering API 
 
 ## Step 1: Install autocurl
 
-autocurl is distributed as a single static binary with zero external runtime dependencies. Request execution is handled directly by its built-in HTTP client.
+autocurl is distributed as a prebuilt Go executable and does not require a Go runtime. Linux builds use the system glibc. Request execution is handled by autocurl's built-in HTTP client.
 
 ### Option A: Quick installer (macOS & Linux — Recommended)
 
@@ -21,7 +21,7 @@ curl -fsSL https://autocurl.lol/install.sh | sh
 
 The installer supports Linux and macOS on AMD64 and ARM64, installs to `~/.local/bin`, and prints PATH guidance when needed. Set `AUTOCURL_INSTALL_DIR` to choose another destination.
 
-> This command is available once the public binary distribution release is deployed.
+The installer resolves the latest stable GitHub Release. To install a specific version, set `AUTOCURL_VERSION=vX.Y.Z` before running it.
 
 ### Option B: Homebrew
 
@@ -38,7 +38,7 @@ To update autocurl in the future:
 brew upgrade autocurl
 ```
 
-> **Note:** The formula currently points at the private repository's release URL. Repoint it to the public distribution release before using this option; until then, use the installer after deployment or manual downloads from that public release.
+The formula supports macOS and Linux on ARM64 and AMD64. It will be available after the v1.0.0 release archives are published and the Homebrew tap is updated.
 
 ### Option C: Manual Binary Download
 
@@ -58,15 +58,13 @@ Check that autocurl is accessible in your shell:
 autocurl --version
 ```
 
-Output:
+Example output:
 
 ```
-autocurl v0.1.0-beta.4
+autocurl vX.Y.Z
 ```
 
-> **Note:** `dev` is the default build version for development builds. Official releases display their tag.
->
-> **Requirements:** autocurl is a self-contained Go binary with zero external dependencies. No external curl binary or runtime environment is required.
+> **Requirements:** autocurl does not need a Go runtime or the system `curl` executable. Linux binaries require a compatible glibc.
 
 ---
 
@@ -82,13 +80,13 @@ You can also scan a module directory or individual source file; see [scope gener
 
 ## Step 3: Discover API routes from your backend project
 
-Run autocurl against your existing backend project directory (such as an Express or NestJS project). autocurl scans your source files using AST analysis to discover your routes automatically—no manual request authoring required.
+Run autocurl against your project directory. Route extraction currently supports Express and NestJS in JavaScript/TypeScript, FastAPI, Flask, and Django in Python, plus Gin, Echo, Fiber, and `net/http` in Go. Framework detection is separate from extraction support: recognizing a framework does not guarantee its routes can be extracted.
 
 ```bash
 autocurl ./my-api
 ```
 
-autocurl scans your project, identifies the framework, and writes the output file:
+autocurl scans your project and writes the output file:
 
 ```
 Scanning project...
