@@ -14,13 +14,13 @@ import (
 
 type actionableProviderError struct{ code string }
 
-func (e actionableProviderError) Error() string     { return "managed access denied" }
+func (e actionableProviderError) Error() string     { return "provider configuration required" }
 func (e actionableProviderError) ErrorCode() string { return e.code }
 
 type actionableProvider struct{}
 
 func (actionableProvider) Analyze(context.Context, AIRequest) (AIResponse, error) {
-	return AIResponse{}, actionableProviderError{code: "upgrade_required"}
+	return AIResponse{}, actionableProviderError{code: "configuration_required"}
 }
 
 type stubExtractor struct {
@@ -189,13 +189,13 @@ func TestDiscoverDeterministicOutput(t *testing.T) {
 	}
 }
 
-func TestDiscoverSurfacesManagedAccessErrorsAndKeepsASTRoutes(t *testing.T) {
+func TestDiscoverSurfacesConfigurationErrorsAndKeepsASTRoutes(t *testing.T) {
 	root := writeFixture(t, map[string]string{"main.go": "package main"})
 	result, err := Discover(root, DiscoverOptions{
 		Extractors: []Extractor{&stubExtractor{name: "routes", applicable: true, routes: []Route{{Method: "GET", Path: "/health", Strategy: StrategyAST, Confidence: 1}}}},
 		AIMode:     AIModeAlways, AIProvider: actionableProvider{},
 	})
-	if err != nil || len(result.Routes) != 1 || len(result.Errors) != 1 || !strings.Contains(result.Errors[0], "upgrade_required") {
+	if err != nil || len(result.Routes) != 1 || len(result.Errors) != 1 || !strings.Contains(result.Errors[0], "configuration_required") {
 		t.Fatalf("result = %#v, error = %v", result, err)
 	}
 	if len(result.Warnings) != 0 {
