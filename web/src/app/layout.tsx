@@ -3,8 +3,6 @@ import { Bricolage_Grotesque, JetBrains_Mono } from "next/font/google";
 import { RootProvider } from "fumadocs-ui/provider/next";
 import { siteConfig } from "@/lib/siteConfig";
 import "./globals.css";
-import DevelopmentBanner from "@/components/DevelopmentBanner";
-import EarlyAccessBanner from "@/components/EarlyAccessBanner";
 
 const bricolageGrotesque = Bricolage_Grotesque({
   variable: "--font-sans-bricolage",
@@ -162,7 +160,6 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen flex flex-col antialiased">
-        <EarlyAccessBanner />
         <RootProvider>{children}</RootProvider>
       </body>
     </html>
