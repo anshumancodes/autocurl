@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "cli/**"
+      - "web/**"
+      - ".github/workflows/**"
+  push:
+    branches: [main]
+    paths:
+      - "cli/**"
+      - "web/**"
+      - ".github/workflows/**"
+
+permissions:
+  contents: read
+
+jobs:
+  cli:
+    name: Go checks and CLI build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: cli/go.mod
+          cache-dependency-path: cli/go.sum
+      - name: Verify modules
+        working-directory: cli
+        run: go mod verify
+      - name: Test
+        working-directory: cli
+        run: go test ./...
+      - name: Vet
+        working-directory: cli
+        run: go vet ./...
+      - name: Build CLI
+        working-directory: cli
+        run: mkdir -p dist && go build -trimpath -o dist/autocurl ./cmd/autocurl
+
+  website:
+    name: Website checks and production build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Install dependencies
+        working-directory: web
+        run: npm ci
+      - name: TypeScript check
+        working-directory: web
+        run: npx tsc --noEmit
+      - name: Production build
+        working-directory: web
+        run: npm run build
