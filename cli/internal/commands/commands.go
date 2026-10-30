@@ -2,15 +2,12 @@
 package commands
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
 	"path/filepath"
-	"runtime"
 	"sort"
 	"strings"
 
@@ -50,17 +47,14 @@ func Run(args []string, config Config) error {
 	if config.Out == nil {
 		config.Out = io.Discard
 	}
-	if len(args) == 1 && args[0] == "login" {
-		return ai.Login(context.Background(), config.Out)
-	}
-	if len(args) == 1 && args[0] == "logout" {
-		return ai.Logout(context.Background(), apiBaseURL())
-	}
-	if len(args) == 1 && args[0] == "upgrade" {
-		return openPricing(config.Out)
-	}
-	if len(args) == 1 && args[0] == "status" {
-		return printStatus(config)
+	if len(args) == 1 && (args[0] == "--help" || args[0] == "-h") {
+		fmt.Fprintln(config.Out, "Usage: autocurl [--ai=off|auto|always] <project-directory|source-file|file.autocurl>")
+		fmt.Fprintln(config.Out, "       autocurl --version")
+		fmt.Fprintln(config.Out, "")
+		fmt.Fprintln(config.Out, "Generate .autocurl requests from a project or source file, or execute an existing file.")
+		fmt.Fprintln(config.Out, "AI modes: off (default, local only), auto (when more analysis is needed), always (Gemini).")
+		fmt.Fprintln(config.Out, "Set GEMINI_API_KEY in your environment to use Gemini AI analysis.")
+		return nil
 	}
 	path, mode, err := parseArgs(args, config.AIMode)
 	if err != nil {
@@ -73,7 +67,7 @@ func Run(args []string, config Config) error {
 	if info.IsDir() {
 		provider := config.AIProvider
 		if provider == nil && mode != discovery.AIModeOff {
-			provider = ai.NewManagedAPIFromEnv()
+			provider = ai.NewGeminiFromEnv()
 		}
 		return generateProject(path, config.Out, mode, provider)
 	}
@@ -90,55 +84,9 @@ func Run(args []string, config Config) error {
 	}
 	provider := config.AIProvider
 	if provider == nil && mode != discovery.AIModeOff {
-		provider = ai.NewManagedAPIFromEnv()
+		provider = ai.NewGeminiFromEnv()
 	}
 	return generateProject(path, config.Out, mode, provider)
-}
-
-func openPricing(out io.Writer) error {
-	const url = "https://autocurl.lol/pricing"
-	var command string
-	var args []string
-	switch runtime.GOOS {
-	case "darwin":
-		command, args = "open", []string{url}
-	case "windows":
-		command, args = "rundll32", []string{"url.dll,FileProtocolHandler", url}
-	default:
-		command, args = "xdg-open", []string{url}
-	}
-	if err := exec.Command(command, args...).Start(); err != nil {
-		return fmt.Errorf("open pricing page: %w (visit %s)", err, url)
-	}
-	fmt.Fprintf(out, "Opened %s\n", url)
-	return nil
-}
-
-func printStatus(config Config) error {
-	provider := ai.NewManagedAPIFromEnv()
-	status, err := provider.BillingStatus(context.Background())
-	if err != nil {
-		return fmt.Errorf("get account status: %w", err)
-	}
-	fmt.Fprintf(config.Out, "Plan: %s\nAI scans: %d/%d\n", status.Plan, status.Usage.Used, status.Usage.Limit)
-	if status.Usage.PeriodEndsAt != "" {
-		fmt.Fprintf(config.Out, "Period ends: %s\n", status.Usage.PeriodEndsAt)
-	}
-	if status.Subscription != nil {
-		fmt.Fprintf(config.Out, "Subscription: %s\n", status.Subscription.Status)
-		if status.Subscription.RenewalAt != "" {
-			fmt.Fprintf(config.Out, "Renewal: %s\n", status.Subscription.RenewalAt)
-		}
-	}
-	return nil
-}
-
-func apiBaseURL() string {
-	value := strings.TrimRight(strings.TrimSpace(os.Getenv("AUTOCURL_API_URL")), "/")
-	if value == "" {
-		return "https://api.autocurl.lol"
-	}
-	return value
 }
 
 func parseArgs(args []string, configured discovery.AIMode) (string, discovery.AIMode, error) {
@@ -167,7 +115,7 @@ func parseArgs(args []string, configured discovery.AIMode) (string, discovery.AI
 		paths = append(paths, arg)
 	}
 	if len(paths) != 1 {
-		return "", "", errors.New("usage: autocurl [login|logout|status|upgrade|--ai=off|auto|always] <project-directory|source-file|file.autocurl>")
+		return "", "", errors.New("usage: autocurl [--ai=off|auto|always] <project-directory|source-file|file.autocurl>")
 	}
 	return paths[0], mode, nil
 }
@@ -224,7 +172,10 @@ func generateProject(rawRoot string, out io.Writer, mode discovery.AIMode, provi
 		fmt.Fprintf(out, "Warning: %s\n", warning)
 	}
 	for _, message := range result.Errors {
-		fmt.Fprintf(out, "Managed AI: %s\n", message)
+		fmt.Fprintf(out, "AI: %s\n", message)
+	}
+	if len(result.Errors) > 0 {
+		return errors.New(result.Errors[0])
 	}
 	if len(result.Routes) == 0 {
 		if len(result.Errors) > 0 {
