@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "autocurl - CLI tool for generating and running curl requests";
+export const alt = "autocurl - CLI tool for discovering routes and running API requests";
 export const size = {
   width: 1200,
   height: 630,
@@ -70,7 +70,7 @@ export default async function Image() {
               margin: 0,
             }}
           >
-            Every curl request, in one file you can read and run.
+            API requests in one file you can read and run.
           </h1>
           <p
             style={{
@@ -81,8 +81,7 @@ export default async function Image() {
               margin: 0,
             }}
           >
-            Define requests in controller → Generate clean .autocurl  files → Interactive
-            terminal picker.
+            Discover routes in supported projects → Generate clean .autocurl files → Select a request by number.
           </p>
         </div>
 
@@ -109,7 +108,7 @@ export default async function Image() {
               color: "#f2c14e",
             }}
           >
-            <span>$ brew install autocurl</span>
+            <span>$ autocurl ./your-api</span>
           </div>
 
           <div
@@ -122,7 +121,7 @@ export default async function Image() {
           >
             <span>Git-friendly</span>
             <span>•</span>
-            <span>Local-first</span>
+            <span>Built-in HTTP client</span>
             <span>•</span>
             <span>Zero GUI</span>
           </div>
