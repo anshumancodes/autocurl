@@ -8,16 +8,16 @@ import Footer from "@/components/Footer";
 import { ArrowRight } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "autocurl - CLI tool for generating and running curl requests",
+  title: "autocurl - CLI tool for generating and running API requests",
   description:
-    "Define your API requests in JavaScript. autocurl compiles them into a plain .autocurl file, then gives you an interactive terminal picker to run curl requests instantly. Local-first, git-friendly, zero GUI.",
+    "Discover API routes in supported backend projects, generate plain-text .autocurl files, and run requests with autocurl's built-in HTTP client.",
   alternates: {
     canonical: "/",
   },
   openGraph: {
-    title: "autocurl - CLI tool for generating and running curl requests",
+    title: "autocurl - CLI tool for generating and running API requests",
     description:
-      "Define requests in JS, compile to plain .autocurl curl files, and run them with an interactive terminal picker. 100% local, git-diffable, and lightweight.",
+      "Discover routes in supported projects, generate plain-text .autocurl files, and run requests with a built-in HTTP client.",
     url: "/",
   },
 };
@@ -26,17 +26,17 @@ const faqItems = [
   {
     question: "What is autocurl and how does it relate to curl?",
     answer:
-      "autocurl is a command-line developer tool designed to bridge the gap between ad-hoc curl commands and heavy GUI API clients. It does not replace curl—instead, it lets you define API requests cleanly in JavaScript, generates standard, reproducible curl commands in a human-readable .autocurl file, and provides an interactive terminal runner to execute them.",
+      "autocurl is a command-line tool for discovering routes in supported backend projects, generating readable .autocurl request files, and executing selected requests with its built-in Go HTTP client.",
   },
   {
     question: "What is an .autocurl file?",
     answer:
-      "An .autocurl file is a plain-text file containing standard, multi-line curl commands separated by readable comments. Because it is plain text, .autocurl files can be checked into git, reviewed in pull requests, and inspected in any text editor without proprietary software.",
+      "An .autocurl file is a plain-text collection of HTTP requests separated by readable comments. It can be checked into git, reviewed in pull requests, and inspected in any text editor.",
   },
   {
     question: "Can I run .autocurl requests without autocurl installed?",
     answer:
-      "Yes. Every request in an .autocurl file is formatted as valid, copy-pasteable curl commands with backslash line continuations. If a teammate does not have autocurl installed, they can simply copy and execute the command directly in any standard bash or zsh shell.",
+      "The .autocurl file is readable text, but executing requests and resolving variables requires autocurl's CLI.",
   },
   {
     question: "How does autocurl compare to Postman or Insomnia?",
@@ -46,7 +46,7 @@ const faqItems = [
   {
     question: "How do I install autocurl?",
     answer:
-      "Once the public binary distribution is deployed, the recommended installation will be curl -fsSL https://autocurl.lol/install.sh | sh. Homebrew and direct prebuilt binary downloads are also available.",
+      "After the first stable release is published, install from the latest stable GitHub Release with curl -fsSL https://autocurl.lol/install.sh | sh. Set AUTOCURL_VERSION=vX.Y.Z to select a specific stable version. Homebrew will be available after the tap is updated for a published release.",
   },
 ];
 
@@ -81,18 +81,18 @@ export default function Home() {
         >
           <div>
             <h1 className="font-extrabold text-[clamp(32px,5.4vw,72px)] leading-[1.05] sm:leading-[1.02] tracking-[-0.035em]">
-              Every curl request, in one file <FlipWord /> can read.
+              API requests in one file <FlipWord /> can read.
             </h1>
             <p className="mt-4.5 sm:mt-5.5 mb-6 sm:mb-7.5 max-w-[30em] text-mute text-[16px] sm:text-[19px] leading-relaxed">
-              Define API requests in a simple, human-readable format. Let agents
-              and humans execute them without dealing with messy JSON,
-              complicated tool schemas, or copy-pasting curl commands into the
-              terminal.
+              Discover routes in supported backend projects, generate readable
+              .autocurl files, and execute requests with autocurl's built-in Go
+              HTTP client.
             </p>
             <div className="inline-flex max-w-full flex-wrap gap-2.5 sm:gap-3.5 items-center font-medium text-[13.5px] sm:text-[15px] font-mono bg-[rgba(21,19,27,0.7)] border border-line rounded-[10px] px-3.5 sm:px-4 py-2.5 sm:py-3 backdrop-blur-[6px]">
-              <span className="truncate">brew install autocurl</span>
-              <CopyButton text="brew install autocurl" />
+              <span className="truncate">curl -fsSL https://autocurl.lol/install.sh | sh</span>
+              <CopyButton text="curl -fsSL https://autocurl.lol/install.sh | sh" />
             </div>
+            <p className="mt-2 text-xs text-mute">Available after the first stable release is published.</p>
             <div className="mt-4 flex flex-wrap items-center gap-4 text-[13px] sm:text-[14px] text-mute">
               <Link
                 href="/docs/getting-started"
@@ -146,7 +146,7 @@ export default function Home() {
                 </h3>
 
                 <p className="text-mute text-[14px] leading-relaxed max-w-65">
-                  Define your API requests in any programming language
+                  Route extraction for supported frameworks and source patterns
                 </p>
               </div>
 
@@ -228,8 +228,9 @@ export default function Home() {
               Built to stay out of your way.
             </h2>
             <p className="mt-4 max-w-[34em] text-mute text-[15px] leading-relaxed">
-              Your API requests are plain text on your own disk. No cloud sync,
-              no account hurdles, no 500 MB Electron client to open.
+              Requests are stored as plain text in your project. Local discovery
+              stays on your machine; when AI analysis is enabled, bounded source
+              context is sent to Gemini using your key.
             </p>
 
             <div className="mt-12 md:mt-16">
@@ -241,18 +242,18 @@ export default function Home() {
                 },
                 {
                   label: "Local-first",
-                  title: "Nothing leaves your machine",
-                  body: "Requests live in files on your disk. No cloud sync, no telemetry, no sign-in required.",
+                  title: "Local by default",
+                  body: "Deterministic discovery stays local. Optional Gemini analysis sends bounded source context to Google when enabled.",
                 },
                 {
                   label: "Human-readable",
                   title: "Open the file, read the file",
-                  body: "Every .autocurl file is plain curl commands separated by comments. Inspect, edit, or share them in any text editor.",
+                  body: "Every .autocurl file is plain-text HTTP requests separated by comments. Inspect, edit, or share them in any text editor.",
                 },
                 {
                   label: "Zero lock-in",
                   title: "Works without autocurl installed",
-                  body: "Each entry is a valid copy-pasteable curl command. Your team can run requests directly in bash or zsh without any tooling.",
+                  body: "Files are readable in any editor. Request execution and variable prompts are provided by the autocurl CLI.",
                 },
                 {
                   label: "Lightweight",
@@ -311,7 +312,7 @@ export default function Home() {
                   Fast local API iteration
                 </p>
                 <p className="text-mute text-[14px] leading-relaxed">
-                  Test your Express, FastAPI, Go, or Rails routes locally
+              Identify some common frameworks; route extraction is available only for supported frameworks and source patterns.
                   without opening heavy GUI tools or searching through bash
                   history for long curl flags.
                 </p>
@@ -411,13 +412,14 @@ export default function Home() {
               Try it on your next API.
             </h2>
             <p className="mt-3.5 text-mute text-[16px] max-w-[30em] mx-auto">
-              Install autocurl in seconds and start managing curl requests as
+              Install autocurl and start managing API requests as
               clean code.
             </p>
             <div className="inline-flex max-w-full flex-wrap gap-2.5 sm:gap-3.5 items-center font-medium text-[13.5px] sm:text-[15px] font-mono bg-[rgba(21,19,27,0.7)] border border-line rounded-[10px] px-3.5 sm:px-4 py-2.5 sm:py-3 backdrop-blur-[6px] mt-6 sm:mt-7.5">
               <span className="truncate">curl -fsSL https://autocurl.lol/install.sh | sh</span>
               <CopyButton text="curl -fsSL https://autocurl.lol/install.sh | sh" />
             </div>
+            <p className="mt-3 text-sm text-mute">Available after the first stable release is published. The installer then resolves the latest stable release; set <code>AUTOCURL_VERSION=vX.Y.Z</code> to choose a version.</p>
 
             <div className="mt-8 flex justify-center gap-4 text-[14px]">
               <Link
