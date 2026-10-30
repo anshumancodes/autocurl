@@ -70,7 +70,17 @@ autocurl v0.1.0-beta.4
 
 ---
 
-## Step 2: Discover API routes from your backend project
+## Step 2: Generate routes without AI
+
+The default mode is local deterministic AST discovery. It works offline and does not need an API key:
+
+```bash
+autocurl --ai=off ./my-api
+```
+
+You can also scan a module directory or individual source file; see [scope generation](/docs/using-autocurl#scope-generation). Optional Gemini BYOK setup and troubleshooting are covered in [Using autocurl](/docs/using-autocurl#ai-assisted-discovery-with-your-own-gemini-key).
+
+## Step 3: Discover API routes from your backend project
 
 Run autocurl against your existing backend project directory (such as an Express or NestJS project). autocurl scans your source files using AST analysis to discover your routes automatically—no manual request authoring required.
 
@@ -94,7 +104,7 @@ Generated: index.autocurl
 
 ---
 
-## Step 3: Inspect your generated .autocurl file
+## Step 4: Inspect your generated .autocurl file
 
 autocurl generates an `index.autocurl` file in the root of your project directory. Discovered routes are organized into clean, numbered request blocks with shared base URL variables and source code references:
 
@@ -128,7 +138,7 @@ Each route entry preserves:
 
 ---
 
-## Step 4: Pick and execute interactively
+## Step 5: Pick and execute interactively
 
 Pass your `.autocurl` file to autocurl to launch the interactive terminal runner:
 
