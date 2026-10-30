@@ -15,8 +15,8 @@ export default function Footer() {
               auto<span className="text-sun">curl</span>
             </Link>
             <p className="text-[13.5px] leading-relaxed text-mute mb-4">
-              A fast, local-first CLI tool for generating and running curl
-              requests from clean, human-readable <code className="text-sun">.autocurl</code> files.
+              A CLI tool for discovering routes in supported projects and
+              running requests from human-readable <code className="text-sun">.autocurl</code> files.
             </p>
           </div>
 
@@ -107,7 +107,7 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="pt-8 border-t border-line flex flex-col sm:flex-row justify-between items-center text-center sm:text-left gap-3 text-[13px]">
           <span>
-            © {new Date().getFullYear()} autocurl. Plain-text curl requests for
+            © {new Date().getFullYear()} autocurl. Plain-text API requests for
             developers.
           </span>
           <span>
