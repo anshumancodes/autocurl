@@ -10,13 +10,13 @@ const (
 )
 
 type SourceLocation struct {
-	File string
-	Line int
+	File string `json:"file"`
+	Line int    `json:"line"`
 }
 
 type AuthMetadata struct {
-	Kind     string
-	Variable string
+	Kind     string `json:"kind"`
+	Variable string `json:"variable"`
 }
 
 type Route struct {
@@ -74,19 +74,19 @@ type DetectionSummary struct {
 }
 
 type AIEndpoint struct {
-	Method         string
-	Path           string
-	Source         SourceLocation
-	PathParameters []string
-	Headers        map[string]string
-	Body           string
-	HasBody        bool
-	Auth           *AuthMetadata
-	Evidence       []string
+	Method         string            `json:"method"`
+	Path           string            `json:"path"`
+	Source         SourceLocation    `json:"source"`
+	PathParameters []string          `json:"path_parameters"`
+	Headers        map[string]string `json:"headers"`
+	Body           string            `json:"body"`
+	HasBody        bool              `json:"has_body"`
+	Auth           *AuthMetadata     `json:"auth"`
+	Evidence       []string          `json:"evidence"`
 }
 
 type AIResponse struct {
-	Endpoints []AIEndpoint
+	Endpoints []AIEndpoint `json:"endpoints"`
 }
 
 type AIProvider interface {
