@@ -10,7 +10,7 @@ export default function TerminalDemo() {
     if (!el) return;
 
     const final =
-      '<span class="p">$</span> autocurl index.js\n<span class="d">Read 4 requests</span>\n<span class="s">Wrote index.autocurl</span>\n\n<span class="p">$</span> autocurl index.autocurl\n? Select a request\n  List users\n<span class="sel">❯ Create user</span>\n  Update user\n  Delete user\n\n<span class="d">→ curl -X POST https://api.dev/users</span>\n<span class="s">201 Created</span>';
+      '<span class="p">$</span> autocurl index.js\n<span class="d">Read 4 requests</span>\n<span class="s">Wrote index.autocurl</span>\n\n<span class="p">$</span> autocurl index.autocurl\nSelect request:\n  1. GET /users\n<span class="sel">  2. POST /users</span>\n  3. PUT /users/{id}\n  4. DELETE /users/{id}\nSelect request: 2\n\n<span class="d">POST https://api.dev/users</span>\n<span class="s">HTTP 201 Created</span>';
 
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       el.innerHTML = final;
@@ -26,12 +26,12 @@ export default function TerminalDemo() {
       ],
       ['<span class="p">$</span> ', "autocurl index.autocurl", 350],
       [
-        '\n? Select a request\n  List users\n<span class="sel">❯ Create user</span>\n  Update user\n  Delete user\n',
+        '\nSelect request:\n  1. GET /users\n<span class="sel">  2. POST /users</span>\n  3. PUT /users/{id}\n  4. DELETE /users/{id}\nSelect request: 2\n',
         null,
         900,
       ],
       [
-        '\n<span class="d">→ curl -X POST https://api.dev/users</span>\n<span class="s">201 Created</span>',
+        '\n<span class="d">POST https://api.dev/users</span>\n<span class="s">HTTP 201 Created</span>',
         null,
         0,
       ],
@@ -84,7 +84,7 @@ export default function TerminalDemo() {
     <div
       className="w-full bg-[rgba(14,12,19,0.86)] border border-line rounded-[14px] overflow-hidden shadow-[0_30px_80px_rgba(0,0,0,0.5)] backdrop-blur-sm"
       role="img"
-      aria-label="Terminal demo: autocurl index.js generates index.autocurl, then autocurl index.autocurl opens a request picker."
+        aria-label="Terminal demo: autocurl generates index.autocurl, then lists requests with numbers so one can be selected by number."
     >
       <div className="flex gap-1.75 px-3.5 py-3 border-b border-line">
         <i className="w-2.75 h-2.75 rounded-full bg-line not-italic block" />
