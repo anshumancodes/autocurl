@@ -1,9 +1,9 @@
 export const siteConfig = {
   name: "autocurl",
-  title: "autocurl - CLI tool for generating and running curl requests",
-  tagline: "Your curl requests in one readable, git-friendly file",
+  title: "autocurl - CLI tool for generating and running API requests",
+  tagline: "Discover routes and run API requests from readable files",
   description:
-    "Define your API requests in any programming language. autocurl generates clean, reproducible .autocurl curl files and gives you an interactive terminal runner. Fast, lightweight, local-first.",
+    "Discover routes in supported backend projects, generate readable .autocurl files, and execute requests with autocurl's built-in Go HTTP client.",
   url: process.env.NEXT_PUBLIC_SITE_URL || "https://autocurl.lol",
   ogImage: "https://autocurl.lol/opengraph-image",
   author: {
