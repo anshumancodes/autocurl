@@ -1,28 +1,27 @@
-# Copy this template to anshumancodes/homebrew-tap as Formula/autocurl.rb
-# after the v0.1.0-beta.1 release assets are available. Replace every
-# placeholder with the corresponding release asset URL and SHA-256 checksum.
+# After publishing v1.0.0, replace each checksum placeholder with the matching
+# value from that release's checksums.txt before updating the Homebrew tap.
 
 class Autocurl < Formula
   desc "Generate and interactively execute API requests from source projects"
   homepage "https://autocurl.lol"
-  version "__VERSION__"
+  version "1.0.0"
 
   on_macos do
     if Hardware::CPU.arm?
-      url "__MACOS_ARM64_URL__"
+      url "https://github.com/anshumancodes/autocurl/releases/download/v#{version}/autocurl_v#{version}_darwin_arm64.tar.gz"
       sha256 "__MACOS_ARM64_SHA256__"
     else
-      url "__MACOS_AMD64_URL__"
+      url "https://github.com/anshumancodes/autocurl/releases/download/v#{version}/autocurl_v#{version}_darwin_amd64.tar.gz"
       sha256 "__MACOS_AMD64_SHA256__"
     end
   end
 
   on_linux do
     if Hardware::CPU.arm?
-      url "__LINUX_ARM64_URL__"
+      url "https://github.com/anshumancodes/autocurl/releases/download/v#{version}/autocurl_v#{version}_linux_arm64.tar.gz"
       sha256 "__LINUX_ARM64_SHA256__"
     else
-      url "__LINUX_AMD64_URL__"
+      url "https://github.com/anshumancodes/autocurl/releases/download/v#{version}/autocurl_v#{version}_linux_amd64.tar.gz"
       sha256 "__LINUX_AMD64_SHA256__"
     end
   end
