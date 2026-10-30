@@ -159,7 +159,7 @@ func Discover(root string, options DiscoverOptions) (DiscoveryResult, error) {
 				if aiErr != nil {
 					var actionable ActionableError
 					if errors.As(aiErr, &actionable) && actionableErrorCode(actionable) {
-						normalized.Errors = append(normalized.Errors, fmt.Sprintf("managed AI [%s]: %v", actionable.ErrorCode(), aiErr))
+						normalized.Errors = append(normalized.Errors, fmt.Sprintf("AI [%s]: %v", actionable.ErrorCode(), aiErr))
 					} else {
 						warnings = append(warnings, fmt.Sprintf("AI analysis failed: %v", aiErr))
 					}
@@ -176,7 +176,7 @@ func Discover(root string, options DiscoverOptions) (DiscoveryResult, error) {
 
 func actionableErrorCode(err ActionableError) bool {
 	switch err.ErrorCode() {
-	case "authentication_required", "upgrade_required", "quota_exceeded":
+	case "configuration_required", "invalid_credentials":
 		return true
 	default:
 		return false
