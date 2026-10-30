@@ -189,6 +189,54 @@ func TestAIModeFlagOverridesEnvironment(t *testing.T) {
 	}
 }
 
+func TestDefaultAndOffModeNeedNoKeyOrNetwork(t *testing.T) {
+	const secret = "test-gemini-key-must-not-be-written"
+	t.Setenv("GEMINI_API_KEY", secret)
+	root := fixtureProject(t, map[string]string{"package.json": `{"dependencies":{"express":"5.0.0"}}`, "server.js": "const express = require('express');\nconst app = express();\napp.get('/health', handler);\n"})
+	provider := &commandStubProvider{}
+	var output bytes.Buffer
+	if err := commands.Run([]string{root}, commands.Config{Out: &output, AIProvider: provider}); err != nil {
+		t.Fatal(err)
+	}
+	if provider.called {
+		t.Fatal("default mode called AI provider")
+	}
+	if strings.Contains(readGenerated(t, root), secret) || strings.Contains(output.String(), secret) {
+		t.Fatal("API key leaked into generated content or output")
+	}
+}
+
+func TestHelpDescribesOnlyLocalAndBYOKCommands(t *testing.T) {
+	var output bytes.Buffer
+	if err := commands.Run([]string{"--help"}, commands.Config{Out: &output}); err != nil {
+		t.Fatal(err)
+	}
+	text := output.String()
+	if !strings.Contains(text, "off (default") || !strings.Contains(text, "GEMINI_API_KEY") || strings.Contains(text, "login") || strings.Contains(text, "upgrade") || strings.Contains(text, "managed") {
+		t.Fatalf("unexpected help: %s", text)
+	}
+}
+
+func TestAIAlwaysSurfacesMissingKeyAndAutoOnlyRequiresItWhenNeeded(t *testing.T) {
+	t.Setenv("GEMINI_API_KEY", "")
+	root := fixtureProject(t, map[string]string{"package.json": `{"dependencies":{"express":"5.0.0"}}`, "server.js": "const express = require('express');\nconst app = express();\napp.get('/health', handler);\n"})
+	if err := commands.Run([]string{"--ai=always", root}, commands.Config{Out: io.Discard}); err == nil || !strings.Contains(err.Error(), "GEMINI_API_KEY") {
+		t.Fatalf("always missing key error = %v", err)
+	}
+	if err := commands.Run([]string{"--ai=auto", root}, commands.Config{Out: io.Discard}); err != nil {
+		t.Fatalf("auto without needed AI: %v", err)
+	}
+	if err := os.Remove(generatedPath(t, root)); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, "server.js"), []byte("const express = require('express');\nconst app = express();\nconst path = '/dynamic';\napp.get(path, handler);\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := commands.Run([]string{"--ai=auto", root}, commands.Config{Out: io.Discard}); err == nil || !strings.Contains(err.Error(), "GEMINI_API_KEY") {
+		t.Fatalf("auto missing key error = %v", err)
+	}
+}
+
 func TestRunScopedModuleAndFileGeneration(t *testing.T) {
 	root := fixtureProject(t, map[string]string{
 		"package.json":                      `{"name":"Servio","dependencies":{"express":"5.0.0"}}`,
