@@ -26,15 +26,12 @@ autocurl ./path-to-project
 
 This generates an `index.autocurl` file containing all discovered routes.
 
-AI-assisted discovery is optional and disabled by default. Deterministic AST
-discovery works without an account. Enable managed AI analysis with `--ai=auto`
-or `--ai=always`, or set `AUTOCURL_AI=auto|always`; CLI flags take precedence.
-Managed requests use `https://api.autocurl.lol` and require an authenticated
-autocurl token in `AUTOCURL_API_TOKEN`. The CLI never reads or sends a Gemini
-API key.
-
-For local API development, set `AUTOCURL_API_URL=http://localhost:8000`.
-When unset, the CLI uses the deployed production API URL.
+AI-assisted discovery is optional and disabled by default. AST discovery works
+offline without an API key or account. To use AI, obtain a Gemini API key and
+set it locally as `GEMINI_API_KEY`; the CLI connects directly to Google Gemini.
+Use `--ai=auto` to invoke AI only when more analysis is needed, or `--ai=always`
+to request it for every scan. Users are responsible for their Gemini usage and
+any provider charges. See the [AI setup guide](https://autocurl.lol/docs/using-autocurl).
 
 ### 2. Run requests interactively
 Execute the `.autocurl` file:
