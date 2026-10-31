@@ -53,6 +53,9 @@ jobs:
       - name: Install dependencies
         working-directory: web
         run: npm ci
+      - name: Generate Fumadocs source
+        working-directory: web
+        run: npx fumadocs-mdx
       - name: TypeScript check
         working-directory: web
         run: npx tsc --noEmit
