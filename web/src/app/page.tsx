@@ -92,7 +92,6 @@ export default function Home() {
               <span className="truncate">curl -fsSL https://autocurl.lol/install.sh | sh</span>
               <CopyButton text="curl -fsSL https://autocurl.lol/install.sh | sh" />
             </div>
-            <p className="mt-2 text-xs text-mute">Available after the first stable release is published.</p>
             <div className="mt-4 flex flex-wrap items-center gap-4 text-[13px] sm:text-[14px] text-mute">
               <Link
                 href="/docs/getting-started"
@@ -419,7 +418,6 @@ export default function Home() {
               <span className="truncate">curl -fsSL https://autocurl.lol/install.sh | sh</span>
               <CopyButton text="curl -fsSL https://autocurl.lol/install.sh | sh" />
             </div>
-            <p className="mt-3 text-sm text-mute">Available after the first stable release is published. The installer then resolves the latest stable release; set <code>AUTOCURL_VERSION=vX.Y.Z</code> to choose a version.</p>
 
             <div className="mt-8 flex justify-center gap-4 text-[14px]">
               <Link
