@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"runtime"
 	"sort"
 	"strings"
 	"testing"
@@ -150,10 +151,11 @@ func main() { _ = gin.New() }`,
 }
 
 func TestGinDemoFixtureEndToEnd(t *testing.T) {
-	root, err := filepath.Abs(filepath.Join("..", "..", "..", "testdata", "gin-demo"))
-	if err != nil {
-		t.Fatal(err)
+	_, testFile, _, ok := runtime.Caller(0)
+	if !ok {
+		t.Fatal("could not locate Gin test source file")
 	}
+	root := filepath.Join(filepath.Dir(testFile), "..", "..", "..", "testdata", "gin-demo")
 	detection, err := project.Detect(root)
 	if err != nil {
 		t.Fatal(err)

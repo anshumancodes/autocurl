@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"runtime"
 	"sort"
 	"strings"
 	"testing"
@@ -75,10 +76,11 @@ app.include_router(router, prefix=prefix)
 }
 
 func TestFastAPIDemoFixtureEndToEnd(t *testing.T) {
-	root, err := filepath.Abs(filepath.Join("..", "..", "..", "testdata", "fastapi-demo"))
-	if err != nil {
-		t.Fatal(err)
+	_, testFile, _, ok := runtime.Caller(0)
+	if !ok {
+		t.Fatal("could not locate FastAPI test source file")
 	}
+	root := filepath.Join(filepath.Dir(testFile), "..", "..", "..", "testdata", "fastapi-demo")
 	detection, err := project.Detect(root)
 	if err != nil {
 		t.Fatal(err)

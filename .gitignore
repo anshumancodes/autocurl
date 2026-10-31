@@ -1,3 +1,11 @@
 testdata
 fixtures
 /cli/autocurl
+!cli/testdata/
+cli/testdata/*/
+!cli/testdata/fastapi-demo/
+!cli/testdata/fastapi-demo/**
+!cli/testdata/gin-demo/
+!cli/testdata/gin-demo/**
+!cli/fixtures/
+!cli/fixtures/example-api.autocurl
