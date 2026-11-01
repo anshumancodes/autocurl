@@ -103,6 +103,21 @@ export default function Home() {
                 </span>
               </Link>
             </div>
+            <a
+              href="https://www.producthunt.com/products/autocurl?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-autocurl"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-6 inline-block"
+              aria-label="autocurl on Product Hunt"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                alt="autocurl - CLI tool for generating and running API requests | Product Hunt"
+                width="250"
+                height="54"
+                src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1300282&theme=light&t=1793524530971"
+              />
+            </a>
           </div>
           <TerminalDemo />
         </section>
