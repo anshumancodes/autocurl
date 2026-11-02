@@ -103,7 +103,7 @@ export default function Home() {
                 </span>
               </Link>
             </div>
-            <div className="mt-6 flex flex-wrap items-center gap-4">
+            <div className="mt-6 flex items-center gap-3">
               <a
                 href="https://www.producthunt.com/products/autocurl?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-autocurl"
                 target="_blank"
@@ -113,8 +113,9 @@ export default function Home() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   alt="autocurl - CLI tool for generating and running API requests | Product Hunt"
-                  width="250"
-                  height="54"
+                  width="160"
+                  height="56"
+                  className="h-14 w-40 object-contain"
                   src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1300282&theme=light&t=1793524530971"
                 />
               </a>
@@ -128,7 +129,7 @@ export default function Home() {
                 <img
                   src="https://peerlist.io/api/v1/projects/embed/PRJHJKNDPE89DDKP72KQ6LBBAMQE8R?showUpvote=true&theme=light"
                   alt="autocURL"
-                  className="h-[72px] w-auto"
+                  className="h-14 w-40 object-contain"
                 />
               </a>
             </div>
