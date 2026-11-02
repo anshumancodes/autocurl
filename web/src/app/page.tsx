@@ -103,21 +103,35 @@ export default function Home() {
                 </span>
               </Link>
             </div>
-            <a
-              href="https://www.producthunt.com/products/autocurl?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-autocurl"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-6 inline-block"
-              aria-label="autocurl on Product Hunt"
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                alt="autocurl - CLI tool for generating and running API requests | Product Hunt"
-                width="250"
-                height="54"
-                src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1300282&theme=light&t=1793524530971"
-              />
-            </a>
+            <div className="mt-6 flex flex-wrap items-center gap-4">
+              <a
+                href="https://www.producthunt.com/products/autocurl?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-autocurl"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="autocurl on Product Hunt"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  alt="autocurl - CLI tool for generating and running API requests | Product Hunt"
+                  width="250"
+                  height="54"
+                  src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1300282&theme=light&t=1793524530971"
+                />
+              </a>
+              <a
+                href="https://peerlist.io/anshumancdx/project/autocurl"
+                target="_blank"
+                rel="noreferrer"
+                aria-label="autocURL on Peerlist"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="https://peerlist.io/api/v1/projects/embed/PRJHJKNDPE89DDKP72KQ6LBBAMQE8R?showUpvote=true&theme=light"
+                  alt="autocURL"
+                  className="h-[72px] w-auto"
+                />
+              </a>
+            </div>
           </div>
           <TerminalDemo />
         </section>
