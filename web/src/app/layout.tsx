@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, JetBrains_Mono } from "next/font/google";
 import { RootProvider } from "fumadocs-ui/provider/next";
 import { siteConfig } from "@/lib/siteConfig";
+import { jsonLd } from "@/lib/seo";
 import "./globals.css";
 
 const bricolageGrotesque = Bricolage_Grotesque({
@@ -34,31 +35,21 @@ export const metadata: Metadata = {
   creator: siteConfig.author.name,
   publisher: siteConfig.author.name,
   applicationName: siteConfig.name,
-  alternates: {
-    canonical: "./",
-  },
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: siteConfig.url,
+    url: "/",
     siteName: siteConfig.name,
     title: siteConfig.title,
     description: siteConfig.description,
-    images: [
-      {
-        url: "/opengraph-image",
-        width: 1200,
-        height: 630,
-        alt: siteConfig.title,
-      },
-    ],
+    images: [{ url: siteConfig.ogImage, width: 1200, height: 630, alt: siteConfig.title }],
   },
   twitter: {
     card: "summary_large_image",
     title: siteConfig.title,
     description: siteConfig.description,
     creator: siteConfig.author.twitter,
-    images: ["/opengraph-image"],
+    images: [siteConfig.ogImage],
   },
   robots: {
     index: true,
@@ -83,11 +74,12 @@ export const metadata: Metadata = {
       { url: "/favicon/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
     ],
   },
+  // Only emit verification tags when real tokens are configured.
   verification: {
-    google: siteConfig.verification.google,
-    other: {
-      "msvalidate.01": siteConfig.verification.bing,
-    },
+    ...(siteConfig.verification.google && { google: siteConfig.verification.google }),
+    ...(siteConfig.verification.bing && {
+      other: { "msvalidate.01": siteConfig.verification.bing },
+    }),
   },
 };
 
@@ -103,41 +95,15 @@ export default function RootLayout({
     url: siteConfig.url,
     description: siteConfig.description,
     inLanguage: "en-US",
-  };
-
-  const organizationSchema = {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    name: siteConfig.name,
-    url: siteConfig.url,
-    logo: `${siteConfig.url}/Autocurl_transparent.png`,
-    sameAs: [
-      siteConfig.links.github,
-      `https://twitter.com/${siteConfig.author.twitter.replace("@", "")}`,
-      siteConfig.author.url,
-    ],
-  };
-
-  const softwareAppSchema = {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    name: siteConfig.name,
-    operatingSystem: "macOS, Linux, Windows, POSIX",
-    applicationCategory: "DeveloperApplication",
-    applicationSubCategory: "Command Line Tool",
-    description: siteConfig.description,
-    softwareVersion: "0.1.0",
-    offers: {
-      "@type": "Offer",
-      price: "0",
-      priceCurrency: "USD",
-    },
-    author: {
+    publisher: {
       "@type": "Person",
       name: siteConfig.author.name,
       url: siteConfig.author.url,
+      sameAs: [
+        siteConfig.author.url,
+        `https://x.com/${siteConfig.author.twitter.replace("@", "")}`,
+      ],
     },
-    downloadUrl: siteConfig.links.github,
   };
 
   return (
@@ -148,15 +114,7 @@ export default function RootLayout({
       <head>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareAppSchema) }}
+          dangerouslySetInnerHTML={jsonLd(websiteSchema)}
         />
       </head>
       <body className="min-h-screen flex flex-col antialiased">
