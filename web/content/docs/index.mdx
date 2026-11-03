@@ -1,6 +1,8 @@
 ---
 title: "Why autocurl"
-description: "Why autocurl combines automated backend route discovery with human-readable .autocurl files and interactive terminal execution."
+seoTitle: "Why autocurl: Plain-Text API Requests Generated from Your Code"
+description: "Why autocurl generates API requests from your backend routes into readable .autocurl files that developers and AI coding agents can run from the terminal."
+updated: "2026-11-03"
 ---
 
 Developers reach for `curl` because it is fast, ubiquitous, and has zero moving parts. It runs everywhere—from your local terminal to containerized CI/CD pipelines.
@@ -19,7 +21,7 @@ API clients like Postman or Insomnia solve organization, but introduce heavy GUI
 Instead of forcing you into a proprietary format or bloated GUI exports, autocurl separates your API workflow into three simple, transparent stages:
 
 ### 1. Point at Your Backend Project
-Run `autocurl ./your-project` against a supported backend. Route extractors cover Express and NestJS (JavaScript/TypeScript), FastAPI, Flask, and Django (Python), plus Gin, Echo, Fiber, and `net/http` (Go). Framework detection is distinct from route extraction support; identifying a framework does not guarantee its routes are extracted.
+Run `autocurl ./your-project` against a supported backend. [Route extractors](/docs/supported-frameworks) cover Express and NestJS (JavaScript/TypeScript), FastAPI, Flask, and Django (Python), plus Gin, Echo, Fiber, and `net/http` (Go). Framework detection is distinct from route extraction support; identifying a framework does not guarantee its routes are extracted.
 
 ### 2. Version in Plain Text (`index.autocurl`)
 autocurl writes an `index.autocurl` file containing clean, HTTP-client-style request definitions—one per discovered route, complete with `@baseUrl` variables, request separators, and source annotations. These files live right in your git repository alongside your codebase and produce clean, readable diffs.
@@ -61,10 +63,12 @@ Your team reviews actual API changes in pull requests—not database schema nois
 
 Because `.autocurl` files are clean, plain-text HTTP request definitions:
 
-- **AI Agents & LLMs:** Language models can read, generate, and edit `.autocurl` files effortlessly without needing proprietary schemas or heavy JSON wrappers.
+- **AI Agents & LLMs:** Language models can read, generate, and edit `.autocurl` files without proprietary schemas or heavy JSON wrappers, and run requests by piping a selection into the CLI. See [using autocurl with AI coding agents](/docs/guides/ai-coding-agents).
 - **CI/CD Pipelines:** Automated workflows can inspect and run requests without launching a browser or heavyweight API client.
-- **Zero Lock-in:** `.autocurl` files are standard, human-readable HTTP specifications that can easily be inspected, parsed, or ported to standard curl commands or `.http` clients.
+- **Zero Lock-in:** `.autocurl` files are human-readable request definitions, close in style to `.http` files, that can easily be inspected, parsed, or ported to curl commands or other HTTP clients.
 
 ---
 
 Ready to get started? Head over to the [Getting Started Guide](/docs/getting-started) to set up autocurl in under two minutes.
+
+Weighing your options? Read [autocurl vs Postman](/docs/compare/autocurl-vs-postman) and [autocurl vs curl](/docs/compare/autocurl-vs-curl) for honest trade-offs.
