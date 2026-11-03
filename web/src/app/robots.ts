@@ -7,9 +7,10 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
+        // Docs search endpoint returns JSON, not content worth indexing.
+        disallow: ["/api/"],
       },
     ],
     sitemap: `${siteConfig.url}/sitemap.xml`,
-    host: siteConfig.url,
   };
 }
