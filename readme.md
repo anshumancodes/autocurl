@@ -17,11 +17,13 @@ autocurl connects your codebase to API testing:
 
 ## How to Use
 
-### 1. Generate routes from a project
-Run autocurl against your project directory:
+### 1. Generate routes from a project or module
+Run autocurl from anywhere and pass either the project root for a full scan or a module directory/file to limit discovery to that part of the project:
 
 ```bash
-autocurl ./path-to-project
+autocurl ./path-to-project                  # scan the whole project
+autocurl ./path-to-project/src/modules/users # scan one module
+autocurl ./path-to-project/src/routes/users.js # scan one source file
 ```
 
 This generates an `index.autocurl` file containing routes supported by autocurl's extractors. Detection of other frameworks may identify them without extracting their routes.
@@ -47,27 +49,17 @@ Select a request by entering its number, then press `Enter` to run it.
 
 ## Installation
 
-### Quick installer (macOS & Linux)
+### macOS and Linux
 
 ```bash
 curl -fsSL https://autocurl.lol/install.sh | sh
 ```
 
-This installs the verified release binary into `~/.local/bin`. The installer is prepared for the first stable release and will work once its release assets are published; this repository preparation does not mean v1.0.0 is already available. Set `AUTOCURL_VERSION=vX.Y.Z` to select a stable version explicitly.
-By default, the installer resolves the latest stable release. Set `AUTOCURL_VERSION=vX.Y.Z` to install a specific stable version.
+The installer supports macOS and Linux on AMD64 and ARM64. It verifies the release archive checksum and installs the binary into `~/.local/bin`. Set `AUTOCURL_VERSION=vX.Y.Z` to install a specific stable version, or `AUTOCURL_INSTALL_DIR` to choose another install directory. Add `~/.local/bin` to your `PATH` if the installer prompts you.
 
-### Direct binary
+### Windows
 
-After a stable release is published, download the matching archive from [GitHub Releases](https://github.com/anshumancodes/autocurl/releases), verify it with that release's `checksums.txt`, extract it, and place the `autocurl` binary somewhere on your `PATH`.
-
-### Homebrew
-
-Once the tap is available, install autocurl with:
-
-```bash
-brew tap anshumancodes/tap
-brew install autocurl
-```
+Download `autocurl_vX.Y.Z_windows_amd64.zip` from [GitHub Releases](https://github.com/anshumancodes/autocurl/releases), extract `autocurl.exe`, and add its folder to your `PATH`. Verify the archive against the release's `checksums.txt`. Windows ARM64 users can build from source with Go; the published Windows release currently targets AMD64.
 
 ---
 
@@ -83,6 +75,8 @@ brew install autocurl
 ## Website & Docs
 
 Visit [autocurl.lol](https://autocurl.lol) to read the documentation and learn more.
+
+See the [contribution guide](CONTRIBUTING.md) for issue, pull request, and validation steps.
 
 ---
 
