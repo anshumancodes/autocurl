@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "autocurl - CLI tool for discovering routes and running API requests";
+export const alt = "autocurl: discover API routes and run readable .autocurl requests from the terminal";
 export const size = {
   width: 1200,
   height: 630,
@@ -55,7 +55,7 @@ export default async function Image() {
               textTransform: "uppercase",
             }}
           >
-            CLI Tool
+            Open-source CLI
           </span>
         </div>
 
@@ -81,7 +81,7 @@ export default async function Image() {
               margin: 0,
             }}
           >
-            Discover routes in supported projects → Generate clean .autocurl files → Select a request by number.
+            Make agents run cURLs better without the JSON mess. Discover routes → generate .autocurl files → run from the terminal.
           </p>
         </div>
 
@@ -121,7 +121,7 @@ export default async function Image() {
           >
             <span>Git-friendly</span>
             <span>•</span>
-            <span>Built-in HTTP client</span>
+            <span>Agent-friendly</span>
             <span>•</span>
             <span>Zero GUI</span>
           </div>
