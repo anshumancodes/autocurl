@@ -1,6 +1,8 @@
 ---
 title: "Using autocurl"
-description: "Configure optional Gemini BYOK discovery, scope route generation, and run generated requests safely."
+seoTitle: "Using autocurl: CLI Options, .autocurl Format, and AI Mode"
+description: "autocurl reference: CLI flags, scoping generation to a module or file, the .autocurl format, variables, scripted runs, and optional Gemini AI mode."
+updated: "2026-11-03"
 ---
 
 ## AI-assisted discovery with your own Gemini key
@@ -43,7 +45,7 @@ autocurl ./my-api/src/modules/users # directory-scoped generation
 autocurl ./my-api/src/routes/users.js # file-scoped generation
 ```
 
-Route extraction is implemented for Express and NestJS (JavaScript/TypeScript), FastAPI, Flask, and Django (Python), and Gin, Echo, Fiber, and `net/http` (Go). Framework detection is a separate identification step: detecting a framework does not mean its routes can be extracted. Extractors retain project context for mounted routes and framework relationships. The output includes only routes in the selected scope, with source locations. Existing `.autocurl` output is protected from overwrite; rename or remove it before regenerating.
+[Route extraction](/docs/supported-frameworks) is implemented for Express and NestJS (JavaScript/TypeScript), FastAPI, Flask, and Django (Python), and Gin, Echo, Fiber, and `net/http` (Go). Framework detection is a separate identification step: detecting a framework does not mean its routes can be extracted. Extractors retain project context for mounted routes and framework relationships. The output includes only routes in the selected scope, with source locations. Existing `.autocurl` output is protected from overwrite; rename or remove it before regenerating.
 
 ## CLI options
 
@@ -79,6 +81,31 @@ autocurl index.autocurl
 
 autocurl resolves `{{variable}}` placeholders interactively, executes requests with its built-in Go HTTP client, and formats JSON responses. The parser and executor work independently of Gemini configuration.
 
+### Variables
+
+Placeholders can appear in the URL, headers, and body. Define a value once at the top of the file with `@name = value` and autocurl uses it without prompting; anything left undefined is prompted for when you run the request.
+
+```http
+@baseUrl = http://localhost:3000
+@id = 42
+
+### 1. GET /users/{id}
+GET {{baseUrl}}/users/{{id}}
+Accept: application/json
+```
+
+Keep secrets such as tokens out of committed files; leave them undefined so autocurl asks for them at run time.
+
+### Running requests from scripts and AI agents
+
+The request number and any variable values are read from standard input, one per line, so a request can run without a person at the keyboard:
+
+```bash
+printf '2\n42\n' | autocurl index.autocurl
+```
+
+This runs request 2 and supplies `42` for its first missing variable. See [using autocurl with AI coding agents](/docs/guides/ai-coding-agents) for a full workflow.
+
 ---
 
-[← Getting Started](/docs/getting-started) | [Why autocurl](/docs)
+[← Getting Started](/docs/getting-started) | [Supported frameworks →](/docs/supported-frameworks)
