@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Pricing",
-  description: "autocurl is free forever. Support development and get yearly release access and community access.",
-  alternates: { canonical: "/pricing" },
-};
+export const metadata: Metadata = pageMetadata({
+  title: "Pricing: Free, Open-Source CLI API Tool",
+  description:
+    "autocurl is free and MIT-licensed, with no account or subscription. Optional donations support development and include yearly release and community access.",
+  path: "/pricing",
+});
 
 export default function PricingPage() {
   return <>
@@ -23,7 +25,7 @@ export default function PricingPage() {
         <section className="rounded-2xl border border-line bg-[rgba(21,19,27,0.7)] p-7 sm:p-9 text-left">
           <p className="font-mono text-sun text-xs uppercase tracking-widest">For everyone</p>
           <h2 className="mt-3 text-2xl font-bold text-bone">Free forever</h2>
-          <p className="mt-4 text-mute leading-relaxed">All the core autocurl features, free to use. No account or subscription required.</p>
+          <p className="mt-4 text-mute leading-relaxed">All the core autocurl features, free to use: route discovery, .autocurl generation, and terminal execution. Open source under the MIT license, with no account or subscription required.</p>
           <Link className="mt-7 inline-flex rounded-xl bg-sun text-ink px-5 py-3 font-semibold no-underline" href="/docs/getting-started">Get started</Link>
         </section>
         <section className="rounded-2xl border border-line bg-[rgba(21,19,27,0.7)] p-7 sm:p-9 text-left">
