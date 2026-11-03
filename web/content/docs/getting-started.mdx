@@ -1,6 +1,8 @@
 ---
 title: "Getting Started"
-description: "Install autocurl, scan your backend project to discover routes, generate clean .autocurl files, and execute requests directly from your terminal in under 2 minutes."
+seoTitle: "Getting Started: Install autocurl and Run API Requests"
+description: "Install autocurl on macOS, Linux, or Windows, discover API routes in your backend project, and run your first request from the terminal in about two minutes."
+updated: "2026-11-03"
 ---
 
 This guide walks you through installing autocurl, automatically discovering API routes from your existing backend project, inspecting the generated `.autocurl` file, and executing requests interactively.
@@ -23,9 +25,9 @@ The installer supports Linux and macOS on AMD64 and ARM64, installs to `~/.local
 
 The installer resolves the latest stable GitHub Release. To install a specific version, set `AUTOCURL_VERSION=vX.Y.Z` before running it.
 
-### Option B: Homebrew
+### Option B: Homebrew (coming soon)
 
-The easiest way to install and keep autocurl updated:
+Once the Homebrew tap is published, you will be able to install and update autocurl with:
 
 ```bash
 brew tap anshumancodes/tap
@@ -38,11 +40,11 @@ To update autocurl in the future:
 brew upgrade autocurl
 ```
 
-The formula supports macOS and Linux on ARM64 and AMD64. It will be available after the v1.0.0 release archives are published and the Homebrew tap is updated.
+The formula will support macOS and Linux on ARM64 and AMD64. Until the tap is published, use the quick installer above.
 
 ### Option C: Manual Binary Download
 
-Standalone binaries are published with each public release for:
+Standalone binaries are published with each [GitHub release](https://github.com/anshumancodes/autocurl/releases) for:
 
 | Operating System | Architecture |
 |---|---|
@@ -80,7 +82,7 @@ You can also scan a module directory or individual source file; see [scope gener
 
 ## Step 3: Discover API routes from your backend project
 
-Run autocurl against your project directory. Route extraction currently supports Express and NestJS in JavaScript/TypeScript, FastAPI, Flask, and Django in Python, plus Gin, Echo, Fiber, and `net/http` in Go. Framework detection is separate from extraction support: recognizing a framework does not guarantee its routes can be extracted.
+Run autocurl against your project directory. Route extraction currently supports Express and NestJS in JavaScript/TypeScript, FastAPI, Flask, and Django in Python, plus Gin, Echo, Fiber, and `net/http` in Go. Framework detection is separate from extraction support: recognizing a framework does not guarantee its routes can be extracted. See [supported frameworks](/docs/supported-frameworks) for the patterns each extractor understands.
 
 ```bash
 autocurl ./my-api
@@ -181,3 +183,5 @@ Response body:
 ---
 
 **Next:** [Using autocurl effectively →](/docs/using-autocurl) Learn the complete .autocurl specification, variable resolution, CLI options, and real-world examples.
+
+Working with an AI coding agent? Read [how agents can run autocurl requests](/docs/guides/ai-coding-agents).
