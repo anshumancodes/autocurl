@@ -1,0 +1,101 @@
+---
+title: "Test APIs from the Terminal"
+seoTitle: "How to Test APIs from the Terminal: curl, HTTPie, and autocurl"
+description: "Test REST APIs from the command line: when to use curl, HTTPie, .http files, or autocurl, with examples for headers, JSON bodies, and saved requests."
+updated: "2026-11-03"
+---
+
+You do not need a GUI to test a backend API. The terminal is faster to reach, works over SSH, and keeps requests close to the code. This guide walks through the common command-line options and where each one fits.
+
+## Option 1: curl
+
+`curl` is installed almost everywhere and is the baseline for testing HTTP from a shell.
+
+```bash
+# Simple GET, showing response headers
+curl -i http://localhost:3000/health
+
+# POST a JSON body
+curl -X POST http://localhost:3000/users \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Ada"}'
+```
+
+Flags worth knowing:
+
+| Flag | Purpose |
+|---|---|
+| `-i` | Include response headers in the output |
+| `-s` | Silent mode, hides the progress meter |
+| `-X METHOD` | Set the HTTP method |
+| `-H "Name: value"` | Add a request header |
+| `-d DATA` | Send a request body (implies POST) |
+| `-w "%{http_code}"` | Print selected details, such as the status code |
+
+curl is ideal for one-off checks. It gets awkward when you need the same ten requests every day: long commands live in shell history, JSON bodies need careful quoting, and nothing tells you which routes exist.
+
+## Option 2: HTTPie
+
+[HTTPie](https://httpie.io/) offers a friendlier syntax and colourised, formatted output:
+
+```bash
+http POST localhost:3000/users name=Ada
+```
+
+It is pleasant for interactive exploration. Like curl, each request is still a command you write and remember yourself.
+
+## Option 3: .http request files
+
+Editors such as VS Code (with the REST Client extension) and JetBrains IDEs can run requests saved in `.http` files. Saving requests in a file solves the "where did that command go" problem and makes requests reviewable in git, but you write each request by hand and run it from the editor.
+
+## Option 4: autocurl
+
+autocurl combines the saved-file approach with route discovery, and runs everything from the terminal:
+
+```bash
+# 1. Generate requests from your route code
+autocurl ./my-api
+
+# 2. Pick a request by number and run it
+autocurl index.autocurl
+```
+
+The first command reads route declarations in [supported frameworks](/docs/supported-frameworks) and writes an `index.autocurl` file:
+
+```http
+@baseUrl = http://localhost:3000
+
+### 1. GET /health
+# @source src/server.js:12
+GET {{baseUrl}}/health
+Accept: application/json
+
+### 2. POST /users
+# @source src/routes/users.js:40
+POST {{baseUrl}}/users
+Accept: application/json
+```
+
+The second lists the requests, prompts for any `{{variables}}`, sends the request with autocurl's built-in HTTP client, and prints the status, timing, and formatted JSON body. Requests can also be run from scripts or by AI agents by piping input: `printf '1\n' | autocurl index.autocurl`.
+
+## Which should you use?
+
+| Situation | Good fit |
+|---|---|
+| One-off request, any machine | curl |
+| Exploring an API interactively with readable output | HTTPie |
+| Hand-curated requests you run from your editor | `.http` files |
+| Requests for every route in your backend, kept in git and run from the terminal | autocurl |
+| Letting an AI coding agent exercise endpoints reliably | autocurl ([guide](/docs/guides/ai-coding-agents)) |
+| Assertions, test suites, and CI checks | Your test framework |
+
+These tools are not mutually exclusive. Many developers keep curl for quick checks and use a saved request file for the routes they hit repeatedly.
+
+## Tips for terminal API testing
+
+- **Keep secrets out of saved files.** Use placeholders like `{{token}}` and provide the value at run time instead of committing it.
+- **Check the status code first.** A 401 or 404 tells you more than the response body when something is misconfigured.
+- **Test against a local or staging server.** Saved request files make it easy to point at a different `@baseUrl` without rewriting every request.
+- **Work over SSH when you need to.** Terminal tools run on remote dev boxes where a desktop API client cannot.
+
+**Next:** [Install autocurl →](/docs/getting-started) · [autocurl vs curl](/docs/compare/autocurl-vs-curl)

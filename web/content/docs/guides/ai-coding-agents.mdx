@@ -1,0 +1,109 @@
+---
+title: "API Requests for AI Agents"
+seoTitle: "How AI Coding Agents Can Run API Requests with autocurl"
+description: "Give AI coding agents like Claude Code, Codex, or Cursor a readable .autocurl file and one shell command to test your API, instead of fragile curl."
+updated: "2026-11-03"
+---
+
+AI coding agents are good at writing backend code and noticeably worse at checking that it works over HTTP. Ask one to "test the endpoint" and it will usually build a curl command by hand: guessing the port, escaping a JSON body inside shell quotes, and then trying to parse a wall of output. autocurl gives the agent something more reliable to work with.
+
+## What goes wrong with hand-built curl
+
+A typical agent-written request looks like this:
+
+```bash
+curl -s -X POST "http://localhost:3000/api/v1/users" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -d "{\"name\": \"Ada\", \"tags\": [\"admin\"], \"bio\": \"It's \\\"complicated\\\"\"}"
+```
+
+Every part of it is an opportunity for a mistake:
+
+- **Routes are guessed.** The agent infers the path and prefix from whatever files it has read, which is easy to get wrong in projects with mounted routers or global prefixes.
+- **Quoting breaks.** JSON inside a shell string needs escaping, and a single wrong quote produces a request that fails before it reaches your server.
+- **Nothing is reused.** The command vanishes into the session transcript. The next task starts from scratch.
+
+## The autocurl workflow for agents
+
+### 1. Generate the request file from source
+
+```bash
+autocurl ./my-api
+```
+
+This writes `index.autocurl` with one numbered request per route autocurl found in your code. Paths come from your actual route declarations, including prefixes and mounted routers, with a `# @source` comment showing where each one was declared. See [supported frameworks](/docs/supported-frameworks).
+
+### 2. Let the agent read the file
+
+The file is plain text, so the agent can open it like any other source file:
+
+```http
+@baseUrl = http://localhost:3000
+
+### 1. GET /health
+# @source src/server.js:12
+GET {{baseUrl}}/health
+Accept: application/json
+
+### 2. GET /users/{id}
+# @source src/routes/users.js:25
+GET {{baseUrl}}/users/{{id}}
+Accept: application/json
+```
+
+There is no JSON collection format to parse and no hidden state. The agent can see every request, its number, and the code it came from.
+
+### 3. Run a request without interaction
+
+autocurl reads the request number and any missing variable values from standard input, one per line. An agent can therefore run a request in a single command:
+
+```bash
+printf '2\n42\n' | autocurl index.autocurl
+```
+
+That selects request 2 and answers `42` for its first missing variable (`id`). The output gives the method, resolved URL, status, duration, and a formatted JSON body, which is easy for a model to read:
+
+```
+GET http://localhost:3000/users/42
+HTTP 200 OK
+Duration: 12ms
+Response body:
+{
+  "id": 42,
+  "name": "Ada Lovelace"
+}
+```
+
+To avoid prompts entirely, the agent can define values at the top of the file with `@id = 42`. Variables work in the URL, headers, and body.
+
+### 4. Keep the file in the repo
+
+Because requests live in a plain-text file, the agent can add a body to a POST request, fix a header, or add a new route after implementing it, and you review that change in the same diff as the code. When the next session starts, the requests are already there.
+
+## Tell your agent about it
+
+Most coding agents read a project instructions file such as `AGENTS.md` or `CLAUDE.md`. A short section is enough:
+
+```md
+## Testing API endpoints
+
+- Requests live in `index.autocurl`. Read it to find request numbers.
+- Run one non-interactively: `printf '<number>\n<value per missing variable>\n' | autocurl index.autocurl`
+- Start the dev server before running requests.
+- After adding a route, add a matching request to `index.autocurl` instead of writing a one-off curl command.
+- Never write real tokens into `index.autocurl`; pass them on stdin when prompted.
+```
+
+## What autocurl is and isn't
+
+autocurl is a command-line tool that agents call through the shell, the same way they call `git` or a test runner. It is **not** an MCP server, and it does not need any agent-specific integration: any agent that can run terminal commands and read files can use it.
+
+It is also not a test framework. autocurl runs one request and shows the response; it does not assert on status codes or response fields. Use your existing test suite for that, and use autocurl for the quick "does this endpoint actually respond the way I expect" check that agents otherwise do with curl.
+
+## Security notes
+
+- Keep tokens and API keys out of `.autocurl` files that are committed. Leave them as `{{token}}` placeholders and supply them at run time.
+- If you enable AI-assisted discovery (`--ai=auto` or `--ai=always`), bounded and redacted source context is sent to Google's Gemini API using your own key. The default `--ai=off` mode is fully local. See [AI-assisted discovery](/docs/using-autocurl#ai-assisted-discovery-with-your-own-gemini-key).
+
+**Related:** [How to test APIs from the terminal](/docs/guides/test-apis-from-terminal) · [autocurl vs curl](/docs/compare/autocurl-vs-curl)

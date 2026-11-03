@@ -1,0 +1,78 @@
+---
+title: "autocurl vs curl"
+seoTitle: "autocurl vs curl: What Changes When You Save Requests as Files"
+description: "autocurl vs curl for API testing: generated, saved requests instead of hand-typed commands and shell history, and when plain curl is still the right tool."
+updated: "2026-11-03"
+---
+
+curl is one of the most useful tools ever written, and autocurl does not try to replace it. autocurl solves a narrower problem: keeping the API requests for your own backend organised, readable, and easy to run again, for you and for AI coding agents.
+
+Despite the name, autocurl does not call the `curl` binary. It has its own built-in Go HTTP client.
+
+## Summary
+
+| | autocurl | curl |
+|---|---|---|
+| Purpose | Generate, save, and run requests for your backend | General-purpose data transfer from the command line |
+| Where requests come from | Generated from route declarations in your code | Typed by hand |
+| Where requests live | A plain-text `.autocurl` file in your repo | Shell history, scripts, or notes |
+| Running a request | Pick it by number | Retype or recall the full command |
+| JSON bodies | Written as-is in the file, no shell escaping | Must be quoted and escaped for the shell |
+| Variables | `{{id}}` placeholders, prompted or defined in the file | Shell variables |
+| Response output | Status, duration, formatted JSON | Raw body (plus headers with `-i`) |
+| Protocols and options | HTTP requests | Dozens of protocols and hundreds of options |
+| Installed by default | No | On most systems |
+
+## The same request, both ways
+
+With curl, a POST with a JSON body and a path variable looks like this:
+
+```bash
+curl -s -X PUT "http://localhost:3000/users/42" \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -d '{"name": "Ada", "role": "admin"}'
+```
+
+With autocurl, the request is a block in a file:
+
+```http
+@baseUrl = http://localhost:3000
+
+### 3. PUT /users/{id}
+# @source src/routes/users.js:52
+PUT {{baseUrl}}/users/{{id}}
+Content-Type: application/json
+Accept: application/json
+
+{"name": "Ada", "role": "admin"}
+```
+
+and running it is:
+
+```bash
+autocurl index.autocurl
+# Select request: 3
+# Enter value for id: 42
+```
+
+The JSON is written exactly as it is sent, with no shell quoting. The request is saved, numbered, and points back to the code that defines the route.
+
+## Why it matters for AI agents
+
+When an AI coding agent tests an endpoint with curl, it has to guess the route, construct the command, and get the quoting right every time. With autocurl, the agent reads requests generated from the real routes and runs one with a single command such as `printf '3\n42\n' | autocurl index.autocurl`. See [using autocurl with AI coding agents](/docs/guides/ai-coding-agents).
+
+## When to use plain curl
+
+Stick with curl when:
+
+- you need a quick one-off request against any URL
+- you rely on curl's options, such as client certificates, proxies, cookies, or protocols beyond HTTP
+- you are writing shell scripts that must run anywhere without extra tools
+- you need precise control over the raw request
+
+Use autocurl when you keep sending the same requests to your own backend during development, want them saved in the repo, or want an agent to exercise your API reliably.
+
+Many developers use both: autocurl for the routes they work on every day, curl for everything else.
+
+**Next:** [How to test APIs from the terminal](/docs/guides/test-apis-from-terminal) · [Install autocurl](/docs/getting-started)

@@ -1,0 +1,70 @@
+---
+title: "autocurl vs Postman"
+seoTitle: "autocurl vs Postman: A CLI Alternative for API Testing"
+description: "autocurl vs Postman, honestly compared: terminal vs GUI, plain-text requests vs JSON collections, requests generated from code, and when to use each."
+updated: "2026-11-03"
+---
+
+Postman is a full API platform. autocurl is a small command-line tool. They overlap on one job, sending HTTP requests to your API while you build it, and take very different approaches to it. This page explains the differences so you can pick the right tool for your workflow, or use both.
+
+## Summary
+
+| | autocurl | Postman |
+|---|---|---|
+| Interface | Terminal (CLI) | Desktop and web GUI |
+| Where requests come from | Generated from your route source code | Written by hand, or imported (for example from OpenAPI) |
+| Storage format | Plain-text `.autocurl` file in your repo | Collections in Postman workspaces, exportable as JSON |
+| Account | Not needed | Required for workspaces, sync, and collaboration features |
+| Test scripts and assertions | No | Yes |
+| Collection runner, mocks, monitors | No | Yes |
+| Protocols | HTTP requests | REST, GraphQL, gRPC, WebSocket, and more |
+| Works over SSH / headless | Yes | Via its separate CLI tools |
+| Easy for AI coding agents to read and run | Yes, plain text plus a shell command | Requires working with collection JSON or its CLI |
+| Price | Free, MIT-licensed | Free tier plus paid plans |
+
+## Where autocurl is different
+
+### Requests come from your code
+
+autocurl reads the route declarations in [supported frameworks](/docs/supported-frameworks) and writes a request for each route, with a `# @source file:line` comment pointing at the declaration. You do not have to create a collection by hand or maintain an OpenAPI spec first. When you add routes, run autocurl again (it will not overwrite an existing `index.autocurl`, so generate to a new location or merge the new requests in).
+
+### Plain text instead of collection JSON
+
+A Postman collection export is a JSON document with IDs and nested metadata. Changing one URL can produce a noisy diff. An `.autocurl` file is plain text, so the same change is a one-line diff that is easy to review in a pull request:
+
+```diff
+- GET {{baseUrl}}/api/v1/users
++ GET {{baseUrl}}/api/v2/users
+```
+
+### It stays in the terminal
+
+autocurl is a single binary. Run `autocurl index.autocurl`, pick a request by number, and read the formatted response in the same window where your server is running. It also works on remote machines over SSH.
+
+### AI coding agents can use it directly
+
+Because the request file is plain text and execution reads from standard input, agents such as Claude Code, Codex, or Cursor can read requests and run them with one shell command. See [using autocurl with AI coding agents](/docs/guides/ai-coding-agents).
+
+## Where Postman is the better choice
+
+Postman does a great deal that autocurl does not try to do:
+
+- **Testing and automation.** Pre-request and test scripts, assertions, and collection runs for CI.
+- **Collaboration.** Shared workspaces, comments, and role-based access for larger teams.
+- **API lifecycle features.** Mock servers, monitors, documentation publishing, and API design tools.
+- **Broader protocol support.** GraphQL, gRPC, WebSocket, and more.
+- **A visual interface.** Useful for people who do not live in the terminal, such as QA, product, or support teams exploring an API.
+
+If you need those features, Postman is the more complete tool. autocurl is aimed at developers who want quick, local, reviewable requests generated from their code, not a replacement for a full API platform.
+
+## What about Insomnia, Bruno, and Yaak?
+
+These are also desktop API clients, each with its own approach. Bruno, for example, stores collections as plain-text files on disk so they can live in git, and Insomnia and Bruno both offer command-line runners. If git-friendly storage is your main concern, they are worth a look too.
+
+The main thing autocurl adds is **route discovery**: it generates the requests from your backend source instead of asking you to write or import them, and it is terminal-first rather than a GUI with a CLI attached.
+
+## Using both
+
+Many teams use more than one tool. A common split is autocurl for day-to-day local development and agent-driven checks, with Postman (or another platform) for shared test suites and documentation.
+
+**Next:** [Get started with autocurl →](/docs/getting-started) · [autocurl vs curl](/docs/compare/autocurl-vs-curl)

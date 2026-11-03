@@ -1,0 +1,93 @@
+---
+title: "Discover API Routes from Code"
+seoTitle: "How to Discover API Routes from a Codebase Automatically"
+description: "How to list every endpoint in a backend codebase: framework route commands, OpenAPI specs, and autocurl's AST-first route discovery with optional AI."
+updated: "2026-11-03"
+---
+
+Joining a new codebase, reviewing a large pull request, or pointing an AI agent at a backend all start with the same question: what endpoints does this service actually expose? This guide covers the main ways to answer it.
+
+## Option 1: Framework route listings
+
+Some frameworks can print their own route table, but only from a running or bootable application:
+
+- **Flask:** `flask routes`
+- **Django:** with the `django-extensions` package, `python manage.py show_urls`
+- **Express, Gin, and others:** typically need a small script that walks the router at runtime
+
+These are accurate for what is registered, but they require the app's dependencies, configuration, and sometimes a database to start. The output is a list, not something you can execute.
+
+## Option 2: OpenAPI specifications
+
+Frameworks such as FastAPI and NestJS (with `@nestjs/swagger`) can generate an OpenAPI document. If your project already publishes a spec, many tools can import it. The spec is only as complete as its annotations, though, and many Express, Flask, and Go services do not have one at all.
+
+## Option 3: Static route discovery with autocurl
+
+autocurl reads route declarations straight from source, without starting your app:
+
+```bash
+autocurl ./my-api
+```
+
+```
+Scanning project...
+Framework: Express.
+Discovered 4 routes.
+Generated: index.autocurl
+```
+
+The result is not just a list; it is a file of runnable requests, each annotated with where the route is declared:
+
+```http
+### 2. GET /users/{id}
+# @source src/routes/users.js:25
+GET {{baseUrl}}/users/{{id}}
+Accept: application/json
+```
+
+### How it works: AST first
+
+autocurl parses source files into syntax trees (a JavaScript parser for Express, Tree-sitter for TypeScript/NestJS, Python's own `ast` module, and Go's standard `go/parser`) and looks for the route declarations each [supported framework](/docs/supported-frameworks) uses. Because it follows structure rather than text, it can:
+
+- resolve router mounts and prefixes, such as an Express router mounted at `/api`, a FastAPI `APIRouter` prefix, or a Gin route group
+- read NestJS controller and method decorators, including global prefixes and versioning
+- convert framework path syntax such as `:id` or `{id}` into `{{id}}` placeholders
+- ignore look-alike calls that are not routes, rather than matching every `.get()` in the codebase
+
+This mode is deterministic, runs offline, and is the default (`--ai=off`).
+
+### When AI-assisted refinement helps
+
+Static analysis cannot resolve everything. Routes assembled at runtime, unusual wrappers, or frameworks without an extractor can leave gaps. For those cases autocurl can call Google's Gemini API with your own key:
+
+```bash
+export GEMINI_API_KEY="your_api_key"
+autocurl --ai=auto ./my-api
+```
+
+| Mode | Behaviour |
+|---|---|
+| `--ai=off` | AST discovery only. Default, local, no network. |
+| `--ai=auto` | Uses AI only when AST discovery leaves routes unresolved or finds none. |
+| `--ai=always` | Requests AI analysis on every generation. |
+
+AI suggestions are validated against source evidence and discarded if they cannot be grounded, so the AST results remain the backbone of the output. Only bounded, redacted source context is sent to the provider. See [AI-assisted discovery](/docs/using-autocurl#ai-assisted-discovery-with-your-own-gemini-key) for setup and privacy details.
+
+## Narrowing the scan
+
+For large projects or monorepos, scan only what you need:
+
+```bash
+autocurl ./my-api/src/modules/billing    # one module
+autocurl ./my-api/src/routes/users.js    # one file
+```
+
+## Comparing the approaches
+
+| Approach | Needs app to run | Output is runnable | Shows source location |
+|---|---|---|---|
+| Framework route commands | Usually | No | Varies |
+| OpenAPI spec | To generate it | With an importing tool | No |
+| autocurl | No | Yes | Yes |
+
+**Next:** [Supported frameworks](/docs/supported-frameworks) · [Let AI agents run the generated requests](/docs/guides/ai-coding-agents)
