@@ -6,27 +6,60 @@ import TerminalDemo from "@/components/TerminalDemo";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ArrowRight } from "lucide-react";
+import { siteConfig } from "@/lib/siteConfig";
+import { pageMetadata, jsonLd } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "autocurl - CLI tool for generating and running API requests",
-  description:
-    "Discover API routes in supported backend projects, generate plain-text .autocurl files, and run requests with autocurl's built-in HTTP client.",
-  alternates: {
-    canonical: "/",
+export const metadata: Metadata = pageMetadata({
+  title: siteConfig.title,
+  description: siteConfig.description,
+  path: "/",
+  absoluteTitle: true,
+});
+
+const guideLinks = [
+  {
+    href: "/docs/guides/ai-coding-agents",
+    label: "Guide",
+    title: "Let AI coding agents run your API requests",
+    body: "Give Claude Code, Codex, or Cursor a readable request file instead of hand-built curl commands.",
   },
-  openGraph: {
-    title: "autocurl - CLI tool for generating and running API requests",
-    description:
-      "Discover routes in supported projects, generate plain-text .autocurl files, and run requests with a built-in HTTP client.",
-    url: "/",
+  {
+    href: "/docs/guides/test-apis-from-terminal",
+    label: "Guide",
+    title: "How to test APIs from the terminal",
+    body: "curl, HTTPie, .http files, and autocurl: when each one fits a backend workflow.",
   },
-};
+  {
+    href: "/docs/guides/discover-api-routes",
+    label: "Guide",
+    title: "Discover API routes from a codebase",
+    body: "How AST-first route discovery works, and where AI-assisted refinement helps.",
+  },
+  {
+    href: "/docs/supported-frameworks",
+    label: "Reference",
+    title: "Supported frameworks",
+    body: "Express, NestJS, FastAPI, Flask, Django, Gin, Echo, Fiber, and net/http.",
+  },
+  {
+    href: "/docs/compare/autocurl-vs-postman",
+    label: "Compare",
+    title: "autocurl vs Postman",
+    body: "A terminal-first, plain-text workflow compared with a full GUI API platform.",
+  },
+  {
+    href: "/docs/compare/autocurl-vs-curl",
+    label: "Compare",
+    title: "autocurl vs curl",
+    body: "What autocurl adds on top of raw curl commands, and when plain curl is still the right call.",
+  },
+];
 
 const faqItems = [
   {
     question: "What is autocurl and how does it relate to curl?",
     answer:
-      "autocurl is a command-line tool for discovering routes in supported backend projects, generating readable .autocurl request files, and executing selected requests with its built-in Go HTTP client.",
+      "autocurl is a command-line API testing tool. It discovers routes in supported backend projects, writes them to a readable .autocurl request file, and executes the request you pick with its own built-in Go HTTP client. It does not shell out to the system curl binary; the name refers to the job it automates.",
   },
   {
     question: "What is an .autocurl file?",
@@ -41,16 +74,47 @@ const faqItems = [
   {
     question: "How does autocurl compare to Postman or Insomnia?",
     answer:
-      "Unlike Postman or Insomnia, autocurl requires no electron GUI, no account login, no cloud sync, and zero background memory overhead. All requests live directly in your repository as plain code and text, giving your team instant git diffs and offline reliability.",
+      "Postman and Insomnia are full GUI API platforms with features such as test scripts, collection runners, and team workspaces. autocurl is narrower: a terminal tool with no account, whose requests live in your repository as plain text and are generated from your route code. See the autocurl vs Postman comparison in the docs for details.",
+  },
+  {
+    question: "Can AI coding agents use autocurl?",
+    answer:
+      "Yes. Agents can read and edit .autocurl files as plain text, and request selection and variable values are read from standard input, so an agent can run a request non-interactively, for example: printf '2\\n42\\n' | autocurl index.autocurl. autocurl is a CLI, not an MCP server.",
+  },
+  {
+    question: "Which backend frameworks are supported?",
+    answer:
+      "Route extraction currently supports Express and NestJS (JavaScript/TypeScript), FastAPI, Flask, and Django (Python), and Gin, Echo, Fiber, and net/http (Go). Discovery is AST-first and works offline; optional Gemini analysis with your own API key can help with routes the AST pass cannot resolve.",
   },
   {
     question: "How do I install autocurl?",
     answer:
-      "After the first stable release is published, install from the latest stable GitHub Release with curl -fsSL https://autocurl.lol/install.sh | sh. Set AUTOCURL_VERSION=vX.Y.Z to select a specific stable version. Homebrew will be available after the tap is updated for a published release.",
+      "On macOS and Linux, run curl -fsSL https://autocurl.lol/install.sh | sh to install the latest stable GitHub Release. Set AUTOCURL_VERSION=vX.Y.Z to pin a version. Windows users can download autocurl.exe from GitHub Releases.",
   },
 ];
 
 export default function Home() {
+  const softwareSchema = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: siteConfig.name,
+    url: siteConfig.url,
+    description: siteConfig.longDescription,
+    applicationCategory: "DeveloperApplication",
+    applicationSubCategory: "Command-line API testing tool",
+    operatingSystem: "macOS, Linux, Windows",
+    downloadUrl: siteConfig.links.releases,
+    installUrl: `${siteConfig.url}/docs/getting-started`,
+    license: "https://opensource.org/licenses/MIT",
+    isAccessibleForFree: true,
+    offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+    author: {
+      "@type": "Person",
+      name: siteConfig.author.name,
+      url: siteConfig.author.url,
+    },
+  };
+
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -68,7 +132,11 @@ export default function Home() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        dangerouslySetInnerHTML={jsonLd(softwareSchema)}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={jsonLd(faqSchema)}
       />
       <div className="bg" aria-hidden="true"></div>
       <Navbar />
@@ -80,13 +148,16 @@ export default function Home() {
           className="max-w-280 mx-auto px-6 grid grid-cols-1 lg:grid-cols-[1fr_1.05fr] gap-10 lg:gap-12 items-center pt-8 sm:pt-14 pb-16 lg:pb-24 lg:min-h-screen"
         >
           <div>
+            <p className="font-mono text-sun text-[12px] sm:text-[13px] font-semibold tracking-widest mb-3">
+              CLI API testing for developers &amp; AI agents
+            </p>
             <h1 className="font-extrabold text-[clamp(32px,5.4vw,72px)] leading-[1.05] sm:leading-[1.02] tracking-[-0.035em]">
               API requests in one file <FlipWord /> can read.
             </h1>
             <p className="mt-4.5 sm:mt-5.5 mb-6 sm:mb-7.5 max-w-[30em] text-mute text-[16px] sm:text-[19px] leading-relaxed">
-              Discover routes in supported backend projects, generate readable
-              .autocurl files, and execute requests with autocurl's built-in Go
-              HTTP client.
+              Make agents run cURLs better without the JSON mess. autocurl
+              discovers routes in your backend code, writes them to a readable
+              .autocurl file, and runs any request from the terminal.
             </p>
             <div className="inline-flex max-w-full flex-wrap gap-2.5 sm:gap-3.5 items-center font-medium text-[13.5px] sm:text-[15px] font-mono bg-[rgba(21,19,27,0.7)] border border-line rounded-[10px] px-3.5 sm:px-4 py-2.5 sm:py-3 backdrop-blur-[6px]">
               <span className="truncate">curl -fsSL https://autocurl.lol/install.sh | sh</span>
@@ -112,7 +183,7 @@ export default function Home() {
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  alt="autocurl - CLI tool for generating and running API requests | Product Hunt"
+                  alt="autocurl featured on Product Hunt"
                   width="160"
                   height="56"
                   className="h-14 w-40 object-contain"
@@ -128,7 +199,10 @@ export default function Home() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="https://peerlist.io/api/v1/projects/embed/PRJHJKNDPE89DDKP72KQ6LBBAMQE8R?showUpvote=true&theme=light"
-                  alt="autocURL"
+                  alt="autocurl project on Peerlist"
+                  width="160"
+                  height="56"
+                  loading="lazy"
                   className="h-14 w-40 object-contain"
                 />
               </a>
@@ -175,7 +249,11 @@ export default function Home() {
                 </h3>
 
                 <p className="text-mute text-[14px] leading-relaxed max-w-65">
-                  Route extraction for supported frameworks and source patterns
+                  Routes declared in{" "}
+                  <Link href="/docs/supported-frameworks" className="underline hover:text-sun">
+                    supported frameworks
+                  </Link>{" "}
+                  are extracted from source.
                 </p>
               </div>
 
@@ -281,13 +359,13 @@ export default function Home() {
                 },
                 {
                   label: "Zero lock-in",
-                  title: "Works without autocurl installed",
+                  title: "Readable without autocurl installed",
                   body: "Files are readable in any editor. Request execution and variable prompts are provided by the autocurl CLI.",
                 },
                 {
                   label: "Lightweight",
                   title: "One small CLI, instant startup",
-                  body: "No background processes, no memory overhead. autocurl starts and exits in milliseconds, exactly like a Unix tool should.",
+                  body: "A single prebuilt Go binary with no background process, no runtime to install, and no dependency on the system curl executable.",
                 },
               ].map((item) => (
                 <div
@@ -341,9 +419,13 @@ export default function Home() {
                   Fast local API iteration
                 </p>
                 <p className="text-mute text-[14px] leading-relaxed">
-              Identify some common frameworks; route extraction is available only for supported frameworks and source patterns.
-                  without opening heavy GUI tools or searching through bash
-                  history for long curl flags.
+                  Generate requests straight from your Express, FastAPI, Gin,
+                  or other{" "}
+                  <Link href="/docs/supported-frameworks" className="text-bone underline hover:text-sun">
+                    supported framework
+                  </Link>{" "}
+                  routes, without opening a heavy GUI tool or digging through
+                  shell history for long curl flags.
                 </p>
               </div>
 
@@ -380,6 +462,44 @@ export default function Home() {
                   reviewed in the same PR.
                 </p>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Guides Section */}
+        <section
+          id="guides"
+          aria-labelledby="guides-heading"
+          className="py-16 md:py-24 border-t border-line bg-[rgba(21,19,27,0.88)] backdrop-blur-[10px]"
+        >
+          <div className="max-w-280 mx-auto px-6">
+            <div className="font-mono text-sun text-[12px] font-semibold tracking-widest mb-3">
+              Learn
+            </div>
+            <h2
+              id="guides-heading"
+              className="font-extrabold text-[clamp(24px,3.2vw,40px)] leading-[1.1] tracking-[-0.03em]"
+            >
+              Guides and comparisons
+            </h2>
+            <div className="mt-10 md:mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-line border border-line rounded-xl overflow-hidden">
+              {guideLinks.map((guide) => (
+                <Link
+                  key={guide.href}
+                  href={guide.href}
+                  className="group block bg-[rgba(21,19,27,0.96)] p-6 no-underline hover:bg-[rgba(30,27,38,0.96)] transition-colors"
+                >
+                  <span className="font-mono text-[11px] text-sun tracking-wider">
+                    {guide.label}
+                  </span>
+                  <h3 className="mt-2 font-bold text-[16px] leading-[1.35] tracking-[-0.01em] text-bone group-hover:text-sun transition-colors">
+                    {guide.title}
+                  </h3>
+                  <p className="mt-2 text-mute text-[14px] leading-relaxed">
+                    {guide.body}
+                  </p>
+                </Link>
+              ))}
             </div>
           </div>
         </section>
@@ -441,8 +561,8 @@ export default function Home() {
               Try it on your next API.
             </h2>
             <p className="mt-3.5 text-mute text-[16px] max-w-[30em] mx-auto">
-              Install autocurl and start managing API requests as
-              clean code.
+              Install autocurl, point it at your backend, and run your first
+              request in a couple of minutes.
             </p>
             <div className="inline-flex max-w-full flex-wrap gap-2.5 sm:gap-3.5 items-center font-medium text-[13.5px] sm:text-[15px] font-mono bg-[rgba(21,19,27,0.7)] border border-line rounded-[10px] px-3.5 sm:px-4 py-2.5 sm:py-3 backdrop-blur-[6px] mt-6 sm:mt-7.5">
               <span className="truncate">curl -fsSL https://autocurl.lol/install.sh | sh</span>
@@ -451,7 +571,7 @@ export default function Home() {
 
             <div className="mt-8 flex justify-center gap-4 text-[14px]">
               <Link
-                href="/docs/getting-started"
+                href="/docs/getting-started#step-1-install-autocurl"
                 className="text-mute hover:text-bone underline transition-colors"
               >
                 Other install methods
