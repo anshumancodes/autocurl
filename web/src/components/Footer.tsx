@@ -5,7 +5,7 @@ export default function Footer() {
   return (
     <footer className="py-12 sm:py-16 text-[14px] text-mute bg-[rgba(21,19,27,0.92)] border-t border-line mt-auto">
       <div className="max-w-280 mx-auto px-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
           {/* Column 1: Brand & Philosophy */}
           <div>
             <Link
@@ -15,8 +15,9 @@ export default function Footer() {
               auto<span className="text-sun">curl</span>
             </Link>
             <p className="text-[13.5px] leading-relaxed text-mute mb-4">
-              A CLI tool for discovering routes in supported projects and
-              running requests from human-readable <code className="text-sun">.autocurl</code> files.
+              A CLI API testing tool that discovers routes in your codebase and
+              runs requests from human-readable <code className="text-sun">.autocurl</code> files,
+              for developers and AI coding agents.
             </p>
           </div>
 
@@ -50,10 +51,40 @@ export default function Footer() {
                   Using autocurl
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="/docs/supported-frameworks"
+                  className="hover:text-bone transition-colors no-underline"
+                >
+                  Supported Frameworks
+                </Link>
+              </li>
             </ul>
           </div>
 
-          {/* Column 3: Community & Resources */}
+          {/* Column 3: Guides & comparisons */}
+          <div>
+            <div className="font-bold text-bone text-[14px] uppercase tracking-wider mb-3">
+              Guides
+            </div>
+            <ul className="flex flex-col gap-2.5 list-none p-0 m-0 text-[13.5px]">
+              {[
+                { href: "/docs/guides/ai-coding-agents", label: "API Requests for AI Agents" },
+                { href: "/docs/guides/test-apis-from-terminal", label: "Test APIs from the Terminal" },
+                { href: "/docs/guides/discover-api-routes", label: "Discover API Routes from Code" },
+                { href: "/docs/compare/autocurl-vs-postman", label: "autocurl vs Postman" },
+                { href: "/docs/compare/autocurl-vs-curl", label: "autocurl vs curl" },
+              ].map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="hover:text-bone transition-colors no-underline">
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Column 4: Community & Resources */}
           <div>
             <div className="font-bold text-bone text-[14px] uppercase tracking-wider mb-3">
               Open Source
@@ -94,10 +125,10 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/#install"
+                  href="/pricing"
                   className="hover:text-bone transition-colors no-underline"
                 >
-                  brew install autocurl
+                  Pricing &amp; Support
                 </Link>
               </li>
             </ul>
