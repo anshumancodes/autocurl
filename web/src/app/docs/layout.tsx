@@ -10,15 +10,6 @@ export const metadata: Metadata = {
     default: 'Documentation',
     template: '%s | autocurl Docs',
   },
-  description:
-    'Learn how to install, configure, and use autocurl to discover routes in supported projects and execute reproducible API requests.',
-  alternates: { canonical: '/docs' },
-  openGraph: {
-    title: 'autocurl Documentation',
-    description:
-      'Learn how to install, configure, and use autocurl to discover routes in supported projects and execute reproducible API requests.',
-    url: '/docs',
-  },
 };
 
 export default function RootDocsLayout({
