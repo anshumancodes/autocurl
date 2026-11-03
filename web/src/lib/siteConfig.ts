@@ -1,55 +1,45 @@
 export const siteConfig = {
   name: "autocurl",
-  title: "autocurl - CLI tool for generating and running API requests",
-  tagline: "Discover routes and run API requests from readable files",
+  // Homepage <title>: kept under ~60 characters so it is not truncated in results.
+  title: "autocurl: CLI API Testing Tool for Developers and AI Agents",
+  tagline: "Make agents run cURLs better without the JSON mess.",
+  // Default meta description: kept around 155 characters.
   description:
-    "Discover routes in supported backend projects, generate readable .autocurl files, and execute requests with autocurl's built-in Go HTTP client.",
+    "autocurl discovers API routes in your codebase and generates readable .autocurl request files you, or your AI coding agent, can run from the terminal.",
+  // Longer description for structured data and the web manifest.
+  longDescription:
+    "autocurl is a CLI-first alternative to GUI-based API testing tools, built for developers and AI agents. It discovers routes from supported backend frameworks with AST-first analysis (optional AI-assisted refinement), writes plain-text .autocurl request files, and executes them from the terminal with a built-in HTTP client.",
   url: process.env.NEXT_PUBLIC_SITE_URL || "https://autocurl.lol",
-  ogImage: "https://autocurl.lol/opengraph-image",
+  ogImage: "/opengraph-image",
   author: {
-    name: "Anshuman",
+    name: "Anshuman Praharaj",
     url: "https://github.com/anshumancodes",
     github: "anshumancodes",
     twitter: "@anshumancdx",
   },
   links: {
     github: "https://github.com/anshumancodes/autocurl",
-    brew: "brew install autocurl",
+    releases: "https://github.com/anshumancodes/autocurl/releases",
   },
+  // Search engines largely ignore the keywords meta tag; this list is kept
+  // short and accurate rather than exhaustive.
   keywords: [
     "autocurl",
-    "auto curl",
-    "auto-curl",
-    "autocurl CLI",
-    "autocurl CLI tool",
-    "autocurl curl",
-    "curl CLI",
-    "curl command generator",
-    "curl request generator",
-    "curl API testing",
-    "API testing CLI",
-    "API request CLI",
-    "API client CLI",
+    "CLI API testing tool",
+    "API testing from terminal",
     "curl alternative",
     "Postman alternative CLI",
-    "lightweight API client",
-    "command line API client",
-    "API testing tool",
-    "REST API CLI",
-    "HTTP request CLI",
-    "generate curl commands",
-    "execute curl requests",
-    "curl request runner",
-    "curl automation",
-    "curl API tool",
-    "developer API tools",
-    "CLI API testing tool",
+    "API route discovery",
+    "generate API requests from source code",
+    "API tools for AI coding agents",
     ".autocurl file",
-    "git friendly api client",
+    "git-friendly API client",
   ],
+  // Set these in the deployment environment once the properties are verified
+  // in Google Search Console / Bing Webmaster Tools. Empty values emit no tag.
   verification: {
-    google: "google-site-verification-token",
-    bing: "msvalidate-token",
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || "",
+    bing: process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION || "",
   },
 };
 
