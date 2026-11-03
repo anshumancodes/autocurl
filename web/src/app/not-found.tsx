@@ -3,7 +3,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 export const metadata = {
-  title: "404 - Page Not Found",
+  title: "Page Not Found",
   description: "The page you requested could not be found on autocurl.",
   robots: {
     index: false,
@@ -36,7 +36,7 @@ export default function NotFound() {
               autocurl: page not found in index.autocurl
             </div>
             <div className="text-sky mt-1">
-              Available routes: /, /docs, /docs/getting-started, /docs/commands
+              Available routes: /, /docs, /docs/getting-started, /docs/using-autocurl
             </div>
           </div>
 
