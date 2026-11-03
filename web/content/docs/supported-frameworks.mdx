@@ -1,0 +1,63 @@
+---
+title: "Supported Frameworks"
+seoTitle: "Supported Frameworks: Express, FastAPI, Gin, Django and More"
+description: "Frameworks autocurl extracts API routes from: Express, NestJS, FastAPI, Flask, Django, Gin, Echo, Fiber, and Go net/http, and what each extractor reads."
+updated: "2026-11-03"
+---
+
+autocurl generates requests by reading your route declarations, not by running your app or reading an OpenAPI spec. This page lists the frameworks it can extract routes from and the kinds of declarations each extractor understands.
+
+## At a glance
+
+| Language | Framework | What autocurl reads |
+|---|---|---|
+| JavaScript / TypeScript | **Express** | `app.get()`, `router.post()` and other method calls, `.route()` chains, `.all()`, and routers mounted with `app.use()` via CommonJS `require()` |
+| TypeScript | **NestJS** | `@Controller()` classes with `@Get()`, `@Post()`, `@Put()`, `@Patch()`, `@Delete()` and similar decorators, global prefixes, `RouterModule`, and URI versioning |
+| Python | **FastAPI** | `@app.get()`-style decorators, `APIRouter` prefixes, `include_router()`, and `api_route()` |
+| Python | **Flask** | `@app.route()` with `methods=`, and `Blueprint` routes registered with `register_blueprint()` |
+| Python | **Django** | `path()` and `re_path()` entries in `urls.py`, `include()`, and Django REST Framework routers (`DefaultRouter`, `SimpleRouter`) |
+| Go | **Gin** | `r.GET()`-style methods, `Handle()`, and `Group()` prefixes |
+| Go | **Echo** | `e.GET()`-style methods, `Add()`, and `Group()` prefixes |
+| Go | **Fiber** | `app.Get()`-style methods, `Add()`, and `Group()` prefixes |
+| Go | **net/http** | `http.HandleFunc()`, `Handle()`, and `ServeMux` registrations |
+
+Each generated request includes a `# @source file:line` comment pointing at the declaration it came from, so you can always trace a request back to the code.
+
+## Statically declared routes
+
+Extraction is AST-based: autocurl parses your source files and follows route declarations it can resolve without executing code. Routes built at runtime, for example paths assembled from configuration, loops over a route table, or decorators applied dynamically, may not be resolvable this way. autocurl skips what it cannot resolve rather than guessing.
+
+```js
+// Extracted: the method and path are visible in the source.
+router.get("/users/:id", getUser);
+
+// May not be extracted: the path only exists at runtime.
+for (const r of routes) router[r.method](r.path, r.handler);
+```
+
+When the AST pass leaves routes unresolved, you can opt into AI-assisted analysis with `--ai=auto`. It uses your own Gemini API key, and suggested routes are validated against source evidence before they are accepted. See [AI-assisted discovery](/docs/using-autocurl#ai-assisted-discovery-with-your-own-gemini-key), and [how route discovery works](/docs/guides/discover-api-routes) for the full picture.
+
+## Detection is not the same as extraction
+
+autocurl first identifies which framework a project uses, then runs the matching extractor. It can recognise some frameworks it does not yet extract routes from. In that case you will see the framework named in the output, but no routes for it. Only the frameworks in the table above have route extractors today.
+
+## Scoping to part of a project
+
+You do not have to scan an entire monorepo. Point autocurl at a module directory or a single source file and it generates requests only for routes in that scope, while keeping project context such as router mounts and prefixes:
+
+```bash
+autocurl ./my-api/src/modules/users
+autocurl ./my-api/src/routes/users.js
+```
+
+Supported source file extensions are `.js`, `.ts`, `.py`, and `.go`.
+
+## Requirements for Python projects
+
+The FastAPI, Flask, and Django extractors use Python's built-in `ast` module, so a `python3` interpreter must be available on your `PATH` when scanning Python code. JavaScript, TypeScript, and Go extraction is built into the autocurl binary.
+
+## Missing your framework?
+
+Open an [issue on GitHub](https://github.com/anshumancodes/autocurl/issues) with a small example of how routes are declared. Real-world snippets help most when adding or improving an extractor.
+
+**Next:** [Install autocurl and generate your first file →](/docs/getting-started)
