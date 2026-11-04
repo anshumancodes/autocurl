@@ -51,21 +51,7 @@
   position: fixed;
   inset: 0;
   z-index: -1;
-  background: linear-gradient(160deg, #2a2140, #15131b 60%), var(--ink);
-}
-
-.bg::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: url("https://i.pinimg.com/1200x/ec/6b/59/ec6b5935631e815027302d4a6bd721b6.jpg") center/cover no-repeat;
-}
-
-.bg::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(21, 19, 27, 0.55), rgba(21, 19, 27, 0.88) 70%);
+  background: var(--ink);
 }
 
 @layer base {
@@ -242,6 +228,119 @@
 @media (min-width: 1024px) {
   .cell {
     padding: 32px;
+  }
+}
+
+/* ---------- Tactile product UI patterns (existing colours only) ---------- */
+
+/* Faint regular dot grid, built from --bone at low opacity */
+.dot-grid {
+  background-image: radial-gradient(rgba(241, 235, 223, 0.07) 1px, transparent 1.2px);
+  background-size: 22px 22px;
+  background-position: center top;
+}
+
+/* Resting surface: 1px edge plus wide, faint shadow */
+.surface {
+  background-color: rgba(21, 19, 27, 0.7);
+  border: 1px solid var(--line);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.055),
+    0 24px 60px -30px rgba(0, 0, 0, 0.5);
+}
+
+/* Lifted control: tighter, more visible shadow; pillowy finish */
+.lifted {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.35),
+    0 10px 24px -10px rgba(0, 0, 0, 0.6);
+}
+
+/* Hover rise / press sink */
+.press {
+  transition:
+    transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 180ms ease,
+    border-color 180ms ease,
+    background-color 180ms ease,
+    color 180ms ease;
+}
+
+.press:hover {
+  transform: translateY(-2px);
+}
+
+.press:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.press .nudge {
+  display: inline-flex;
+  transition: transform 180ms ease;
+}
+
+.press:hover .nudge {
+  transform: translateX(3px);
+}
+
+/* Sticker drift for tilted labels */
+.sticker {
+  transition: transform 220ms ease;
+}
+
+.sticker:hover {
+  transform: rotate(0deg) !important;
+}
+
+/* Scroll reveal: short fade upward, where supported */
+@supports (animation-timeline: view()) {
+  .reveal {
+    animation: reveal-up linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 45%;
+  }
+}
+
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Cursor decoration glides gently */
+.glide {
+  animation: glide 5s ease-in-out infinite;
+}
+
+@keyframes glide {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(3px, 2px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .glide {
+    animation: none !important;
+  }
+  .press,
+  .press .nudge,
+  .sticker {
+    transition: none;
+  }
+  .press:hover,
+  .press:hover .nudge {
+    transform: none;
   }
 }
 
