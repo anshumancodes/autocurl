@@ -143,452 +143,621 @@ export default function Home() {
 
       <main>
         {/* Hero Section */}
-        <section
-          aria-label="Hero"
-          className="max-w-280 mx-auto px-6 grid grid-cols-1 lg:grid-cols-[1fr_1.05fr] gap-10 lg:gap-12 items-center pt-8 sm:pt-14 pb-16 lg:pb-24 lg:min-h-screen"
-        >
-          <div>
-            <p className="font-mono text-sun text-[12px] sm:text-[13px] font-semibold tracking-widest mb-3">
-              CLI API testing for developers &amp; AI agents
-            </p>
-            <h1 className="font-extrabold text-[clamp(32px,5.4vw,72px)] leading-[1.05] sm:leading-[1.02] tracking-[-0.035em]">
-              API requests in one file <FlipWord /> can read.
-            </h1>
-            <p className="mt-4.5 sm:mt-5.5 mb-6 sm:mb-7.5 max-w-[30em] text-mute text-[16px] sm:text-[19px] leading-relaxed">
-              Make agents run cURLs better without the JSON mess. autocurl
-              discovers routes in your backend code, writes them to a readable
-              .autocurl file, and runs any request from the terminal.
-            </p>
-            <div className="inline-flex max-w-full flex-wrap gap-2.5 sm:gap-3.5 items-center font-medium text-[13.5px] sm:text-[15px] font-mono bg-[rgba(21,19,27,0.7)] border border-line rounded-[10px] px-3.5 sm:px-4 py-2.5 sm:py-3 backdrop-blur-[6px]">
-              <span className="truncate">curl -fsSL https://autocurl.lol/install.sh | sh</span>
-              <CopyButton text="curl -fsSL https://autocurl.lol/install.sh | sh" />
-            </div>
-            <div className="mt-4 flex flex-wrap items-center gap-4 text-[13px] sm:text-[14px] text-mute">
-              <Link
-                href="/docs/getting-started"
-                className="text-sun hover:underline inline-flex items-center gap-1 font-medium"
-              >
-                <span>Read quickstart guide</span>
-                <span aria-hidden="true">
-                  <ArrowRight />
+        <section aria-label="Hero" className="px-3 sm:px-6 pt-[calc(10vh+12px)] sm:pt-[calc(10vh+16px)]">
+          <div className="surface dot-grid relative mx-auto max-w-280 overflow-hidden rounded-[28px] lg:rounded-[52px]">
+            <div className="relative mx-auto max-w-280 px-5 sm:px-10 pt-14 sm:pt-24 pb-5 sm:pb-8 flex flex-col items-center text-center">
+              <p className="inline-flex max-w-full shrink-0 items-center gap-2 sm:gap-2.5 whitespace-nowrap rounded-full border border-line bg-[rgba(21,19,27,0.7)] px-3 sm:px-3.5 py-1.5 font-mono text-sun text-[length:clamp(7px,calc((100vw_-_106px)_/_27),11px)] sm:text-[12px] font-semibold uppercase tracking-[0.04em] sm:tracking-[0.14em] mb-7 sm:mb-8">
+                <span className="relative flex h-1.5 w-1.5 shrink-0" aria-hidden="true">
+                  <span className="absolute inset-0 rounded-full bg-sun opacity-60 motion-safe:animate-ping" />
+                  <span className="relative h-1.5 w-1.5 rounded-full bg-sun" />
                 </span>
-              </Link>
-            </div>
-            <div className="mt-6 flex items-center gap-3">
-              <a
-                href="https://www.producthunt.com/products/autocurl?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-autocurl"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="autocurl on Product Hunt"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  alt="autocurl featured on Product Hunt"
-                  width="160"
-                  height="56"
-                  className="h-14 w-40 object-contain"
-                  src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1300282&theme=light&t=1793524530971"
-                />
-              </a>
-              <a
-                href="https://peerlist.io/anshumancdx/project/autocurl"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="autocURL on Peerlist"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="https://peerlist.io/api/v1/projects/embed/PRJHJKNDPE89DDKP72KQ6LBBAMQE8R?showUpvote=true&theme=light"
-                  alt="autocurl project on Peerlist"
-                  width="160"
-                  height="56"
-                  loading="lazy"
-                  className="h-14 w-40 object-contain"
-                />
-              </a>
+                CLI API testing for developers &amp; AI agents
+              </p>
+              <h1 className="max-w-[12.5em] font-extrabold text-[clamp(42px,7vw,92px)] leading-[1.04] tracking-[-0.04em]">
+                API requests in one file{" "}
+                <span className="relative inline-block -rotate-[1.5deg] rounded-[0.2em] border border-sun/45 bg-sun/12 px-[0.16em] pb-[0.04em]">
+                  <FlipWord />
+                  <Cursor className="glide absolute -right-[0.42em] -bottom-[0.5em] h-[0.5em] w-[0.5em]" />
+                </span>{" "}
+                can read.
+              </h1>
+              <p className="mt-6 sm:mt-7 mb-8 sm:mb-10 max-w-[36em] text-mute text-[16px] sm:text-[18px] leading-[1.65]">
+                Make agents run cURLs better without the JSON mess. autocurl
+                discovers routes in your backend code, writes them to a readable
+                .autocurl file, and runs any request from the terminal.
+              </p>
+
+              {/* Action row */}
+              <div className="flex w-full flex-col sm:w-auto sm:flex-row items-stretch sm:items-center justify-center gap-3">
+                <div className="lifted inline-flex min-h-[52px] max-w-full items-center justify-between gap-3.5 font-medium text-[13.5px] sm:text-[15px] font-mono bg-[rgba(21,19,27,0.7)] border border-line rounded-[16px] pl-4 pr-2 py-2 backdrop-blur-[6px]">
+                  <span className="truncate">curl -fsSL https://autocurl.lol/install.sh | sh</span>
+                  <CopyButton text="curl -fsSL https://autocurl.lol/install.sh | sh" />
+                </div>
+                <div className="flex text-[14px] sm:text-[15px] text-mute">
+                  <Link
+                    href="/docs/getting-started"
+                    className="press w-full justify-center min-h-[52px] px-5 rounded-[16px] border border-line bg-[rgba(21,19,27,0.7)] hover:border-sun/60 text-sun inline-flex items-center gap-1.5 font-semibold no-underline"
+                  >
+                    <span>Read quickstart guide</span>
+                    <span aria-hidden="true" className="nudge [&_svg]:h-4 [&_svg]:w-4">
+                      <ArrowRight />
+                    </span>
+                  </Link>
+                </div>
+              </div>
+
+              <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
+                <a
+                  href="https://www.producthunt.com/products/autocurl?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-autocurl"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="autocurl on Product Hunt"
+                  className="press inline-block rounded-[12px]"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    alt="autocurl featured on Product Hunt"
+                    width="160"
+                    height="56"
+                    className="h-14 w-40 object-contain"
+                    src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1300282&theme=light&t=1793524530971"
+                  />
+                </a>
+                <a
+                  href="https://peerlist.io/anshumancdx/project/autocurl"
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="autocURL on Peerlist"
+                  className="press inline-block rounded-[12px]"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="https://peerlist.io/api/v1/projects/embed/PRJHJKNDPE89DDKP72KQ6LBBAMQE8R?showUpvote=true&theme=light"
+                    alt="autocurl project on Peerlist"
+                    width="160"
+                    height="56"
+                    loading="lazy"
+                    className="h-14 w-40 object-contain"
+                  />
+                </a>
+              </div>
+
+              {/* Product window */}
+              <div className="relative mt-12 sm:mt-18 w-full max-w-[920px] text-left">
+                <div className="rounded-[28px] sm:rounded-[34px] border border-line bg-[rgba(14,12,19,0.5)] p-2.5 sm:p-4 shadow-[0_40px_90px_-40px_rgba(0,0,0,0.5)] [&>div]:rounded-[18px]">
+                  <TerminalDemo />
+                </div>
+              </div>
             </div>
           </div>
-          <TerminalDemo />
         </section>
 
-        {/* Workflow Section */}
-        <section
-          id="how"
-          aria-labelledby="how-heading"
-          className="py-20 md:py-28 border-t border-line bg-[rgba(21,19,27,0.88)]"
-        >
-          <div className="max-w-280 mx-auto px-6">
-            <div className="flex items-end justify-between gap-8 mb-14">
-              <div>
-                <div className="font-mono text-sun text-[12px] font-semibold tracking-widest mb-3">
+        {/* Everything below the hero sits on one continuous surface */}
+        <div className="relative mt-20 sm:mt-28 border-t border-line bg-[rgba(21,19,27,0.88)] backdrop-blur-[10px] rounded-t-[32px] lg:rounded-t-[56px]">
+          {/* Workflow Section */}
+          <section
+            id="how"
+            aria-labelledby="how-heading"
+            className="py-20 md:py-28 scroll-mt-24"
+          >
+            <div className="max-w-280 mx-auto px-6">
+              <div className="reveal flex flex-col items-center text-center mb-12 md:mb-16">
+                <div className={pillClass}>
+                  <PillDot />
                   workflow
                 </div>
 
-                <h2
-                  id="how-heading"
-                  className="font-extrabold text-[clamp(24px,3.2vw,40px)] leading-[1.1] tracking-[-0.03em]"
-                >
+                <h2 id="how-heading" className={h2Class}>
                   From code to request.
                 </h2>
               </div>
 
-              
-            </div>
+              <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr_auto_1fr] items-stretch gap-5 md:gap-4 lg:gap-5">
+                {/* 01 */}
+                <div className={`reveal ${stepCardClass}`}>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className={badgeClass}>01</div>
 
-            <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr_auto_1fr] items-center gap-8 md:gap-6">
-              {/* 01 */}
-              <div>
-                <div className="font-mono text-[11px] text-mute mb-4">01</div>
+                    <div className="font-mono text-[13px] text-sun truncate">
+                      index.js
+                    </div>
+                  </div>
 
-                <div className="font-mono text-[13px] text-sun mb-3">
-                  index.js
+                  <h3 className={stepTitleClass}>Define</h3>
+
+                  <p className={stepBodyClass}>
+                    Routes declared in{" "}
+                    <Link href="/docs/supported-frameworks" className="underline hover:text-sun">
+                      supported frameworks
+                    </Link>{" "}
+                    are extracted from source.
+                  </p>
+
+                  <MiniCode />
                 </div>
 
-                <h3 className="font-bold text-[18px] tracking-[-0.02em] mb-2">
-                  Define
-                </h3>
-
-                <p className="text-mute text-[14px] leading-relaxed max-w-65">
-                  Routes declared in{" "}
-                  <Link href="/docs/supported-frameworks" className="underline hover:text-sun">
-                    supported frameworks
-                  </Link>{" "}
-                  are extracted from source.
-                </p>
-              </div>
-
-              <div
-                className="hidden md:block font-mono text-mute text-xl"
-                aria-hidden="true"
-              >
-                <ArrowRight />
-              </div>
-
-              {/* 02 */}
-              <div>
-                <div className="font-mono text-[11px] text-mute mb-4">02</div>
-
-                <div className="font-mono text-[13px] text-sun mb-3">
-                  index.autocurl
-                </div>
-
-                <h3 className="font-bold text-[18px] tracking-[-0.02em] mb-2">
-                  Generate
-                </h3>
-
-                <p className="text-mute text-[14px] leading-relaxed max-w-65">
-                  Turn them into a portable, human-readable request file.
-                </p>
-              </div>
-
-              <div
-                className="hidden md:block font-mono text-mute text-xl"
-                aria-hidden="true"
-              >
-                <ArrowRight />
-              </div>
-
-              {/* 03 */}
-              <div>
-                <div className="font-mono text-[11px] text-mute mb-4">03</div>
-
-                <div className="font-mono text-[13px] text-sun mb-3">
-                  autocurl index.autocurl
-                </div>
-
-                <h3 className="font-bold text-[18px] tracking-[-0.02em] mb-2">
-                  Execute
-                </h3>
-
-                <p className="text-mute text-[14px] leading-relaxed max-w-65">
-                  Pick a request and execute it directly from your terminal.
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-14 pt-6 border-t border-line md:hidden">
-              <Link
-                href="/docs/using-autocurl"
-                className="inline-flex items-center gap-1.5 font-mono text-[12px] text-mute hover:text-sun transition-colors"
-              >
-                .autocurl specification
-                <span aria-hidden="true"> </span>
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* Why autocurl Section */}
-        <section
-          id="why"
-          aria-labelledby="why-heading"
-          className="py-16 md:py-24 border-t border-line bg-[rgba(21,19,27,0.88)] backdrop-blur-[10px]"
-        >
-          <div className="max-w-280 mx-auto px-6">
-            <div className="font-mono text-sun text-[12px] font-semibold   tracking-widest mb-3">
-              Philosophy
-            </div>
-            <h2
-              id="why-heading"
-              className="font-extrabold text-[clamp(24px,3.2vw,40px)] leading-[1.1] tracking-[-0.03em] max-w-[18em]"
-            >
-              Built to stay out of your way.
-            </h2>
-            <p className="mt-4 max-w-[34em] text-mute text-[15px] leading-relaxed">
-              Requests are stored as plain text in your project. Local discovery
-              stays on your machine; when AI analysis is enabled, bounded source
-              context is sent to Gemini using your key.
-            </p>
-
-            <div className="mt-12 md:mt-16">
-              {[
-                {
-                  label: "Git-native",
-                  title: "Version-controlled by default",
-                  body: "The .autocurl file is plain text. Diffs and pull requests show exactly what changed — no JSON blobs, no binary formats.",
-                },
-                {
-                  label: "Local-first",
-                  title: "Local by default",
-                  body: "Deterministic discovery stays local. Optional Gemini analysis sends bounded source context to Google when enabled.",
-                },
-                {
-                  label: "Human-readable",
-                  title: "Open the file, read the file",
-                  body: "Every .autocurl file is plain-text HTTP requests separated by comments. Inspect, edit, or share them in any text editor.",
-                },
-                {
-                  label: "Zero lock-in",
-                  title: "Readable without autocurl installed",
-                  body: "Files are readable in any editor. Request execution and variable prompts are provided by the autocurl CLI.",
-                },
-                {
-                  label: "Lightweight",
-                  title: "One small CLI, instant startup",
-                  body: "A single prebuilt Go binary with no background process, no runtime to install, and no dependency on the system curl executable.",
-                },
-              ].map((item) => (
                 <div
-                  key={item.label}
-                  className="grid grid-cols-1 sm:grid-cols-[160px_1fr] md:grid-cols-[200px_1fr_1fr] gap-x-10 gap-y-1 py-6 border-b border-line last:border-b-0 items-start"
+                  className="hidden md:flex self-center font-mono text-mute text-xl"
+                  aria-hidden="true"
                 >
-                  <span className="font-mono text-[12px] text-sun   tracking-wider pt-0.5">
-                    {item.label}
-                  </span>
-                  <h3 className="font-bold text-[16px] leading-[1.35] tracking-[-0.01em]">
-                    {item.title}
-                  </h3>
-                  <p className="text-mute text-[14px] leading-relaxed mt-1 sm:mt-0 sm:col-start-2 md:col-start-auto">
-                    {item.body}
+                  <ArrowRight />
+                </div>
+
+                {/* 02 */}
+                <div className={`reveal ${stepCardClass}`}>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className={badgeClass}>02</div>
+
+                    <div className="font-mono text-[13px] text-sun truncate">
+                      index.autocurl
+                    </div>
+                  </div>
+
+                  <h3 className={stepTitleClass}>Generate</h3>
+
+                  <p className={stepBodyClass}>
+                    Turn them into a portable, human-readable request file.
                   </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
 
-        {/* Who is autocurl for? Section */}
-        <section
-          aria-labelledby="who-heading"
-          className="py-16 md:py-24 border-t border-line bg-[rgba(21,19,27,0.88)] backdrop-blur-[10px]"
-        >
-          <div className="max-w-280 mx-auto px-6">
-            <div className="font-mono text-sun text-[12px] font-semibold   tracking-widest mb-3">
-              Audience
-            </div>
-            <h2
-              id="who-heading"
-              className="font-extrabold text-[clamp(24px,3.2vw,40px)] leading-[1.1] tracking-[-0.03em]"
-            >
-              Who is autocurl for?
-            </h2>
-            <p className="mt-4 max-w-[36em] text-mute text-[15px] leading-relaxed">
-              Built for developers who prefer the speed, precision, and
-              transparency of terminal workflows.
-            </p>
-
-            <div className="mt-12 md:mt-16 grid grid-cols-1 md:grid-cols-3 gap-0 md:divide-x md:divide-line">
-              <div className="md:pr-10 pb-10 md:pb-0 border-b border-line md:border-b-0">
-                <div className="font-mono text-[11px] text-mute   tracking-widest mb-5">
-                  01
+                  <MiniFile />
                 </div>
-                <h3 className="font-bold text-[17px] leading-[1.3] tracking-[-0.01em] mb-1">
-                  Backend Developers
-                </h3>
-                <p className="text-sun text-[12px] font-mono mb-4   tracking-wider">
-                  Fast local API iteration
-                </p>
-                <p className="text-mute text-[14px] leading-relaxed">
-                  Generate requests straight from your Express, FastAPI, Gin,
-                  or other{" "}
-                  <Link href="/docs/supported-frameworks" className="text-bone underline hover:text-sun">
-                    supported framework
-                  </Link>{" "}
-                  routes, without opening a heavy GUI tool or digging through
-                  shell history for long curl flags.
-                </p>
+
+                <div
+                  className="hidden md:flex self-center font-mono text-mute text-xl"
+                  aria-hidden="true"
+                >
+                  <ArrowRight />
+                </div>
+
+                {/* 03 */}
+                <div className={`reveal ${stepCardClass}`}>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className={badgeClass}>03</div>
+
+                    <div className="font-mono text-[13px] text-sun truncate">
+                      autocurl index.autocurl
+                    </div>
+                  </div>
+
+                  <h3 className={stepTitleClass}>Execute</h3>
+
+                  <p className={stepBodyClass}>
+                    Pick a request and execute it directly from your terminal.
+                  </p>
+
+                  <MiniRun />
+                </div>
               </div>
 
-              <div className="md:px-10 py-10 md:py-0 border-b border-line md:border-b-0">
-                <div className="font-mono text-[11px] text-mute   tracking-widest mb-5">
-                  02
-                </div>
-                <h3 className="font-bold text-[17px] leading-[1.3] tracking-[-0.01em] mb-1">
-                  DevOps &amp; Infrastructure
-                </h3>
-                <p className="text-sun text-[12px] font-mono mb-4   tracking-wider">
-                  Headless &amp; SSH environments
-                </p>
-                <p className="text-mute text-[14px] leading-relaxed">
-                  Run requests seamlessly over SSH on remote dev servers and
-                  staging boxes where no graphical browser or Electron app can
-                  exist.
-                </p>
-              </div>
-
-              <div className="md:pl-10 pt-10 md:pt-0">
-                <div className="font-mono text-[11px] text-mute   tracking-widest mb-5">
-                  03
-                </div>
-                <h3 className="font-bold text-[17px] leading-[1.3] tracking-[-0.01em] mb-1">
-                  API &amp; Engineering Teams
-                </h3>
-                <p className="text-sun text-[12px] font-mono mb-4   tracking-wider">
-                  Version-controlled collections
-                </p>
-                <p className="text-mute text-[14px] leading-relaxed">
-                  Keep requests inside the repo right alongside the API code.
-                  When endpoints update, your .autocurl files are updated and
-                  reviewed in the same PR.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Guides Section */}
-        <section
-          id="guides"
-          aria-labelledby="guides-heading"
-          className="py-16 md:py-24 border-t border-line bg-[rgba(21,19,27,0.88)] backdrop-blur-[10px]"
-        >
-          <div className="max-w-280 mx-auto px-6">
-            <div className="font-mono text-sun text-[12px] font-semibold tracking-widest mb-3">
-              Learn
-            </div>
-            <h2
-              id="guides-heading"
-              className="font-extrabold text-[clamp(24px,3.2vw,40px)] leading-[1.1] tracking-[-0.03em]"
-            >
-              Guides and comparisons
-            </h2>
-            <div className="mt-10 md:mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-line border border-line rounded-xl overflow-hidden">
-              {guideLinks.map((guide) => (
+              <div className="mt-10 flex justify-center md:hidden">
                 <Link
-                  key={guide.href}
-                  href={guide.href}
-                  className="group block bg-[rgba(21,19,27,0.96)] p-6 no-underline hover:bg-[rgba(30,27,38,0.96)] transition-colors"
+                  href="/docs/using-autocurl"
+                  className="press inline-flex items-center gap-1.5 min-h-11 px-4 rounded-full border border-line bg-[rgba(21,19,27,0.7)] font-mono text-[12px] text-mute hover:text-sun no-underline"
                 >
-                  <span className="font-mono text-[11px] text-sun tracking-wider">
-                    {guide.label}
-                  </span>
-                  <h3 className="mt-2 font-bold text-[16px] leading-[1.35] tracking-[-0.01em] text-bone group-hover:text-sun transition-colors">
-                    {guide.title}
-                  </h3>
-                  <p className="mt-2 text-mute text-[14px] leading-relaxed">
-                    {guide.body}
-                  </p>
+                  .autocurl specification
+                  <span aria-hidden="true"> </span>
                 </Link>
-              ))}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
 
-        {/* FAQ Section */}
-        <section
-          id="faq"
-          aria-labelledby="faq-heading"
-          className="py-16 md:py-24 border-t border-line bg-[rgba(21,19,27,0.88)] backdrop-blur-[10px]"
-        >
-          <div className="max-w-180 mx-auto px-6">
-            <div className="font-mono text-sun text-[12px] font-semibold   tracking-widest mb-3">
-              FAQ
-            </div>
-            <h2
-              id="faq-heading"
-              className="font-extrabold text-[clamp(24px,3.2vw,40px)] leading-[1.1] tracking-[-0.03em] mb-12 md:mb-14"
-            >
-              Frequently asked questions
-            </h2>
+          {/* Why autocurl Section */}
+          <section
+            id="why"
+            aria-labelledby="why-heading"
+            className="py-16 md:py-24 scroll-mt-24"
+          >
+            <div className="max-w-280 mx-auto px-6">
+              <div className="reveal flex flex-col items-center text-center">
+                <div className={pillClass}>
+                  <PillDot />
+                  Philosophy
+                </div>
+                <h2 id="why-heading" className={`${h2Class} max-w-[16em]`}>
+                  Built to stay out of your way.
+                </h2>
+                <p className={subheadClass}>
+                  Requests are stored as plain text in your project. Local discovery
+                  stays on your machine; when AI analysis is enabled, bounded source
+                  context is sent to Gemini using your key.
+                </p>
+              </div>
 
-            <div>
-              {faqItems.map((item, idx) => (
-                <details
-                  key={idx}
-                  className="group border-t border-line last:border-b last:border-line"
-                >
-                  <summary className="flex items-center justify-between gap-6 py-5 cursor-pointer list-none select-none">
-                    <h3 className="font-semibold text-[15px] leading-[1.4] tracking-[-0.01em]">
-                      {item.question}
-                    </h3>
-                    <span
-                      className="text-mute text-[20px] font-light leading-none shrink-0 transition-transform duration-200 group-open:rotate-45"
-                      aria-hidden="true"
-                    >
-                      +
+              <div className="mt-12 md:mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-5 lg:gap-7">
+                {[
+                  {
+                    label: "Git-native",
+                    title: "Version-controlled by default",
+                    body: "The .autocurl file is plain text. Diffs and pull requests show exactly what changed — no JSON blobs, no binary formats.",
+                  },
+                  {
+                    label: "Local-first",
+                    title: "Local by default",
+                    body: "Deterministic discovery stays local. Optional Gemini analysis sends bounded source context to Google when enabled.",
+                  },
+                  {
+                    label: "Human-readable",
+                    title: "Open the file, read the file",
+                    body: "Every .autocurl file is plain-text HTTP requests separated by comments. Inspect, edit, or share them in any text editor.",
+                  },
+                  {
+                    label: "Zero lock-in",
+                    title: "Readable without autocurl installed",
+                    body: "Files are readable in any editor. Request execution and variable prompts are provided by the autocurl CLI.",
+                  },
+                  {
+                    label: "Lightweight",
+                    title: "One small CLI, instant startup",
+                    body: "A single prebuilt Go binary with no background process, no runtime to install, and no dependency on the system curl executable.",
+                  },
+                ].map((item, idx) => (
+                  <div
+                    key={item.label}
+                    className={`reveal surface rounded-[28px] p-6 sm:p-7 lg:p-8 flex flex-col items-start ${
+                      idx < 2 ? "lg:col-span-3" : "lg:col-span-2"
+                    } ${idx === 4 ? "sm:col-span-2 lg:col-span-2" : ""}`}
+                  >
+                    <span className="inline-flex items-center rounded-[10px] border border-line bg-[rgba(14,12,19,0.5)] px-2.5 py-1 font-mono text-[11px] text-sun uppercase tracking-[0.12em]">
+                      {item.label}
                     </span>
-                  </summary>
-                  <p className="text-mute text-[14px] leading-relaxed pb-6 pr-10">
-                    {item.answer}
+                    <h3 className="mt-5 font-bold text-[20px] sm:text-[22px] leading-[1.25] tracking-[-0.02em]">
+                      {item.title}
+                    </h3>
+                    <p className="mt-2.5 text-mute text-[15px] leading-[1.65] max-w-[34em]">
+                      {item.body}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* Who is autocurl for? Section */}
+          <section
+            aria-labelledby="who-heading"
+            className="py-16 md:py-24"
+          >
+            <div className="max-w-280 mx-auto px-6">
+              <div className="reveal flex flex-col items-center text-center">
+                <div className={pillClass}>
+                  <PillDot />
+                  Audience
+                </div>
+                <h2 id="who-heading" className={h2Class}>
+                  Who is autocurl for?
+                </h2>
+                <p className={subheadClass}>
+                  Built for developers who prefer the speed, precision, and
+                  transparency of terminal workflows.
+                </p>
+              </div>
+
+              <div className="mt-12 md:mt-16 grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-7">
+                <div className={`reveal ${audienceCardClass}`}>
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className={badgeClass}>01</div>
+                    <h3 className={audienceTitleClass}>Backend Developers</h3>
+                  </div>
+                  <p className={audienceTagClass}>Fast local API iteration</p>
+                  <p className={audienceBodyClass}>
+                    Generate requests straight from your Express, FastAPI, Gin,
+                    or other{" "}
+                    <Link href="/docs/supported-frameworks" className="text-bone underline hover:text-sun">
+                      supported framework
+                    </Link>{" "}
+                    routes, without opening a heavy GUI tool or digging through
+                    shell history for long curl flags.
                   </p>
-                </details>
-              ))}
-            </div>
-          </div>
-        </section>
+                </div>
 
-        {/* Install Section */}
-        <section
-          id="install"
-          aria-labelledby="install-heading"
-          className="py-16 md:py-22 border-t border-line bg-[rgba(21,19,27,0.88)] backdrop-blur-[10px] text-center"
-        >
-          <div className="max-w-280 mx-auto px-6">
-            <h2
-              id="install-heading"
-              className="font-extrabold text-[clamp(28px,3.8vw,46px)] leading-[1.1] tracking-[-0.03em] max-w-[16em] mx-auto"
-            >
-              Try it on your next API.
-            </h2>
-            <p className="mt-3.5 text-mute text-[16px] max-w-[30em] mx-auto">
-              Install autocurl, point it at your backend, and run your first
-              request in a couple of minutes.
-            </p>
-            <div className="inline-flex max-w-full flex-wrap gap-2.5 sm:gap-3.5 items-center font-medium text-[13.5px] sm:text-[15px] font-mono bg-[rgba(21,19,27,0.7)] border border-line rounded-[10px] px-3.5 sm:px-4 py-2.5 sm:py-3 backdrop-blur-[6px] mt-6 sm:mt-7.5">
-              <span className="truncate">curl -fsSL https://autocurl.lol/install.sh | sh</span>
-              <CopyButton text="curl -fsSL https://autocurl.lol/install.sh | sh" />
-            </div>
+                <div className={`reveal ${audienceCardClass}`}>
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className={badgeClass}>02</div>
+                    <h3 className={audienceTitleClass}>DevOps &amp; Infrastructure</h3>
+                  </div>
+                  <p className={audienceTagClass}>Headless &amp; SSH environments</p>
+                  <p className={audienceBodyClass}>
+                    Run requests seamlessly over SSH on remote dev servers and
+                    staging boxes where no graphical browser or Electron app can
+                    exist.
+                  </p>
+                </div>
 
-            <div className="mt-8 flex justify-center gap-4 text-[14px]">
-              <Link
-                href="/docs/getting-started#step-1-install-autocurl"
-                className="text-mute hover:text-bone underline transition-colors"
-              >
-                Other install methods
-              </Link>
-              <span className="text-mute">•</span>
-              <Link
-                href="/docs/getting-started"
-                className="text-mute hover:text-bone underline transition-colors"
-              >
-                Getting started tutorial
-              </Link>
+                <div className={`reveal ${audienceCardClass}`}>
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className={badgeClass}>03</div>
+                    <h3 className={audienceTitleClass}>API &amp; Engineering Teams</h3>
+                  </div>
+                  <p className={audienceTagClass}>Version-controlled collections</p>
+                  <p className={audienceBodyClass}>
+                    Keep requests inside the repo right alongside the API code.
+                    When endpoints update, your .autocurl files are updated and
+                    reviewed in the same PR.
+                  </p>
+                </div>
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+
+          {/* Guides Section */}
+          <section
+            id="guides"
+            aria-labelledby="guides-heading"
+            className="py-16 md:py-24 scroll-mt-24"
+          >
+            <div className="max-w-280 mx-auto px-6">
+              <div className="reveal flex flex-col items-center text-center">
+                <div className={pillClass}>
+                  <PillDot />
+                  Learn
+                </div>
+                <h2 id="guides-heading" className={h2Class}>
+                  Guides and comparisons
+                </h2>
+              </div>
+              <div className="mt-12 md:mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-7">
+                {guideLinks.map((guide) => (
+                  <Link
+                    key={guide.href}
+                    href={guide.href}
+                    className="reveal press group flex flex-col items-start rounded-[28px] border border-line bg-[rgba(21,19,27,0.96)] p-6 sm:p-7 no-underline shadow-[inset_0_1px_0_rgba(255,255,255,0.055),0_24px_60px_-30px_rgba(0,0,0,0.5)] hover:bg-[rgba(30,27,38,0.96)] hover:border-sun/40 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_18px_40px_-18px_rgba(0,0,0,0.6)]"
+                  >
+                    <span className="inline-flex items-center rounded-full border border-line px-2.5 py-1 font-mono text-[11px] text-sun uppercase tracking-[0.12em]">
+                      {guide.label}
+                    </span>
+                    <h3 className="mt-5 font-bold text-[19px] sm:text-[20px] leading-[1.3] tracking-[-0.02em] text-bone group-hover:text-sun transition-colors">
+                      {guide.title}
+                    </h3>
+                    <p className="mt-2.5 text-mute text-[15px] leading-[1.65]">
+                      {guide.body}
+                    </p>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* FAQ Section */}
+          <section
+            id="faq"
+            aria-labelledby="faq-heading"
+            className="py-16 md:py-24 scroll-mt-24"
+          >
+            <div className="max-w-195 mx-auto px-6">
+              <div className="reveal flex flex-col items-center text-center mb-12 md:mb-14">
+                <div className={pillClass}>
+                  <PillDot />
+                  FAQ
+                </div>
+                <h2 id="faq-heading" className={h2Class}>
+                  Frequently asked questions
+                </h2>
+              </div>
+
+              <div className="flex flex-col gap-3">
+                {faqItems.map((item, idx) => (
+                  <details
+                    key={idx}
+                    className="reveal group surface rounded-[22px] px-5 sm:px-6 transition-colors open:bg-[rgba(21,19,27,0.96)]"
+                  >
+                    <summary className="flex items-center justify-between gap-6 py-5 min-h-16 cursor-pointer list-none select-none [&::-webkit-details-marker]:hidden">
+                      <h3 className="font-semibold text-[16px] leading-[1.4] tracking-[-0.01em]">
+                        {item.question}
+                      </h3>
+                      <span
+                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-line bg-[rgba(14,12,19,0.5)] text-mute text-[20px] font-light leading-none transition-transform duration-200 group-open:rotate-45 group-open:text-sun"
+                        aria-hidden="true"
+                      >
+                        +
+                      </span>
+                    </summary>
+                    <p className="text-mute text-[15px] leading-[1.7] pb-6 pr-4 sm:pr-14 max-w-[42em]">
+                      {item.answer}
+                    </p>
+                  </details>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* Install Section */}
+          <section
+            id="install"
+            aria-labelledby="install-heading"
+            className="px-3 sm:px-6 pt-8 md:pt-12 pb-16 md:pb-24 text-center scroll-mt-24"
+          >
+            <div className="reveal surface dot-grid relative mx-auto max-w-[1340px] overflow-hidden rounded-[28px] lg:rounded-[52px] py-16 md:py-24 px-6">
+              <div className="relative max-w-280 mx-auto">
+                <h2
+                  id="install-heading"
+                  className="font-extrabold text-[clamp(34px,5vw,64px)] leading-[1.05] tracking-[-0.035em] max-w-[14em] mx-auto"
+                >
+                  Try it on your next API.
+                </h2>
+                <p className="mt-4 sm:mt-5 text-mute text-[16px] sm:text-[18px] leading-[1.65] max-w-[30em] mx-auto">
+                  Install autocurl, point it at your backend, and run your first
+                  request in a couple of minutes.
+                </p>
+                <div className="lifted inline-flex min-h-[52px] max-w-full items-center justify-between gap-3.5 font-medium text-[13.5px] sm:text-[15px] font-mono bg-[rgba(21,19,27,0.7)] border border-line rounded-[16px] pl-4 pr-2 py-2 backdrop-blur-[6px] mt-8 sm:mt-10">
+                  <span className="truncate">curl -fsSL https://autocurl.lol/install.sh | sh</span>
+                  <CopyButton text="curl -fsSL https://autocurl.lol/install.sh | sh" />
+                </div>
+
+                <div className="mt-8 flex flex-wrap justify-center items-center gap-x-4 gap-y-2 text-[14px]">
+                  <Link
+                    href="/docs/getting-started#step-1-install-autocurl"
+                    className="text-mute hover:text-bone underline underline-offset-4 transition-colors"
+                  >
+                    Other install methods
+                  </Link>
+                  <span className="text-mute">•</span>
+                  <Link
+                    href="/docs/getting-started"
+                    className="text-mute hover:text-bone underline underline-offset-4 transition-colors"
+                  >
+                    Getting started tutorial
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
       </main>
 
       <Footer />
     </>
+  );
+}
+
+/* ---------- Shared presentation (classes only, no content) ---------- */
+
+const pillClass =
+  "sticker lifted inline-flex items-center gap-2 -rotate-1 rounded-full border border-line bg-[rgba(21,19,27,0.96)] px-3.5 py-1.5 font-mono text-sun text-[11px] sm:text-[12px] font-semibold uppercase tracking-[0.16em]";
+
+const h2Class =
+  "mt-5 font-extrabold text-[clamp(32px,4.6vw,56px)] leading-[1.08] tracking-[-0.03em]";
+
+const subheadClass =
+  "mt-4 sm:mt-5 max-w-[40em] text-mute text-[16px] sm:text-[17px] leading-[1.65]";
+
+const badgeClass =
+  "flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] border border-line bg-[rgba(14,12,19,0.5)] font-mono text-[11px] font-semibold text-mute";
+
+const stepCardClass =
+  "surface rounded-[32px] p-5 sm:p-6 flex flex-col h-full";
+
+const stepTitleClass = "font-bold text-[22px] sm:text-[24px] tracking-[-0.02em] mb-2";
+
+const stepBodyClass = "text-mute text-[15px] leading-[1.65] mb-6";
+
+const audienceCardClass = "surface rounded-[32px] p-6 sm:p-7 lg:p-8";
+
+const audienceTitleClass =
+  "font-bold text-[20px] sm:text-[22px] leading-[1.25] tracking-[-0.02em]";
+
+const audienceTagClass =
+  "text-sun text-[12px] font-mono mb-4 tracking-wider";
+
+const audienceBodyClass = "text-mute text-[15px] leading-[1.65]";
+
+function PillDot() {
+  return (
+    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-sun" aria-hidden="true" />
+  );
+}
+
+function Cursor({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      className={`pointer-events-none ${className}`}
+    >
+      <path
+        d="M4 2.5 20 11l-7.2 1.9L9.6 20z"
+        fill="var(--bone)"
+        stroke="var(--ink)"
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+/* Wordless miniature UI illustrations for the workflow steps (decorative). */
+
+const miniFrame =
+  "relative mt-auto h-40 rounded-[22px] border border-line bg-[rgba(14,12,19,0.86)] p-4";
+
+function Bar({ w, className = "" }: { w: string; className?: string }) {
+  return (
+    <span
+      className={`block h-2 rounded-full bg-[rgba(241,235,223,0.09)] ${className}`}
+      style={{ width: w }}
+    />
+  );
+}
+
+function FrameDots() {
+  return (
+    <div className="flex gap-1.5 mb-4">
+      <span className="h-2 w-2 rounded-full bg-line" />
+      <span className="h-2 w-2 rounded-full bg-line" />
+      <span className="h-2 w-2 rounded-full bg-line" />
+    </div>
+  );
+}
+
+/* 01 — source code with one route selected */
+function MiniCode() {
+  return (
+    <div className={miniFrame} aria-hidden="true">
+      <FrameDots />
+      <div className="flex flex-col gap-2.5">
+        <Bar w="42%" />
+        <div className="relative ml-4 -my-1 rounded-[8px] border border-dashed border-sun/60 bg-sun/10 px-1.5 py-1.5">
+          <Bar w="78%" className="bg-sun/45" />
+          <Cursor className="glide absolute -right-1 -bottom-3 h-4 w-4" />
+        </div>
+        <Bar w="58%" className="ml-4" />
+        <Bar w="64%" className="ml-4" />
+        <Bar w="24%" />
+      </div>
+    </div>
+  );
+}
+
+/* 02 — request file: comment separators between requests */
+function MiniFile() {
+  return (
+    <div className={miniFrame} aria-hidden="true">
+      <FrameDots />
+      <div className="flex flex-col gap-3">
+        {["62%", "54%", "70%"].map((w, i) => (
+          <div key={i} className="flex flex-col gap-2">
+            <span className="block border-t border-dashed border-line" />
+            <div className="flex items-center gap-2">
+              <span className="block h-2 w-7 shrink-0 rounded-full bg-sky/50" />
+              <Bar w={w} />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* 03 — request picker with one row selected and a lifted success chip */
+function MiniRun() {
+  return (
+    <div className="relative mt-auto" aria-hidden="true">
+      <div className={`${miniFrame} mt-0`}>
+        <FrameDots />
+        <div className="flex flex-col gap-1.5">
+          {[0, 1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className={`relative flex h-5 items-center rounded-[6px] px-2 ${
+                i === 1 ? "bg-sun" : ""
+              }`}
+            >
+              <span
+                className={`block h-2 rounded-full ${
+                  i === 1 ? "bg-ink/40" : "bg-[rgba(241,235,223,0.09)]"
+                }`}
+                style={{ width: ["40%", "52%", "60%", "66%"][i] }}
+              />
+              {i === 1 && (
+                <Cursor className="glide absolute right-6 -bottom-2.5 h-4 w-4" />
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="lifted absolute -bottom-3.5 right-5 rotate-2 flex items-center gap-2 rounded-full border border-line bg-[rgba(21,19,27,0.96)] px-3 py-2">
+        <span className="h-2 w-2 rounded-full bg-sky" />
+        <span className="block h-2 w-14 rounded-full bg-sky/40" />
+      </div>
+    </div>
   );
 }
