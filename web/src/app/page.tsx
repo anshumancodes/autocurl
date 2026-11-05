@@ -393,7 +393,7 @@ export default function Home() {
                       idx < 2 ? "lg:col-span-3" : "lg:col-span-2"
                     } ${idx === 4 ? "sm:col-span-2 lg:col-span-2" : ""}`}
                   >
-                    <span className="inline-flex items-center rounded-[10px] border border-line bg-[rgba(14,12,19,0.5)] px-2.5 py-1 font-mono text-[11px] text-sun uppercase tracking-[0.12em]">
+                    <span className="inline-flex items-center rounded-[10px] border border-line bg-[rgba(14,12,19,0.5)] px-2.5 py-1 font-mono text-[11px] text-sun tracking-[0.12em]">
                       {item.label}
                     </span>
                     <h3 className="mt-5 font-bold text-[20px] sm:text-[22px] leading-[1.25] tracking-[-0.02em]">
@@ -498,7 +498,7 @@ export default function Home() {
                     href={guide.href}
                     className="reveal press group flex flex-col items-start rounded-[28px] border border-line bg-[rgba(21,19,27,0.96)] p-6 sm:p-7 no-underline shadow-[inset_0_1px_0_rgba(255,255,255,0.055),0_24px_60px_-30px_rgba(0,0,0,0.5)] hover:bg-[rgba(30,27,38,0.96)] hover:border-sun/40 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_18px_40px_-18px_rgba(0,0,0,0.6)]"
                   >
-                    <span className="inline-flex items-center rounded-full border border-line px-2.5 py-1 font-mono text-[11px] text-sun uppercase tracking-[0.12em]">
+                    <span className="inline-flex items-center rounded-full border border-line px-2.5 py-1 font-mono text-[11px] text-sun tracking-[0.12em]">
                       {guide.label}
                     </span>
                     <h3 className="mt-5 font-bold text-[19px] sm:text-[20px] leading-[1.3] tracking-[-0.02em] text-bone group-hover:text-sun transition-colors">
@@ -608,7 +608,7 @@ export default function Home() {
 /* ---------- Shared presentation (classes only, no content) ---------- */
 
 const pillClass =
-  "sticker lifted inline-flex items-center gap-2 -rotate-1 rounded-full border border-line bg-[rgba(21,19,27,0.96)] px-3.5 py-1.5 font-mono text-sun text-[11px] sm:text-[12px] font-semibold uppercase tracking-[0.16em]";
+  "sticker lifted inline-flex items-center gap-2 -rotate-1 rounded-full border border-line bg-[rgba(21,19,27,0.96)] px-3.5 py-1.5 font-mono text-sun text-[11px] sm:text-[12px] font-semibold tracking-[0.16em]";
 
 const h2Class =
   "mt-5 font-extrabold text-[clamp(32px,4.6vw,56px)] leading-[1.08] tracking-[-0.03em]";
