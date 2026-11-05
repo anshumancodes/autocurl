@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import CopyButton from "@/components/CopyButton";
-import FlipWord from "@/components/FlipWord";
 import TerminalDemo from "@/components/TerminalDemo";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -146,20 +145,26 @@ export default function Home() {
         <section aria-label="Hero" className="px-3 sm:px-6 pt-[calc(10vh+12px)] sm:pt-[calc(10vh+16px)]">
           <div className="surface dot-grid relative mx-auto max-w-280 overflow-hidden rounded-[28px] lg:rounded-[52px]">
             <div className="relative mx-auto max-w-280 px-5 sm:px-10 pt-14 sm:pt-24 pb-5 sm:pb-8 flex flex-col items-center text-center">
-              <p className="inline-flex max-w-full shrink-0 items-center whitespace-nowrap rounded-full border border-line bg-[rgba(21,19,27,0.7)] px-3 sm:px-3.5 py-1.5 font-mono text-sun text-[length:clamp(7px,calc((100vw_-_92px)_/_27),11px)] sm:text-[12px] font-semibold tracking-[0.04em] sm:tracking-[0.14em] mb-7 sm:mb-8">
-                CLI API testing for developers &amp; AI agents
+              <p className="inline-flex max-w-full shrink-0 items-center whitespace-nowrap rounded-full border border-line bg-[rgba(21,19,27,0.7)] px-3 sm:px-3.5 py-1.5 font-mono text-sun text-[length:clamp(7px,calc((100vw_-_92px)_/_32),11px)] sm:text-[12px] font-semibold tracking-[0.04em] sm:tracking-[0.14em] mb-7 sm:mb-8">
+               cURLs from your code, executed in your terminal
               </p>
               <h1 className="max-w-[12.5em] font-extrabold text-[clamp(42px,7vw,92px)] leading-[1.04] tracking-[-0.04em]">
-                API requests in one file{" "}
-                <span className="relative inline-block -rotate-[1.5deg] rounded-[0.2em] border border-sun/45 bg-sun/12 px-[0.16em] pb-[0.04em]">
-                  <FlipWord />
+                Generate and run{" "}
+                <span className="relative inline-block -rotate-[1.5deg] rounded-[0.2em] border border-sun/45 bg-sun/12 px-[0.16em] pb-[0.04em] text-sun">
+                  cURL requests
                   <Cursor className="glide absolute -right-[0.42em] -bottom-[0.5em] h-[0.5em] w-[0.5em]" />
                 </span>{" "}
-                can read.
+                directly from your code.
               </h1>
               <p className="mt-6 sm:mt-7 mb-8 sm:mb-10 max-w-[36em] text-mute text-[16px] sm:text-[18px] leading-[1.65]">
-                Generate cURLs directly from your code with one command and run
-                them all from one file.
+                AutoCURL scans your code files, automatically generates HTTP
+                requests in a human-readable{" "}
+                <code className="rounded-md border border-line bg-[rgba(21,19,27,0.7)] px-1.5 py-0.5 font-mono text-[0.9em] text-sun">
+                  .autocurl
+                </code>{" "}
+                file, and lets you select
+                and execute any request right from your terminal using your
+                keyboard.
               </p>
 
               {/* Action row */}
@@ -239,11 +244,11 @@ export default function Home() {
               <div className="reveal flex flex-col items-center text-center mb-12 md:mb-16">
                 <div className={pillClass}>
                   <PillDot />
-                  workflow
+                  How it works
                 </div>
 
                 <h2 id="how-heading" className={h2Class}>
-                  From code to request.
+                  From code to executable requests in three steps.
                 </h2>
               </div>
 
@@ -258,14 +263,14 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <h3 className={stepTitleClass}>Define</h3>
+                  <h3 className={stepTitleClass}>Scan your codebase</h3>
 
                   <p className={stepBodyClass}>
-                    Routes declared in{" "}
+                    AutoCURL discovers routes across{" "}
                     <Link href="/docs/supported-frameworks" className="underline hover:text-sun">
-                      supported frameworks
-                    </Link>{" "}
-                    are extracted from source.
+                      supported languages and frameworks
+                    </Link>
+                    .
                   </p>
 
                   <MiniCode />
@@ -288,10 +293,14 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <h3 className={stepTitleClass}>Generate</h3>
+                  <h3 className={stepTitleClass}>Generate requests</h3>
 
                   <p className={stepBodyClass}>
-                    Turn them into a portable, human-readable request file.
+                    Your routes become clean, human-readable{" "}
+                    <code className="rounded-md border border-line bg-[rgba(21,19,27,0.7)] px-1.5 py-0.5 font-mono text-[0.9em] text-sun">
+                      .autocurl
+                    </code>{" "}
+                    files.
                   </p>
 
                   <MiniFile />
@@ -314,10 +323,11 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <h3 className={stepTitleClass}>Execute</h3>
+                  <h3 className={stepTitleClass}>Select and execute</h3>
 
                   <p className={stepBodyClass}>
-                    Pick a request and execute it directly from your terminal.
+                    Navigate requests using your keyboard arrow keys and execute
+                    them directly from the terminal.
                   </p>
 
                   <MiniRun />
@@ -336,6 +346,85 @@ export default function Home() {
             </div>
           </section>
 
+          {/* Example Section */}
+          <section
+            id="example"
+            aria-label="Example of generated requests"
+            className="py-16 md:py-24 scroll-mt-24"
+          >
+            <div className="max-w-280 mx-auto px-6">
+              <div className="reveal flex flex-col items-center text-center mb-10 md:mb-12">
+                <div className={pillClass}>
+                  <PillDot />
+                  Example
+                </div>
+              </div>
+
+              <div className="reveal grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-stretch gap-5 md:gap-4 lg:gap-5">
+                <div className={exampleCardClass}>
+                  <div className="flex items-center justify-between gap-3 mb-4">
+                    <h3 className="font-bold text-[18px] sm:text-[20px] tracking-[-0.02em]">
+                      From your code
+                    </h3>
+                    <span className={exampleTagClass}>JavaScript</span>
+                  </div>
+                  <pre className={examplePreClass}>
+                    <code>
+                      <span className="text-bone">app.</span>
+                      <span className="text-sky">get</span>
+                      <span className="text-mute">(</span>
+                      <span className="text-sun">&quot;/users/:id&quot;</span>
+                      <span className="text-mute">, </span>
+                      <span className="text-bone">getUser</span>
+                      <span className="text-mute">);</span>
+                      {"\n"}
+                      <span className="text-bone">app.</span>
+                      <span className="text-sky">post</span>
+                      <span className="text-mute">(</span>
+                      <span className="text-sun">&quot;/users&quot;</span>
+                      <span className="text-mute">, </span>
+                      <span className="text-bone">createUser</span>
+                      <span className="text-mute">);</span>
+                    </code>
+                  </pre>
+                </div>
+
+                <div
+                  className="hidden md:flex self-center font-mono text-mute text-xl"
+                  aria-hidden="true"
+                >
+                  <ArrowRight />
+                </div>
+
+                <div className={exampleCardClass}>
+                  <div className="flex items-center justify-between gap-3 mb-4">
+                    <h3 className="font-bold text-[18px] sm:text-[20px] tracking-[-0.02em]">
+                      Generated requests
+                    </h3>
+                    <span className={exampleTagClass}>.autocurl</span>
+                  </div>
+                  <pre className={examplePreClass}>
+                    <code>
+                      <span className="text-mute"># Get user</span>
+                      {"\n"}
+                      <span className="text-sky">GET</span>{" "}
+                      <span className="text-bone">http://localhost:3000/users/123</span>
+                      {"\n\n"}
+                      <span className="text-mute"># Create user</span>
+                      {"\n"}
+                      <span className="text-sky">POST</span>{" "}
+                      <span className="text-bone">http://localhost:3000/users</span>
+                    </code>
+                  </pre>
+                </div>
+              </div>
+
+              <p className="reveal mt-6 text-center text-mute text-[13px] sm:text-[14px]">
+                Illustrative example of the generated request format.
+              </p>
+            </div>
+          </section>
+
           {/* Why autocurl Section */}
           <section
             id="why"
@@ -346,44 +435,49 @@ export default function Home() {
               <div className="reveal flex flex-col items-center text-center">
                 <div className={pillClass}>
                   <PillDot />
-                  Philosophy
+                  API requests, generated from code
                 </div>
                 <h2 id="why-heading" className={`${h2Class} max-w-[16em]`}>
-                  Built to stay out of your way.
+                  Your code already has the API requests. AutoCURL brings them to
+                  your terminal.
                 </h2>
                 <p className={subheadClass}>
-                  Requests are stored as plain text in your project. Local discovery
-                  stays on your machine; when AI analysis is enabled, bounded source
-                  context is sent to Gemini using your key.
+                  AutoCURL scans your codebase, generates executable HTTP requests in
+                  readable{" "}
+                  <code className="rounded-md border border-line bg-[rgba(21,19,27,0.7)] px-1.5 py-0.5 font-mono text-[0.9em] text-sun">
+                    .autocurl
+                  </code>{" "}
+                  files, and lets you select and run any request right from your
+                  terminal.
                 </p>
               </div>
 
               <div className="mt-12 md:mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-5 lg:gap-7">
                 {[
                   {
-                    label: "Git-native",
-                    title: "Version-controlled by default",
-                    body: "The .autocurl file is plain text. Diffs and pull requests show exactly what changed — no JSON blobs, no binary formats.",
+                    label: "Code to requests",
+                    title: "Generate requests from your code",
+                    body: "AutoCURL scans your existing codebase, discovers API routes and automatically turns them into executable HTTP requests.",
                   },
                   {
-                    label: "Local-first",
-                    title: "Local by default",
-                    body: "Deterministic discovery stays local. Optional Gemini analysis sends bounded source context to Google when enabled.",
+                    label: "Multi-language",
+                    title: "Works with your stack",
+                    body: "Supports Python, Go, JavaScript and more, with integrations for popular web frameworks. Generate requests without changing how you build your APIs.",
                   },
                   {
                     label: "Human-readable",
-                    title: "Open the file, read the file",
-                    body: "Every .autocurl file is plain-text HTTP requests separated by comments. Inspect, edit, or share them in any text editor.",
+                    title: "Every request in one readable file",
+                    body: "AutoCURL generates .autocurl files with clean, plain-text HTTP requests. Read, inspect, edit and version-control them like any other code file.",
                   },
                   {
-                    label: "Zero lock-in",
-                    title: "Readable without autocurl installed",
-                    body: "Files are readable in any editor. Request execution and variable prompts are provided by the autocurl CLI.",
+                    label: "Keyboard-first",
+                    title: "Select and execute with your keyboard",
+                    body: "Navigate through your generated requests using the arrow keys, select the API you want to hit and execute it directly from your terminal.",
                   },
                   {
-                    label: "Lightweight",
-                    title: "One small CLI, instant startup",
-                    body: "A single prebuilt Go binary with no background process, no runtime to install, and no dependency on the system curl executable.",
+                    label: "CLI-native",
+                    title: "No GUI API client needed",
+                    body: "Generate and execute API requests right from your terminal. No separate desktop application or manually maintained collections.",
                   },
                 ].map((item, idx) => (
                   <div
@@ -624,6 +718,14 @@ const stepCardClass =
 const stepTitleClass = "font-bold text-[22px] sm:text-[24px] tracking-[-0.02em] mb-2";
 
 const stepBodyClass = "text-mute text-[15px] leading-[1.65] mb-6";
+
+const exampleCardClass = "surface rounded-[32px] p-5 sm:p-6 flex flex-col h-full min-w-0";
+
+const exampleTagClass =
+  "shrink-0 rounded-[10px] border border-line bg-[rgba(14,12,19,0.5)] px-2.5 py-1 font-mono text-[11px] text-sun";
+
+const examplePreClass =
+  "flex-1 overflow-x-auto rounded-[22px] border border-line bg-[rgba(14,12,19,0.86)] p-4 sm:p-5 font-mono text-[13px] sm:text-[14px] leading-[1.75]";
 
 const audienceCardClass = "surface rounded-[32px] p-6 sm:p-7 lg:p-8";
 
