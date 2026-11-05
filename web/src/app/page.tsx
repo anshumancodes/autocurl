@@ -158,9 +158,8 @@ export default function Home() {
                 can read.
               </h1>
               <p className="mt-6 sm:mt-7 mb-8 sm:mb-10 max-w-[36em] text-mute text-[16px] sm:text-[18px] leading-[1.65]">
-                Make agents run cURLs better without the JSON mess. autocurl
-                discovers routes in your backend code, writes them to a readable
-                .autocurl file, and runs any request from the terminal.
+                Generate cURLs directly from your code with one command and run
+                them all from one file.
               </p>
 
               {/* Action row */}
