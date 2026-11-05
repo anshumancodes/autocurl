@@ -3,6 +3,7 @@ import { Bricolage_Grotesque, JetBrains_Mono } from "next/font/google";
 import { RootProvider } from "fumadocs-ui/provider/next";
 import { siteConfig } from "@/lib/siteConfig";
 import { jsonLd } from "@/lib/seo";
+import CoffeeButton from "@/components/CoffeeButton";
 import "./globals.css";
 
 const bricolageGrotesque = Bricolage_Grotesque({
@@ -119,6 +120,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen flex flex-col antialiased">
         <RootProvider>{children}</RootProvider>
+        <CoffeeButton />
       </body>
     </html>
   );
