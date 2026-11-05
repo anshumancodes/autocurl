@@ -124,12 +124,14 @@ export default function Footer() {
                 </a>
               </li>
               <li>
-                <Link
-                  href="/pricing"
+                <a
+                  href="https://www.buymeacoffee.com/anshumancdx"
+                  target="_blank"
+                  rel="noreferrer"
                   className="hover:text-bone transition-colors no-underline"
                 >
-                  Pricing &amp; Support
-                </Link>
+                  Buy me a coffee
+                </a>
               </li>
             </ul>
           </div>
