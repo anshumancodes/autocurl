@@ -5,7 +5,7 @@ interface PageMetadataInput {
   /** Page title. Passed through the root "%s | autocurl" template unless `absoluteTitle` is set. */
   title: string;
   description: string;
-  /** Canonical path without trailing slash, e.g. "/pricing". */
+  /** Canonical path without trailing slash, e.g. "/docs". */
   path: string;
   /** Use the title verbatim instead of applying the site title template. */
   absoluteTitle?: boolean;
