@@ -11,7 +11,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const staticPages: MetadataRoute.Sitemap = [
     { url: baseUrl, changeFrequency: "weekly", priority: 1.0 },
-    { url: `${baseUrl}/pricing`, changeFrequency: "monthly", priority: 0.5 },
   ];
 
   const docPages: MetadataRoute.Sitemap = docsSource.getPages().map((page) => {
