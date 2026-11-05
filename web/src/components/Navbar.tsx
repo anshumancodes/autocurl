@@ -16,7 +16,6 @@ function GitHubIcon({ size = 16 }: { size?: number }) {
 const NAV_LINKS = [
   { href: "/#how", label: "How it works" },
   { href: "/docs", label: "Docs" },
-  { href: "/pricing", label: "Pricing" },
   { href: "/#install", label: "Install" },
 ];
 
