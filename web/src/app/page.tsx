@@ -146,11 +146,7 @@ export default function Home() {
         <section aria-label="Hero" className="px-3 sm:px-6 pt-[calc(10vh+12px)] sm:pt-[calc(10vh+16px)]">
           <div className="surface dot-grid relative mx-auto max-w-280 overflow-hidden rounded-[28px] lg:rounded-[52px]">
             <div className="relative mx-auto max-w-280 px-5 sm:px-10 pt-14 sm:pt-24 pb-5 sm:pb-8 flex flex-col items-center text-center">
-              <p className="inline-flex max-w-full shrink-0 items-center gap-2 sm:gap-2.5 whitespace-nowrap rounded-full border border-line bg-[rgba(21,19,27,0.7)] px-3 sm:px-3.5 py-1.5 font-mono text-sun text-[length:clamp(7px,calc((100vw_-_106px)_/_27),11px)] sm:text-[12px] font-semibold uppercase tracking-[0.04em] sm:tracking-[0.14em] mb-7 sm:mb-8">
-                <span className="relative flex h-1.5 w-1.5 shrink-0" aria-hidden="true">
-                  <span className="absolute inset-0 rounded-full bg-sun opacity-60 motion-safe:animate-ping" />
-                  <span className="relative h-1.5 w-1.5 rounded-full bg-sun" />
-                </span>
+              <p className="inline-flex max-w-full shrink-0 items-center whitespace-nowrap rounded-full border border-line bg-[rgba(21,19,27,0.7)] px-3 sm:px-3.5 py-1.5 font-mono text-sun text-[length:clamp(7px,calc((100vw_-_92px)_/_27),11px)] sm:text-[12px] font-semibold tracking-[0.04em] sm:tracking-[0.14em] mb-7 sm:mb-8">
                 CLI API testing for developers &amp; AI agents
               </p>
               <h1 className="max-w-[12.5em] font-extrabold text-[clamp(42px,7vw,92px)] leading-[1.04] tracking-[-0.04em]">
